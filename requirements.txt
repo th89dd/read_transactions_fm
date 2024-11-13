@@ -1,0 +1,15 @@
+pandas
+numpy
+pdfplumber
+
+opencv-python
+easyocr
+matplotlib
+
+#--extra-index-url https://pypi.ngc.nvidia.com
+#nvidia-pyindex
+#nvidia-cuda-runtime-cu12
+
+undetected_chromedriver
+
+pytesseract
