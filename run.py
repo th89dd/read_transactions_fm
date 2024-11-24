@@ -7,7 +7,7 @@
 """
 
 # -------- start import block ---------
-from WebCrawler.WebCrawler import TradeRepublic, ArivaKurse, Amex
+from WebCrawler import TradeRepublic, ArivaKurse, Amex
 
 # -------- end import block ---------
 

@@ -7,7 +7,12 @@
 """
 
 # -------- start import block ---------
-import time
+# from WebCrawler.AmexCrawler import Amex
+# from WebCrawler.ArivaCrawler import ArivaKurse
+# from WebCrawler.TradeRepublicCrawler import TradeRepublic
+from AmexCrawler import  Amex
+from ArivaCrawler import ArivaKurse
+from TradeRepublicCrawler import TradeRepublic
 
 # -------- end import block ---------
 
