@@ -8,9 +8,6 @@
 !/credentials_ariva_example.txt
 
 # stuff to ignore
-/out/
+/out
 /backup
-
-
-
 
