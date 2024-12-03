@@ -12,8 +12,8 @@ xlrd
 #nvidia-pyindex
 #nvidia-cuda-runtime-cu12
 
-undetected_chromedriver
+# undetected_chromedriver
 selenium
-webdriver-manager
+# webdriver-manager
 
 # pytesseract
