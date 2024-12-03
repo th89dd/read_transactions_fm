@@ -40,8 +40,8 @@ class WebCrawler(object):
     WebCrawler is a main class to download bank data
     """
     def __init__(self, output_path='out',
-                 start_date=pd.to_datetime('today').strftime('%d.%m.%Y'),
-                 end_date=(pd.to_datetime('today') - pd.DateOffset(months=6)).strftime('%d.%m.%Y'),
+                 start_date=pd.to_datetime('today'),
+                 end_date=(pd.to_datetime('today') - pd.DateOffset(months=6)),
                  autosave=True,
                  ):
         """
@@ -59,8 +59,9 @@ class WebCrawler(object):
         self.__name = 'WebCrawler'
         self.__output_path = output_path  # output path
         self.__autosave = autosave  # weather to save the data or not
-        self.__start_date = start_date
-        self.__end_date = end_date
+        self.start_date = start_date
+        self.end_date = end_date
+        self.account_balance = None
 
         self.__credentials_file = 'credentials.txt'
         self.__credentials = dict()  # dictionary to store credentials
@@ -76,7 +77,7 @@ class WebCrawler(object):
             # clear output directory
             self.logger.info(f'Output directory created: {self.__output_path}')
         # delete all files in the output directory
-        [os.remove(os.path.join(self.__output_path, f)) for f in os.listdir(self.__output_path) if os.path.isfile(os.path.join(self.__output_path, f))]
+        # [os.remove(os.path.join(self.__output_path, f)) for f in os.listdir(self.__output_path) if os.path.isfile(os.path.join(self.__output_path, f))]
 
         # create temporary directory
         self._download_directory = tempfile.mkdtemp()
@@ -85,10 +86,22 @@ class WebCrawler(object):
         # initialize webdriver
         # options = uc.ChromeOptions()
         options = webdriver.EdgeOptions()
-        # options.add_argument('--headless')
+        # options.add_argument('--disable-gpu')
+        # options.add_argument("--disable-software-rasterizer")  # Software-Rendering deaktivieren
+        options.add_argument("--log-level=3")  # Weniger Logs, nur kritische Fehler
+        # options.add_argument("--disable-renderer-backgrounding")
+        # options.add_argument("--renderer-process-limit=1")  # Weniger Prozesse
+        # options.add_argument("--disable-accelerated-2d-canvas")  # Kein Hardware-Canvas
+        # options.add_argument("--disable-accelerated-video-decode")
+        # options.add_argument("--enable-software-compositing")
+        # options.add_argument('--headless')  # ohne browserfenster -> funktioniert zB bei TR nicht (scrollen erforderlich, Banner wird nicht gefunden)
         # options.add_argument('--start-minimized')
         # Setze einige Optionen, um die Automatisierung weniger erkennbar zu machen
         options.add_argument("--disable-blink-features=AutomationControlled")
+        # options.add_argument("--allow-running-insecure-content")  # unsichere Protokolle aktivieren
+        # options.add_argument("--ignore-certificate-errors")  # SSL-Zertifikatsfehler ignorieren
+        # options.add_argument("--allow-insecure-localhost")   # Für lokale unsichere Zertifikate
+
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         options.add_experimental_option("prefs", {
@@ -127,7 +140,9 @@ class WebCrawler(object):
         """
         try:
             self.__data.to_csv(os.path.join(self.__output_path, '{}.csv'.format(self.__name)), sep=";", index=False)
-            self.logger.info('Data saved to {}'.format(os.path.join(self.__output_path, '{}.csv'.format(self.__name))))
+            # self.logger.info('Data saved to {}'.format(os.path.join(self.__output_path, '{}.csv'.format(self.__name))))
+            # self.logger.info('Data saved to {}'.format(os.path.abspath(os.path.join(self.__output_path, '{}.csv'.format(self.__name)))))
+            self.logger.info('Data saved to {}'.format(os.path.abspath('{}.csv'.format(self.__name))))
         except Exception as e:
             self.logger.error('Error saving data', exc_info=True)
 
@@ -141,6 +156,10 @@ class WebCrawler(object):
         shutil.rmtree(self._download_directory)
         self.logger.info('Temporary directory removed: {}'.format(self._download_directory))
         self.logger.info('{} closed'.format(self.__name))
+
+    def error_close(self):
+        self.close()
+        os._exit(1)
 
     def perform_download(self):
         """
@@ -183,9 +202,18 @@ class WebCrawler(object):
                         file_content[f] = df
                         logging.debug(df.head())
                         logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
+                    elif f.endswith(".xls"):
+                        logging.debug(f"Excel-Datei gefunden: {f}")
+                        downloaded_file = os.path.join(self._download_directory, f)
+                        df = pd.read_excel(downloaded_file, engine='xlrd')
+                        file_content[f] = df
+                        logging.debug(df.head())
+                        logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
                 self.__data = file_content
+                return True
             else:
                 logging.info("Keine Datei im temporären Verzeichnis gefunden.")
+                return False
         except Exception as e:
             self.logger.error("Fehler beim Einlesen der heruntergeladenen Dateien", exc_info=True)
 
@@ -240,9 +268,25 @@ class WebCrawler(object):
     def start_date(self):
         return self.__start_date
 
+    @start_date.setter
+    def start_date(self, value):
+        try:
+            date = pd.to_datetime(value, format='%d.%m.%Y')
+        except ValueError:
+            raise ValueError('Start date must be in the format dd.mm.yyyy')
+        self.__start_date = date
+
     @property
     def end_date(self):
         return self.__end_date
+
+    @end_date.setter
+    def end_date(self, value):
+        try:
+            date = pd.to_datetime(value, format='%d.%m.%Y')
+        except ValueError:
+            raise ValueError('End date must be in the format dd.mm.yyyy')
+        self.__end_date = date
 
     @property
     def urls(self) -> dict:

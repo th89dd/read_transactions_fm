@@ -8,20 +8,15 @@
 
 # -------- start import block ---------
 import time
-from Base import *
+from WebCrawler.Base import *
 
 
 # -------- end import block ---------
 
 
 class Amex(WebCrawler):
-    def __init__(self, output_path='out/amex',
-                 start_date=pd.to_datetime('today').strftime('%d.%m.%Y'),
-                 end_date=(pd.to_datetime('today') - pd.DateOffset(months=6)).strftime('%d.%m.%Y'),
-                 perform_download=True,
-                 autosave=True,
-                 ):
-        super().__init__(output_path, start_date, end_date, autosave)
+    def __init__(self, perform_download=True, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.__verified = False
         self.name = 'AmexTransaction'
         self.credentials_file = 'credentials_amex.txt'
@@ -96,13 +91,13 @@ class Amex(WebCrawler):
             # date_input.clear()
             date_input.send_keys(Keys.CONTROL + "a")  # Wählt den gesamten Text aus
             # date_input.send_keys(Keys.BACKSPACE)  # Löscht den ausgewählten Text
-            date_input.send_keys(pd.to_datetime(self.end_date, format="%d.%m.%Y").strftime("%d/%m/%Y"))
+            date_input.send_keys(self.end_date.strftime("%d/%m/%Y"))
 
             date_input = wait.until(EC.element_to_be_clickable((By.ID, "endDate")))
             # date_input.clear()
             date_input.send_keys(Keys.CONTROL + "a")  # Wählt den gesamten Text aus
             # date_input.send_keys(Keys.BACKSPACE)  # Löscht den ausgewählten Text
-            date_input.send_keys(pd.to_datetime(self.start_date, format="%d.%m.%Y").strftime("%d/%m/%Y"))
+            date_input.send_keys(self.start_date.strftime("%d/%m/%Y"))
 
             # button suchen drücken
             search_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Suchen']")))

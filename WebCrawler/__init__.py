@@ -7,12 +7,13 @@
 """
 
 # -------- start import block ---------
-# from WebCrawler.AmexCrawler import Amex
-# from WebCrawler.ArivaCrawler import ArivaKurse
-# from WebCrawler.TradeRepublicCrawler import TradeRepublic
-from AmexCrawler import  Amex
-from ArivaCrawler import ArivaKurse
-from TradeRepublicCrawler import TradeRepublic
+from WebCrawler.AmexCrawler import Amex
+from WebCrawler.ArivaCrawler import ArivaKurse
+from WebCrawler.TradeRepublicCrawler import TradeRepublic
+from WebCrawler.AmazonZiniaCrawler import AmazonVisa
+# from AmexCrawler import  Amex
+# from ArivaCrawler import ArivaKurse
+# from TradeRepublicCrawler import TradeRepublic
 
 # -------- end import block ---------
 

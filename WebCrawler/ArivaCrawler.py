@@ -7,27 +7,17 @@
 """
 
 # -------- start import block ---------
-from Base import *
+from WebCrawler.Base import *
 
 # -------- end import block ---------
 
 
 class ArivaKurse(WebCrawler):
-    def __init__(self, output_path='out/kurse',
-                 start_date=pd.to_datetime('today').strftime('%d.%m.%Y'),
-                 end_date=(pd.to_datetime('today') - pd.DateOffset(months=6)).strftime('%d.%m.%Y'),
-                 perform_download=True,
-                 autosave=True,
-                 ):
-        super().__init__(output_path, start_date, end_date, autosave)
+    def __init__(self, perform_download=True, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.name = 'ArivaKurse'
         self.credentials_file = 'credentials_ariva.txt'
 
-        self._read_credentials()
-        user = self.credentials.pop('user')
-        password = self.credentials.pop('password')
-        self.urls = self.credentials.copy()
-        self.credentials = {'user': user, 'password': password}
         # self.urls = {
         #     'apple': 'https://www.ariva.de/aktien/apple-aktie/kurse/historische-kurse',
         #     'msci_world': 'https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc/kurse/historische-kurse',
@@ -99,11 +89,11 @@ class ArivaKurse(WebCrawler):
 
                 start_date_field = self.driver.find_element(By.ID, "minTime")
                 start_date_field.clear()
-                start_date_field.send_keys(self.end_date)
+                start_date_field.send_keys(self.end_date.strftime('%d.%m.%Y'))
 
                 end_date_field = self.driver.find_element(By.ID, "maxTime")
                 end_date_field.clear()
-                end_date_field.send_keys(self.start_date)
+                end_date_field.send_keys(self.start_date.strftime('%d.%m.%Y'))
 
                 delimiter_field = self.driver.find_element(By.ID, "trenner")
                 delimiter_field.clear()
@@ -158,6 +148,22 @@ class ArivaKurse(WebCrawler):
         """
         return filename.split('_')[1]
 
+    def _read_credentials(self):
+        super()._read_credentials()
+        user = self.credentials.pop('user')
+        password = self.credentials.pop('password')
+        self.urls = self.credentials.copy()
+        self.credentials = {'user': user, 'password': password}
+
 
 if __name__ == '__main__':
-    pass
+    from WebCrawler.ArivaCrawler import ArivaKurse
+    ariva = ArivaKurse(start_date='1.11.2024', perform_download=False, output_path='../out')  # if perform_download is True, the following steps will done automatically
+    ariva.end_date = '13.10.2024'  # you can also set the date by property, not only by constructor
+    ariva.credentials_file = '../credentials_ariva.txt'  # if you want to use another credentials file or path
+    ariva._read_credentials()
+    ariva.login()
+    ariva.download_data()
+    ariva.close()
+    ariva.process_data()
+    ariva.save_data()
