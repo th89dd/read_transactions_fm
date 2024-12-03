@@ -5,9 +5,10 @@
 :date: 24.11.2024
 :organisation: TU Dresden, FZM
 """
+import time
 
 # -------- start import block ---------
-from Base import *
+from WebCrawler.Base import *
 
 # -------- end import block ---------
 
@@ -16,12 +17,7 @@ class TradeRepublic(WebCrawler):
     """
     TradeRepublic is a class to download tansaction data from the online banking platform Traderepublic
     """
-    def __init__(self, output_path='out/traderepublic',
-                 start_date=pd.to_datetime('today').strftime('%d.%m.%Y'),
-                 end_date=(pd.to_datetime('today') - pd.DateOffset(months=6)).strftime('%d.%m.%Y'),
-                 perform_download=True,
-                 autosave=True,
-                 ):
+    def __init__(self, perform_download=True, *args, **kwargs):
         """
         Initializes the TradeRepublic class with the specified output path
         and the specified start and end dates.
@@ -34,7 +30,7 @@ class TradeRepublic(WebCrawler):
             autosave (bool): Whether to save downloaded data to the output directory. Default is True.
         """
 
-        super().__init__(output_path, start_date, end_date, autosave)
+        super().__init__(*args, **kwargs)
         self.name = 'TradeRepublicTransactions'
         self.credentials_file = 'credentials_traderepublic.txt'
         self.urls = {
@@ -58,47 +54,14 @@ class TradeRepublic(WebCrawler):
         self.handle_cookie_banner()
         # Jetzt das Fenster minimieren
         self.driver.minimize_window()
-        # user name
-        try:
-            username_field = WebDriverWait(self.driver, wait_sec).until(EC.presence_of_element_located((By.ID, "loginPhoneNumber__input")))
-            username_field.send_keys(self.credentials['user'])
-            username_field.send_keys(Keys.RETURN)
-            self.logger.debug("Usename wurde eingegeben und Formular abgeschickt.")
-        except Exception as e:
-            self.logger.error("Fehler beim Ausfüllen des Benutzernamens", exc_info=True)
 
-        try:
-            # Wait until the fieldset is present
-            fieldset = WebDriverWait(self.driver, wait_sec).until(
-                EC.presence_of_element_located((By.ID, "loginPin__input"))
-            )
-            # Find all input fields within the fieldset
-            pin_inputs = fieldset.find_elements(By.CLASS_NAME, "codeInput__character")
-            pin = self.credentials['password']  #[0:2]
+        # user
+        self.__user_input()
+        # passwort
+        self.__pwd_input()
 
-            # Enter each digit into the corresponding input field
-            for i, digit in enumerate(pin):
-                pin_inputs[i].send_keys(digit)
-        except Exception as e:
-            self.logger.error("Fehler beim Login: Eingabe der PIN", exc_info=True)
-
-        try:
-            # Wait until the fieldset is present
-            fieldset = WebDriverWait(self.driver, 5).until(
-                EC.presence_of_element_located((By.ID, "smsCode__input"))
-            )
-            # Find all input fields within the fieldset
-            pin_inputs = fieldset.find_elements(By.CLASS_NAME, "codeInput__character")
-
-            # Prompt the user to enter the four digits
-            pin = input("Bitte geben Sie den 4-stellige SMS-Code ein: ")
-
-            # Enter each digit into the corresponding input field
-            for i, digit in enumerate(pin):
-                pin_inputs[i].send_keys(digit)
-
-        except Exception as e:
-            self.logger.error("Fehler bei der Eingabe des SMS-Codes", exc_info=True)
+        # 2 faktor authentifizierung
+        self.__identify()
 
     def download_data(self):
         try:
@@ -180,7 +143,7 @@ class TradeRepublic(WebCrawler):
                             datum = '{date}{year}'.format(date=datum.strip(), year=year)
 
                         # Prüfen, ob das Datum in der gewünschten Zeitspanne liegt
-                        if pd.to_datetime(datum, format='%d.%m.%Y') < pd.to_datetime(self.end_date, format='%d.%m.%Y'):
+                        if pd.to_datetime(datum, format='%d.%m.%Y') < self.end_date:
                             break
                     else:
                         datum = 'N/A'
@@ -235,6 +198,115 @@ class TradeRepublic(WebCrawler):
         except Exception as e:
             logging.error(f"Fehler beim Suchen des Buttons im Cookie-Banner: {e}")
 
+    # ----------------------------------------------------------------
+    # --------------------- private methods -------------------------
+    def __user_input(self):
+        wait_sec = 10
+        try:
+            username_field = WebDriverWait(self.driver, wait_sec).until(EC.presence_of_element_located((By.ID, "loginPhoneNumber__input")))
+            username_field.send_keys(self.credentials['user'])
+            username_field.send_keys(Keys.RETURN)
+            self.logger.debug("Usename wurde eingegeben und Formular abgeschickt.")
+        except Exception as e:
+            self.logger.error("Fehler beim Ausfüllen des Benutzernamens", exc_info=True)
+
+    def __pwd_input(self):
+        wait_sec = 10
+        try:
+            # Wait until the fieldset is present
+            fieldset = WebDriverWait(self.driver, wait_sec).until(
+                EC.presence_of_element_located((By.ID, "loginPin__input"))
+            )
+            # Find all input fields within the fieldset
+            pin_inputs = fieldset.find_elements(By.CLASS_NAME, "codeInput__character")
+            pin = self.credentials['password']  #[0:2]
+
+            # Enter each digit into the corresponding input field
+            for i, digit in enumerate(pin):
+                pin_inputs[i].send_keys(digit)
+        except Exception as e:
+            self.logger.error("Fehler beim Login: Eingabe der PIN", exc_info=True)
+
+    def __identify(self):
+        wait_sec = 10
+        wait = WebDriverWait(self.driver, wait_sec)
+        try:
+            # Wait until the fieldset is present
+            fieldset = wait.until(
+                EC.presence_of_element_located((By.ID, "smsCode__input"))
+            )
+            # Find all input fields within the fieldset
+            pin_inputs = fieldset.find_elements(By.CLASS_NAME, "codeInput__character")
+
+            # Prompt the user to enter the four digits
+            pin = self.__get_sms_code()
+
+            # Enter each digit into the corresponding input field
+            for i, digit in enumerate(pin):
+                pin_inputs[i].send_keys(digit)
+
+        except Exception as e:
+            self.logger.error("Fehler bei der Eingabe des SMS-Codes", exc_info=True)
+            self.error_close()
+
+    def __get_sms_code(self):
+        # Prompt the user to enter the four digits
+
+        pin = input("Bitte geben Sie den 4-stellige Verifizierungs-Code ein, der über die APP angezeigt wird oder SMS, falls du die via SMS-Code verifizieren möchtest:")
+        if pin == 'SMS':
+            return self.__verify_by_sms()
+        else:
+            return pin
+
+    def __verify_by_sms(self):
+        sms_ready = False
+        self.driver.maximize_window()
+        time.sleep(0.5)
+        self.driver.minimize_window()
+        while not sms_ready:
+                timer_value_s = self.__read_timer()
+                if timer_value_s == '0':
+                    self.__send_sms_code()
+                    sms_ready = True
+                else:
+                    self.logger.info("SMS-Code wird in systembedingt erst in {} Sekunden gesendet.".format(timer_value_s))
+                    time.sleep(2)
+        pin = input("Bitte geben Sie den 4-stellige SMS-Code ein oder erneut SMS, falls sie das Verfahren neu starten möchten:")
+        if pin == 'SMS':
+            self.__verify_by_sms()
+        else:
+            return pin
+
+    def __read_timer(self):
+        try:
+            # Wait until the timer element is present
+            wait = WebDriverWait(self.driver, 2)
+            timer_element = wait.until(EC.presence_of_element_located((By.XPATH, "//button[@class='trLink smsCode__resendCode']//span[@role='timer']")))
+
+            # Read the timer value
+            timer_value = timer_element.text
+            return timer_value
+
+        except TimeoutException:
+            return '0'
+
+        except Exception as e:
+            self.logger.error("Error identifying or reading the timer.", exc_info=True)
+            self.error_close()
+
+    def __send_sms_code(self):
+        try:
+            # Wait until the button is present and clickable
+            wait = WebDriverWait(self.driver, 10)
+            button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[@class='trLink smsCode__resendCode']//span[text()='Code als SMS senden']")))
+            button.click()
+        except Exception as e:
+            self.logger.error("Error sending the SMS code.", exc_info=True)
+            self.error_close()
+
+
+    # ----------------------------------------------------------------
+    # --------------------- static methods ---------------------------
     @staticmethod
     def find_umbuchungen(text):
         """
@@ -248,4 +320,13 @@ class TradeRepublic(WebCrawler):
 
 
 if __name__ == '__main__':
-    pass
+    tr = TradeRepublic(perform_download=False)
+    tr.credentials_file = '../credentials_traderepublic.txt'  # if you want to use another credentials file or path
+    tr._read_credentials()
+    tr.login()
+    # tr.download_data()
+    # tr.close()
+
+    # wait = WebDriverWait(tr.driver, 10)
+    # timer_element = wait.until(EC.presence_of_element_located((By.XPATH, "//button[@class='trLink smsCode__resendCode']//span[@role='timer']")))
+    # button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[@class='trLink smsCode__resendCode']//span[text()='Code als SMS senden']")))
