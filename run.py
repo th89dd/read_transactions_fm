@@ -7,17 +7,14 @@
 """
 
 # -------- start import block ---------
-from WebCrawler import TradeRepublic, ArivaKurse, Amex
+from WebCrawler import TradeRepublic, ArivaKurse, Amex, AmazonVisa
 
 # -------- end import block ---------
 
 
 if __name__ == '__main__':
-    # a = ArivaKurse(autosave=False, perform_download=False)
-    # a._read_credentials()
-    # a.login()
-    # a.download_data()
-    ariva = ArivaKurse()
-    traderepublic = TradeRepublic()
+    kurse = ArivaKurse()
+    tr = TradeRepublic()
     amex = Amex()
+    amazon = AmazonVisa()
 

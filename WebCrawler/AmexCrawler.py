@@ -64,7 +64,7 @@ class Amex(WebCrawler):
         # SMS Authentifizierung
         # Verifizierungscode (email, sms ...)
         try:
-            # self.driver.minimize_window()
+            self.driver.minimize_window()
 
             self.__verify_identity()
 
