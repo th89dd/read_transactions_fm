@@ -12,9 +12,19 @@ von verschiedenen Finanzdienstleistern abzurufen und
 anschließend in ein einheitliches Format zu bringen, 
 um diese in das Tool Finanzmanager importieren zu können. 
 
+Alle abgeholten Umsätze werden nach Dienstleister sortiert in CSV-Files im Folder [out](out) gespeichert.
+
+Die CSV-Dateien können anschließend zB im Finanzmanager importiert werden.
+Dazu über Datei -> Export/Import -> Datenimport  -> **Umsätze** über den Dialog importieren.
+
+Zur einfacheren Verwendung, lohnt es sich Vorlagen zu erzeugen, damit die Umsätze schneller in den Finanzmanager importiert werden können. Das kann  im Rahmen des Dialogs erfolgen.
+Zur einfacheren Verwendung habe ich meine [Vorlagen](Vorlagen.dat) angehängt.
+
 ## Content
-1. [Installation](#setting-up-python-environment)
+1. [Installation/Setting-up python](#setting-up-python-environment)
+2. [Use the main script](#use-the-main-script)
 2. [Use Ariva Crawler](#use-ariva-crawler)
+3. [Use the other Crawler](#use-the-other-crawler)
 
 
 ## Setting-up Python Environment
@@ -38,10 +48,37 @@ um diese in das Tool Finanzmanager importieren zu können.
     pip install -r requirements.txt
     ```
 
+## Use the Main Script
+you can use the main script to run all configured crawler at once
+1. Create all credential files for the crawler you want to use  
+see [Use Ariva Crawler](#use-ariva-crawler) and [Use the other Crawler](#use-the-other-crawler) for details
+
+2. Configure all crawler in the [run.py file](run.py) in the main folder
+   - you can add or remove crawler by adding or removing the following lines or comment them out with `#`:
+    ```python
+    kurse = ArivaKurse()  # Ariva Kurse - comment in or comment out (with #) if you didnt want to use
+    tr = TradeRepublic()  # Trade Republic
+    amex = Amex()  # American Express
+    amazon = AmazonVisa()  # new Amazon Visa by Zinia (2024)
+    ```
+   - example if you dont want to use AmericanExpress:
+    ```python
+    kurse = ArivaKurse()  # Ariva Kurse - comment in or comment out (with #) if you didnt want to use
+    tr = TradeRepublic()  # Trade Republic
+    # amex = Amex()  # American Express
+    amazon = AmazonVisa()  # new Amazon Visa by Zinia (2024)
+    ```
+3. Run the main script:
+   - open a terminal in the project folder and run:
+    ```bash
+    start.bat
+    ```
+   - the script will run all configured crawler and save the data in the [out](out) folder
+
 ## Use Ariva Crawler
 1. Make a ariva.de account
-    - go to [ariva.de](https://www.ariva.de/registrierung/)
-    - fill out the form and create an account
+   - go to [ariva.de](https://www.ariva.de/registrierung/)
+   - fill out the form and create an account
    - save your credentials
 2. Create a file named `credentials_ariva.txt` in the root folder of the project
    - you can use the [example_file](credentials_ariva_example.txt) as template
@@ -56,7 +93,7 @@ um diese in das Tool Finanzmanager importieren zu können.
       name: link to ariva.de
       ``` 
    
-   - the name can be anything you want, but the link must be a valid link to the security on ariva.de
+   - the *name* can be anything you want, but the *link* must be a valid link to the security on ariva.de
    for example:
      ```
      MyStockApple: https://www.ariva.de/apple-aktie
@@ -84,5 +121,18 @@ um diese in das Tool Finanzmanager importieren zu können.
     ariva.close()
     ariva.process_data()
     ariva.save_data()      
-````
+   ````
+
+## Use the other crawler
+1. Create a file named `credentials_<crawler>.txt` in the root folder of the project
+   - you can use the [example_file](credentials_example.txt) as template
+   - add your credentials to the file in the following format:
+     ```
+     username: your_username
+     password: your_password
+     ```
+2. Run the crawler:
+   - the crawler is used in the same way as the ariva crawler
+   - see [use ariva crawler](#use-ariva-crawler) for more information
+
 
