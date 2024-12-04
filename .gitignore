@@ -3,7 +3,8 @@
 /venv/
 
 # personal credentials
-/credentials_*.txt
+credentials_*.txt
+
 !/credentials_example.txt
 !/credentials_ariva_example.txt
 
