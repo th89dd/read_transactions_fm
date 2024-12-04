@@ -2,11 +2,12 @@
 /.idea
 /venv/
 
-# personal credentials
-credentials_*.txt
-
 !/credentials_example.txt
 !/credentials_ariva_example.txt
+# personal credentials
+credentials_*.txt
+credentials_amazon.txt
+
 
 # stuff to ignore
 /out
