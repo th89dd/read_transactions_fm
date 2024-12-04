@@ -7,6 +7,12 @@
 
 # Readme zur Scripsammlung "read transactions" für Finanzmanagerimport
 
+Aktuell unterstützt:
+- **Aktienkurse von Ariva**
+- **Umsätze von Trade Republic**
+- **Umsätze von American Express**
+- **Umsätze von Amazon Visa (Zinia)**
+
 Diese Scriptsammlung dient dazu, Transaktionen via "WebCrawler" 
 von verschiedenen Finanzdienstleistern abzurufen und 
 anschließend in ein einheitliches Format zu bringen, 
