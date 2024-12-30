@@ -97,7 +97,8 @@ class AmazonVisa(WebCrawler):
 
         try:
             # filter öffnen
-            filter_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[@class='sc-kHhbVh hqiEPQ' and text()='Filter']")))
+            filter_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div/aside/a[1]/span[1]/span')))
+            # filter_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[@class='sc-kHhbVh hqiEPQ' and text()='Filter']")))
             filter_button.click()
 
             self.driver.maximize_window()
