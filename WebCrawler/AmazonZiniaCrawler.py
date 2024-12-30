@@ -158,7 +158,7 @@ class AmazonVisa(WebCrawler):
                 df = value.copy()
                 merged_df = pd.concat([merged_df, df], ignore_index=True)
 
-            self.data = merged_df.iloc[10:].rename(columns=merged_df.iloc[9]).dropna()
+            self.data = merged_df.iloc[10:].rename(columns=merged_df.iloc[9]).dropna(subset=['Datum'])
         except Exception:
             self.logger.error("Fehler beim Zusammenführen der Daten", exc_info=True)
 
