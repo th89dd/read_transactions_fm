@@ -14,8 +14,7 @@ from WebCrawler.Base import *
 
 class ArivaKurse(WebCrawler):
     def __init__(self, perform_download=True, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.name = 'ArivaKurse'
+        super().__init__(name='ArivaKurse', *args, **kwargs)
         self.credentials_file = 'credentials_ariva.txt'
 
         # self.urls = {

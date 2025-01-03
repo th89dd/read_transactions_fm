@@ -10,15 +10,13 @@
 import time
 from WebCrawler.Base import *
 
-
 # -------- end import block ---------
 
 
 class Amex(WebCrawler):
     def __init__(self, perform_download=True, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(name='AmexTransaction',*args, **kwargs)
         self.__verified = False
-        self.name = 'AmexTransaction'
         self.credentials_file = 'credentials_amex.txt'
         self.urls = {
             'login': 'https://www.americanexpress.com/de-de/account/login',

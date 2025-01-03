@@ -30,8 +30,7 @@ class TradeRepublic(WebCrawler):
             autosave (bool): Whether to save downloaded data to the output directory. Default is True.
         """
 
-        super().__init__(*args, **kwargs)
-        self.name = 'TradeRepublicTransactions'
+        super().__init__(name='TradeRepublicTransactions', *args, **kwargs)
         self.credentials_file = 'credentials_traderepublic.txt'
         self.urls = {
             'login': 'https://app.traderepublic.com/login',
