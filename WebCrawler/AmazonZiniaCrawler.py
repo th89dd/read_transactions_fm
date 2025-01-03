@@ -22,15 +22,13 @@ from WebCrawler.Base import *
 class AmazonVisa(WebCrawler):
 
     def __init__(self, perform_download=True, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(name='AmazonTransactions',*args, **kwargs)
         self.__verified = False
-        self.name = 'AmazonTransactions'
         self.credentials_file = 'credentials_amazon.txt'
         self.urls = {
             'login': 'https://customer.amazon.zinia.de/login',
             'transactions': 'https://customer.amazon.zinia.de/transactions',
         }
-
         if perform_download:
             self.perform_download()
 
@@ -202,8 +200,7 @@ class AmazonVisa(WebCrawler):
 
 
 if __name__ == '__main__':
-    pass
-    # amazon = AmazonVisa(perform_download=False, output_path='../out')
+    amazon = AmazonVisa(perform_download=False, output_path='../out')
     # amazon.credentials_file = '../credentials_amazon.txt'
     # amazon._read_credentials()
     # amazon.login()
@@ -218,4 +215,5 @@ if __name__ == '__main__':
     # downloaded_file = os.path.join(amazon._download_directory, files_in_dir[0])
     # df = pd.read_excel(downloaded_file, engine='openpyxl')
     # df = pd.read_excel(downloaded_file, engine="xlrd")
+    pass
 

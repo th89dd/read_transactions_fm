@@ -12,10 +12,13 @@ import os
 import shutil
 import time
 import threading
+import logging
+import json
+
 # data handling
 import tempfile
 import pandas as pd
-import logging
+
 # web scraping
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -30,19 +33,68 @@ from selenium.common.exceptions import TimeoutException
 # time format
 import locale
 locale.setlocale(locale.LC_TIME, 'de_DE.UTF-8')
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 # -------- end import block ---------
+
+
+class JsonFormatter(logging.Formatter):
+    def format(self, record):
+        log_record = {
+            "time": self.formatTime(record, self.datefmt),
+            "level": record.levelname,
+            "name": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "line": record.lineno,
+        }
+        if record.exc_info:  # Fehler/Exception hinzufügen
+            log_record["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_record)
+
+def configure_logger(name: str, log_file: str = "../logs/webcrawler.json", level=logging.INFO):
+    """
+    Configures the logger for the WebCrawler
+    Parameters:
+        - name (str): Name of the logger
+        - log_file (str): Path to the log file
+        - level (int): Logging level
+    Returns:
+        - logger (logging.Logger): Logger object
+    """
+
+    # log_file pfad erzeugen
+    log_file_path = os.path.abspath(log_file)
+    if not os.path.exists(os.path.dirname(log_file_path)):
+        os.makedirs(os.path.dirname(log_file_path))
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    formatter = JsonFormatter()
+
+    # FileHandler (JSON-Datei)
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    # Optional: Konsolen-Handler für Standardausgabe (Lesbarkeit)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(console_handler)
+
+    return logger
 
 
 class WebCrawler(object):
     """
     WebCrawler is a main class to download bank data
     """
-    def __init__(self, output_path='out',
+    def __init__(self, name='WebCrawler', output_path='out',
                  start_date=pd.to_datetime('today'),
                  end_date=(pd.to_datetime('today') - pd.DateOffset(months=6)),
                  autosave=True,
+                 logging_level=logging.INFO,
                  ):
         """
         Initializes the WebCrawler with the specified output path
@@ -56,7 +108,7 @@ class WebCrawler(object):
         """
 
         # initialize variables
-        self.__name = 'WebCrawler'
+        self.__name = name  # name of the WebCrawler
         self.__output_path = output_path  # output path
         self.__autosave = autosave  # weather to save the data or not
         self.start_date = start_date
@@ -68,8 +120,11 @@ class WebCrawler(object):
         self.__urls = dict()  # dictionary to store urls
         self.__data = pd.DataFrame()  # data frame to store the downloaded data
 
+        self._state = None  # state of the WebCrawler
+
         # set up logging
-        self.logger = logging.getLogger(__name__)
+        self.logger = configure_logger(self.__name, level=logging_level)
+        self.logger.info('initialized')
 
         # create output directory if it does not exist
         if not os.path.exists(self.__output_path):
@@ -113,6 +168,8 @@ class WebCrawler(object):
         # self.driver = uc.Chrome(options=options)
         self.driver = webdriver.Edge(options=options)
 
+        self._state = 'initialized'
+
     # ----------------------------------------------------------------
     # ----------------------- public methods ------------------------
     def login(self):
@@ -120,18 +177,21 @@ class WebCrawler(object):
         Logs in to the online banking platform.
         Note that you need to import the credentials from a file bevor calling this method.
         """
+        self._state = 'login'
         pass
 
     def download_data(self):
         """
         Downloads the data from the online banking platform
         """
+        self._state = 'download_data'
         pass
 
     def process_data(self):
         """
         Processes the downloaded data
         """
+        self._state = 'process_data'
         pass
 
     def save_data(self):
@@ -146,6 +206,8 @@ class WebCrawler(object):
         except Exception as e:
             self.logger.error('Error saving data', exc_info=True)
 
+        self._state = 'save_data'
+
     def close(self):
         """
         Closes the webdriver and the temporary directory
@@ -156,10 +218,12 @@ class WebCrawler(object):
         shutil.rmtree(self._download_directory)
         self.logger.info('Temporary directory removed: {}'.format(self._download_directory))
         self.logger.info('{} closed'.format(self.__name))
+        self._state = 'closed'
 
     def error_close(self):
         self.close()
         os._exit(1)
+        self.logger.error('WebCrawler closed due to error')
 
     def perform_download(self):
         """
@@ -179,6 +243,24 @@ class WebCrawler(object):
         self.process_data()
         if self.__autosave:
             self.save_data()
+
+    def set_logging_level(self, level):
+        """
+        Ändert das Logging-Level zur Laufzeit.
+
+        Args:
+            level (str): Das neue Logging-Level ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL').
+        """
+        numeric_level = getattr(logging, level.upper(), None)
+        if not isinstance(numeric_level, int):
+            self.logger.error(f"Ungültiges Logging-Level: {level}")
+            return
+
+        self.logger.setLevel(numeric_level)
+        for handler in self.logger.handlers:
+            handler.setLevel(numeric_level)
+
+        self.logger.info(f"Logging-Level geändert auf: {level}")
 
     # ----------------------------------------------------------------
     # ----------------------- private methods -----------------------
@@ -239,6 +321,22 @@ class WebCrawler(object):
             self.logger.error('Error reading credentials file', exc_info=True)
 
         self.credentials = credentials
+
+    # ----------------------------------------------------------------
+    # ----------------------- static methods -------------------------
+    @staticmethod
+    def config_logger(logger, log_level=logging.INFO):
+        """
+        Configures the logger for the WebCrawler
+        :param logger: logger object
+        :param log_level: log level
+        """
+        logger.setLevel(log_level)
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        ch = logging.StreamHandler()
+        ch.setLevel(log_level)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
 
     # ----------------------------------------------------------------
     # ----------------------- properties ----------------------------
@@ -345,7 +443,8 @@ class WebCrawler(object):
 
 
 if __name__ == '__main__':
-    # crawler = WebCrawler()
+    crawler = WebCrawler()
+    # crawler.close()
     pass
 
 
