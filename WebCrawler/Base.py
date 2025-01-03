@@ -52,7 +52,7 @@ class JsonFormatter(logging.Formatter):
             log_record["exception"] = self.formatException(record.exc_info)
         return json.dumps(log_record)
 
-def configure_logger(name: str, log_file: str = "../logs/webcrawler.json", level=logging.INFO):
+def configure_logger(name: str, log_file: str = "../logs/webcrawlers.json", level=logging.INFO):
     """
     Configures the logger for the WebCrawler
     Parameters:
