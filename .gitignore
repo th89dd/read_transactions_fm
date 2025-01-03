@@ -12,3 +12,4 @@ credentials_*.txt
 /out
 /backup
 /data
+/logs/
