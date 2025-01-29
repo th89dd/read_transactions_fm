@@ -276,11 +276,13 @@ class Amex(WebCrawler):
 
 
 if __name__ == '__main__':
-    amex = Amex(perform_download=False, output_path='../out/amex')
-    amex.credentials_file = '../credentials_amex.txt'
-    amex._read_credentials()
-    amex.login()
-    amex.download_data()
+    # amex = Amex(perform_download=False, output_path='../out/amex')
+    # amex.credentials_file = '../credentials_amex.txt'
+    # amex._read_credentials()
+    # amex.login()
+    # amex.download_data()
     # amex.close()
     # amex.process_data()
     # amex.save_data()
+
+    pass

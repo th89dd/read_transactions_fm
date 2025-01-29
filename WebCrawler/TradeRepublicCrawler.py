@@ -93,6 +93,8 @@ class TradeRepublic(WebCrawler):
         try:
             wait = WebDriverWait(self.driver, 10)
             li_elements = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'timeline__entry')))
+            # li_elements = li_elements[:40]
+            # self.li_elements = li_elements
             for li in li_elements:
                 try:
                     # Klassen des <li> Elements abrufen
@@ -103,12 +105,14 @@ class TradeRepublic(WebCrawler):
                             month = pd.to_datetime('today').strftime('%B')
                             self.logger.debug("Neuer Monat gefunden: {} {}".format(month, year))
                         else:
-                            new_month = li.text
-                            if month == 'Dezember' and new_month == 'Januar':
-                                year = year - 1
-                            if new_month in ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']:
-                                month = new_month
-                                self.logger.debug("Neuer Monat gefunden: {} {}".format(month, year))
+                            month, year = li.text.split(' ')
+                            year = int(year)
+                            # new_month = li.text
+                            # if month == 'Dezember' and new_month == 'Januar':
+                            #     year = year - 1
+                            # if new_month in ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']:
+                            #     month = new_month
+                            #     self.logger.debug("Neuer Monat gefunden: {} {}".format(month, year))
                                 # current_date = pd.to_datetime(f"{month} {year}", format='%B %Y') + pd.DateOffset(months=1)
                                 # if current_date < pd.to_datetime(self.end_date, format='%d.%m.%Y'):
                                 #     break
@@ -119,7 +123,7 @@ class TradeRepublic(WebCrawler):
                     name = name_element.text.strip() if name_element else 'N/A'
 
                     # Preis extrahieren
-                    preis_element = li.find_element(By.CSS_SELECTOR, '.timelineV2Event__price p')
+                    preis_element = li.find_element(By.CLASS_NAME, 'timelineV2Event__price')
                     if preis_element:
                         preis = preis_element.text.replace(' €', '').replace('.', '').strip()
                         preis = preis.replace(',', '.')
@@ -154,7 +158,7 @@ class TradeRepublic(WebCrawler):
                     })
                 except Exception as inner_e:
                     # interner fehler, eintrag lässt sich nicht auslesen
-                    self.logger.debug("interner Fehler beim Auslesen der einzelnen Zeilen", exc_info=True)
+                    self.logger.debug("interner Fehler beim Auslesen der einzelnen Zeilen, li-text: {}".format(li.text), exc_info=True)
         except Exception as e:
             self.logger.error("Fehler beim Auslesen der Transaktionsdaten", exc_info=True)
 
@@ -319,13 +323,16 @@ class TradeRepublic(WebCrawler):
 
 
 if __name__ == '__main__':
-    tr = TradeRepublic(perform_download=False)
-    tr.credentials_file = '../credentials_traderepublic.txt'  # if you want to use another credentials file or path
-    tr._read_credentials()
-    tr.login()
+    # tr = TradeRepublic(perform_download=False)
+    # tr.credentials_file = '../credentials_traderepublic.txt'  # if you want to use another credentials file or path
+    # tr.set_logging_level('debug')
+    # tr._read_credentials()
+    # tr.login()
     # tr.download_data()
     # tr.close()
 
     # wait = WebDriverWait(tr.driver, 10)
     # timer_element = wait.until(EC.presence_of_element_located((By.XPATH, "//button[@class='trLink smsCode__resendCode']//span[@role='timer']")))
     # button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[@class='trLink smsCode__resendCode']//span[text()='Code als SMS senden']")))
+
+    pass
