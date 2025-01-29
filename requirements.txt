@@ -1,9 +1,22 @@
-pandas
+# Datenhandling
+pandas  # main package for data handling
+xlrd  # for reading excel files
 # numpy
 # pdfplumber
 # openpyxl
-xlrd
 
+
+# Web scraping
+selenium
+# undetected_chromedriver
+# webdriver-manager
+
+# Gui
+# pyqt5  # old package
+pyqt6  # for GUI
+pyqt6-tools  # for GUI design
+
+# Image processing - OCR
 # opencv-python
 # easyocr
 # matplotlib
@@ -12,8 +25,9 @@ xlrd
 #nvidia-pyindex
 #nvidia-cuda-runtime-cu12
 
-# undetected_chromedriver
-selenium
-# webdriver-manager
-
 # pytesseract
+
+# Standard packages
+pip~=24.3.1
+wheel~=0.45.1
+setuptools~=75.7.0

@@ -7,10 +7,13 @@
 """
 
 # -------- start import block ---------
-import time
 
+
+import os
+import sys
 import pandas as pd
-
+import time
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from WebCrawler.Base import *
 
 
@@ -133,10 +136,21 @@ class AmazonVisa(WebCrawler):
             download_button.click()
             self.driver.minimize_window()
 
+            time.sleep(1)
+
             # excel downloaden
-            xls_download_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='XLS herunterladen']")))
+            xls_download_button = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div/aside/div/div/footer/section/aside/button[1]/span')))
             xls_download_button.click()
 
+            # umsätze älter als 90 tage
+            try:
+                show_transactions = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/footer/section/aside/button/span')))
+                show_transactions.click()
+                self.__verify_identity()
+
+            except TimeoutException:
+                self.logger.info("Keine Umsätze älter als 90 Tage vorhanden.")
+                return
 
         except Exception:
             self.logger.error("Fehler beim Download der aktuellen Umsätze", exc_info=True)
@@ -181,12 +195,53 @@ class AmazonVisa(WebCrawler):
     # --------------------- private methods -------------------------
     def __verify_identity(self):
         self.__verified = False
-        try:
-            pass
+        wait = WebDriverWait(self.driver, 10)
 
+        try:
+            mycode = self.__check_sms_code_input()
+
+            input_field = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div/div/section/section/div/div[1]/section/input')))
+            input_field.send_keys(mycode)
+
+            submit_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div/div/section/button/span')))
+            submit_btn.click()
+
+            time.sleep(0.5)
+
+            submit_btn2 = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/footer/section/aside/button/span')))
+            submit_btn2.click()
+
+            # falls fehler, dann nochmal
+            try:
+                restart_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div[2]/div/div/div[2]/button/span')))
+                restart_btn.click()
+                self.__verify_identity()
+            except TimeoutException:
+                pass
+            
         except Exception:
             self.logger.error("Fehler bei der Authentifizierung", exc_info=True)
             self.close()
+
+    def __check_sms_code_input(self):
+        sms_code = input("Bitte geben Sie den 4-stelligen SMS-Code oder retry für erneute Anforderung ein:")
+        self.sms_code  = sms_code
+        if sms_code == "retry":
+            self.__get_another_sms_code()
+
+        else:
+            self.__verified = True
+            return sms_code
+
+    def __get_another_sms_code(self):
+        """
+        Request another SMS code.
+        """
+        wait = WebDriverWait(self.driver, 5)
+        resend_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div/div/section/section/section/a/span')))
+        resend_button.click()
+        self.logger.info("Neuer SMS-Code angefordert.")
+
 
 
     def __postprocess_data(self):
@@ -200,7 +255,11 @@ class AmazonVisa(WebCrawler):
 
 
 if __name__ == '__main__':
-    amazon = AmazonVisa(perform_download=False, output_path='../out')
+    # aufruf für cli
+    # AmazonVisa.cli_entry()
+
+    # Testing
+    # amazon = AmazonVisa(perform_download=False, output_path='../out')
     # amazon.credentials_file = '../credentials_amazon.txt'
     # amazon._read_credentials()
     # amazon.login()

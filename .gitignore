@@ -1,6 +1,7 @@
 # IDE files
 /.idea
 /venv/
+/.venv39
 
 !/credentials_example.txt
 !/credentials_ariva_example.txt

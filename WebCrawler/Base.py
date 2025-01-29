@@ -14,6 +14,7 @@ import time
 import threading
 import logging
 import json
+import argparse
 
 # data handling
 import tempfile
@@ -69,7 +70,12 @@ def configure_logger(name: str, log_file: str = "../logs/webcrawlers.json", leve
         os.makedirs(os.path.dirname(log_file_path))
 
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+    numeric_level = getattr(logging, level.upper(), None)
+    if not isinstance(numeric_level, int):
+        print(f"Ungültiges Logging-Level: {level}")
+        return
+
+    logger.setLevel(numeric_level)
 
     formatter = JsonFormatter()
 
@@ -94,8 +100,7 @@ class WebCrawler(object):
                  start_date=pd.to_datetime('today'),
                  end_date=(pd.to_datetime('today') - pd.DateOffset(months=6)),
                  autosave=True,
-                 logging_level=logging.INFO,
-                 ):
+                 logging_level='Info'):
         """
         Initializes the WebCrawler with the specified output path
 
@@ -105,7 +110,23 @@ class WebCrawler(object):
             end_date (str): The end date for the data download in the format 'dd.mm.yyyy'. Default is 6 months ago from today's date.
             perform_download (bool): Whether to download the data or not. Default is True.
             autosave (bool): Whether to save downloaded data to the output directory. Default is True.
+            logging_level (str): The logging level ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'). Default is 'INFO'.
         """
+
+        # set default values
+        if name is None:
+            name = 'WebCrawler'
+        if output_path is None:
+            output_path = 'out'
+        if start_date is None:
+            start_date = pd.to_datetime('today')
+        if end_date is None:
+            end_date = pd.to_datetime('today') - pd.DateOffset(months=6)
+        if autosave is None:
+            autosave = True
+        if logging_level is None:
+            logging_level = 'INFO'
+
 
         # initialize variables
         self.__name = name  # name of the WebCrawler
@@ -214,7 +235,7 @@ class WebCrawler(object):
         Note that this method should be called after the download process is finished and the data is stored in the internal variable self.data
         """
         self.driver.quit()
-        del self.driver
+        # del self.driver
         shutil.rmtree(self._download_directory)
         self.logger.info('Temporary directory removed: {}'.format(self._download_directory))
         self.logger.info('{} closed'.format(self.__name))
@@ -261,6 +282,30 @@ class WebCrawler(object):
             handler.setLevel(numeric_level)
 
         self.logger.info(f"Logging-Level geändert auf: {level}")
+
+    @classmethod
+    def cli_entry(cls):
+        """
+       Command line interface for the WebCrawler
+        """
+
+        parser = argparse.ArgumentParser(description='{}_WebCrawler'.format(cls.name))
+        cls.add_arguments(parser)
+        args = parser.parse_args()
+
+        instance = cls(**vars(args))
+
+    @staticmethod
+    def add_arguments(parser):
+        """
+        Adds arguments to the command line interface
+        """
+        parser.add_argument('--start_date', type=str, help='The start date for the data download in the format dd.mm.yyyy. Default is today.')
+        parser.add_argument('--end_date', type=str, help='The end date for the data download in the format dd.mm.yyyy. Default is 6 months ago from today.')
+        parser.add_argument('--output_path', type=str, help='The directory where the output files will be saved. Default is "out".')
+        parser.add_argument('--logging_level', type=str, help='The logging level ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"). Default is "INFO".')
+        parser.add_argument('--autosave', type=bool, help='Whether to save downloaded data to the output directory. Default is True.')
+
 
     # ----------------------------------------------------------------
     # ----------------------- private methods -----------------------
@@ -443,7 +488,8 @@ class WebCrawler(object):
 
 
 if __name__ == '__main__':
-    crawler = WebCrawler()
+    # crawler = WebCrawler()
+    # crawler.set_logging_level('DEBUG')
     # crawler.close()
     pass
 

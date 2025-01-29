@@ -156,13 +156,14 @@ class ArivaKurse(WebCrawler):
 
 
 if __name__ == '__main__':
-    from WebCrawler.ArivaCrawler import ArivaKurse
-    ariva = ArivaKurse(start_date='1.11.2024', perform_download=False, output_path='../out')  # if perform_download is True, the following steps will done automatically
-    ariva.end_date = '13.10.2024'  # you can also set the date by property, not only by constructor
-    ariva.credentials_file = '../credentials_ariva.txt'  # if you want to use another credentials file or path
-    ariva._read_credentials()
-    ariva.login()
-    ariva.download_data()
-    ariva.close()
-    ariva.process_data()
-    ariva.save_data()
+    # from WebCrawler.ArivaCrawler import ArivaKurse
+    # ariva = ArivaKurse(start_date='1.11.2024', perform_download=False, output_path='../out')  # if perform_download is True, the following steps will done automatically
+    # ariva.end_date = '13.10.2024'  # you can also set the date by property, not only by constructor
+    # ariva.credentials_file = '../credentials_ariva.txt'  # if you want to use another credentials file or path
+    # ariva._read_credentials()
+    # ariva.login()
+    # ariva.download_data()
+    # ariva.close()
+    # ariva.process_data()
+    # ariva.save_data()
+     pass

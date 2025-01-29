@@ -8,14 +8,15 @@
 
 # -------- start import block ---------
 from WebCrawler import TradeRepublic, ArivaKurse, Amex, AmazonVisa
-
 # -------- end import block ---------
 
 
 if __name__ == '__main__':
-    kurse = ArivaKurse()  # Ariva Kurse - comment in or comment out (with #) if you didnt want to use
-    tr = TradeRepublic()  # Trade Republic
-    amex = Amex()  # American Express
+    # kurse = ArivaKurse()  # Ariva Kurse - comment in or comment out (with #) if you didnt want to use
+    # tr = TradeRepublic()  # Trade Republic
+    # amex = Amex()  # American Express
     amazon = AmazonVisa()  # new Amazon Visa by Zinia (2024)
     # example comment
+
+
 
