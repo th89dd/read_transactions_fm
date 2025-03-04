@@ -81,7 +81,8 @@ class AmazonVisa(WebCrawler):
 
         try:
             # wait until the transactions page is loaded
-            amount = wait.until(EC.visibility_of_element_located((By.XPATH, "//*[@id='root']/div/div/div/div/div/div/div/div/div/main/section/section/main/section/div[1]/header/div[1]/div/article/section/div[3]/h5")))
+            amount = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/main/section/div[1]/header/div[1]/div/article/section/div[3]/h5')))
+            # '//*[@id="root"]/div/div/div/div/div/div/main/section/section/main/section/div[1]/header/div[1]/div/article/section/div[3]/h5'
             # wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "h5[data-testid='credit-chart-label-value']")))
             self.account_balance = amount.text
             self.logger.info("Erfolgreich eingeloggt. Aktueller Kontostand: {}".format(self.account_balance))
@@ -98,17 +99,19 @@ class AmazonVisa(WebCrawler):
 
         try:
             # filter öffnen
-            filter_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div/aside/a[1]/span[1]/span')))
+            filter_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div/aside/a[1]/span[1]/span')))
+            # '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div/aside/a[1]/span[1]/span'
             # filter_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[@class='sc-kHhbVh hqiEPQ' and text()='Filter']")))
             filter_button.click()
 
             self.driver.maximize_window()
             # datum auswählen
-            radio_button = wait.until(EC.visibility_of_element_located((By.XPATH, "//*[@id='root']/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/div[2]/div/div/div/div[1]/section/div[6]/div/div[1]/span/input")))
+            radio_button = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/div[2]/div/div/div/div[1]/section/div[6]/div/div[1]/span/input')))
+
             radio_button.click()
 
             # start-datum eingeben
-            start_date_picker = wait.until(EC.visibility_of_element_located((By.XPATH, "//*[@id='root']/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[1]/div/div[1]")))
+            start_date_picker = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/div[2]/div/div/div/div[2]/div/div/div[1]/div/div[1]/div/div[1]/p')))
             start_date_picker.click()
             day_input = wait.until(EC.visibility_of_element_located((By.XPATH, "//input[@data-orderid='3']")))
             month_input = wait.until(EC.visibility_of_element_located((By.XPATH, "//input[@data-orderid='2']")))
@@ -119,7 +122,7 @@ class AmazonVisa(WebCrawler):
             # self.logger.debug(f"Date picker paragraph: {start_date_picker.text}")
 
             # end-datum eingeben
-            end_date_picker = wait.until(EC.visibility_of_element_located((By.XPATH, "//*[@id='root']/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/div[2]/div/div/div/div[2]/div/div/div[2]/div/div[1]/div/div[1]")))
+            end_date_picker = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/div[2]/div/div/div/div[2]/div/div/div[2]/div/div[1]/div/div[1]/p')))
             end_date_picker.click()
             day_input = wait.until(EC.visibility_of_element_located((By.XPATH, "//input[@data-orderid='3']")))
             month_input = wait.until(EC.visibility_of_element_located((By.XPATH, "//input[@data-orderid='2']")))
@@ -131,6 +134,16 @@ class AmazonVisa(WebCrawler):
             apply_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-testid='filter-modal-apply-button']")))
             apply_button.click()
 
+            self.driver.minimize_window()
+
+            # umsätze älter als 90 tage anzeigen
+            try:
+                show_transactions = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section/div/div/div[2]/button/span/span')))
+                show_transactions.click()
+                self.__verify_identity()
+            except TimeoutException:
+                self.logger.info("Keine Umsätze älter als 90 Tage vorhanden.")
+
             # download-button klicken
             download_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[data-testid='transactions-all-download']")))
             download_button.click()
@@ -139,29 +152,33 @@ class AmazonVisa(WebCrawler):
             time.sleep(1)
 
             # excel downloaden
-            xls_download_button = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div/aside/div/div/footer/section/aside/button[1]/span')))
+            xls_download_button = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div[1]/aside/div/div/footer/section/aside/button[1]/span')))
             xls_download_button.click()
 
-            # umsätze älter als 90 tage
-            try:
-                show_transactions = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/footer/section/aside/button/span')))
-                show_transactions.click()
-                self.__verify_identity()
-
-            except TimeoutException:
-                self.logger.info("Keine Umsätze älter als 90 Tage vorhanden.")
-                return
+            # # umsätze älter als 90 tage
+            # try:
+            #     show_transactions = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/footer/section/aside/button/span')))
+            #     show_transactions.click()
+            #     self.__verify_identity()
+            #
+            # except TimeoutException:
+            #     self.logger.info("Keine Umsätze älter als 90 Tage vorhanden.")
+            #     return
 
         except Exception:
             self.logger.error("Fehler beim Download der aktuellen Umsätze", exc_info=True)
 
-        start_time = time.time()
-        time.sleep(5)
-        while not self._read_temp_files(sep=','):  # read all files in the download directory sorted in a dict
-            time.sleep(2)
-            if time.time() - start_time > 15:
-                self.logger.error("Timeout beim Lesen der Dateien.")
-                break
+        # time.sleep(3)  # wait for the download to start
+        self._read_temp_files(sep=',')
+        # start_time = time.time()
+        # downloaded = False
+        # while not downloaded:  # read all files in the download directory sorted in a dict
+        #     time.sleep(0.5)
+        #     if time.time() - start_time > 15:
+        #         self.logger.error("Timeout beim Lesen der Dateien.")
+        #         break
+        #     downloaded = self._read_temp_files(sep=',')
+
 
     def process_data(self):
         merged_df = pd.DataFrame()
@@ -198,26 +215,28 @@ class AmazonVisa(WebCrawler):
         wait = WebDriverWait(self.driver, 10)
 
         try:
+            confirm_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/footer/section/aside/button/span')))
+            confirm_btn.click()
             mycode = self.__check_sms_code_input()
 
-            input_field = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div/div/section/section/div/div[1]/section/input')))
+            input_field = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/div/div/div/div/section/div/div/section/section/div/div[1]/section/input')))
             input_field.send_keys(mycode)
 
-            submit_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div/div/section/button/span')))
+            submit_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/div/div/div/div/section/div/div/section/button/span')))
             submit_btn.click()
 
             time.sleep(0.5)
 
-            submit_btn2 = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/footer/section/aside/button/span')))
+            submit_btn2 = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/footer/section/aside/button/span')))
             submit_btn2.click()
 
             # falls fehler, dann nochmal
-            try:
-                restart_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div[2]/div/div/div[2]/button/span')))
-                restart_btn.click()
-                self.__verify_identity()
-            except TimeoutException:
-                pass
+            # try:
+            #     restart_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div[2]/div/div/div[2]/button/span')))
+            #     restart_btn.click()
+            #     self.__verify_identity()
+            # except TimeoutException:
+            #     pass
             
         except Exception:
             self.logger.error("Fehler bei der Authentifizierung", exc_info=True)
@@ -238,7 +257,7 @@ class AmazonVisa(WebCrawler):
         Request another SMS code.
         """
         wait = WebDriverWait(self.driver, 5)
-        resend_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div/div/section/section/section/a/span')))
+        resend_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/div/div/div/div/section/div/div/section/section/section/a/span')))
         resend_button.click()
         self.logger.info("Neuer SMS-Code angefordert.")
 
@@ -259,13 +278,13 @@ if __name__ == '__main__':
     # AmazonVisa.cli_entry()
 
     # Testing
-    # amazon = AmazonVisa(perform_download=False, output_path='../out')
-    # amazon.credentials_file = '../credentials_amazon.txt'
-    # amazon._read_credentials()
-    # amazon.login()
-    # amazon.download_data()
-    # amazon.close()
-    # amazon.process_data()
+    amazon = AmazonVisa(perform_download=False, output_path='../out')
+    amazon.credentials_file = '../credentials_amazon.txt'
+    amazon._read_credentials()
+    amazon.login()
+    amazon.download_data()
+    amazon.close()
+    amazon.process_data()
     # amazon.save_data()
 
 

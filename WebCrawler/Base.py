@@ -14,6 +14,7 @@ import time
 import threading
 import logging
 import json
+import traceback
 import argparse
 
 # data handling
@@ -42,55 +43,19 @@ locale.setlocale(locale.LC_TIME, 'de_DE.UTF-8')
 class JsonFormatter(logging.Formatter):
     def format(self, record):
         log_record = {
-            "time": self.formatTime(record, self.datefmt),
+            "time": self.formatTime(record, self.datefmt) if self.datefmt else self.formatTime(record, "%Y-%m-%dT%H:%M:%S"),
             "level": record.levelname,
             "name": record.name,
             "message": record.getMessage(),
             "module": record.module,
             "line": record.lineno,
         }
-        if record.exc_info:  # Fehler/Exception hinzufügen
-            log_record["exception"] = self.formatException(record.exc_info)
-        return json.dumps(log_record)
 
-def configure_logger(name: str, log_file: str = "../logs/webcrawlers.json", level=logging.INFO):
-    """
-    Configures the logger for the WebCrawler
-    Parameters:
-        - name (str): Name of the logger
-        - log_file (str): Path to the log file
-        - level (int): Logging level
-    Returns:
-        - logger (logging.Logger): Logger object
-    """
+        # Falls eine Exception vorhanden ist, Stacktrace als String speichern
+        if record.exc_info:
+            log_record["exception"] = "".join(traceback.format_exception(*record.exc_info))
 
-    # log_file pfad erzeugen
-    log_file_path = os.path.abspath(log_file)
-    if not os.path.exists(os.path.dirname(log_file_path)):
-        os.makedirs(os.path.dirname(log_file_path))
-
-    logger = logging.getLogger(name)
-    numeric_level = getattr(logging, level.upper(), None)
-    if not isinstance(numeric_level, int):
-        print(f"Ungültiges Logging-Level: {level}")
-        return
-
-    logger.setLevel(numeric_level)
-
-    formatter = JsonFormatter()
-
-    # FileHandler (JSON-Datei)
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-
-    # Optional: Konsolen-Handler für Standardausgabe (Lesbarkeit)
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    logger.addHandler(console_handler)
-
-    return logger
-
+        return json.dumps(log_record, ensure_ascii=False)
 
 class WebCrawler(object):
     """
@@ -144,7 +109,9 @@ class WebCrawler(object):
         self._state = None  # state of the WebCrawler
 
         # set up logging
-        self.logger = configure_logger(self.__name, level=logging_level)
+        self.logger = None
+        # self.logger = logging.getLogger(self.__name)
+        self.configure_logger(self.__name, level=logging_level)
         self.logger.info('initialized')
 
         # create output directory if it does not exist
@@ -283,6 +250,45 @@ class WebCrawler(object):
 
         self.logger.info(f"Logging-Level geändert auf: {level}")
 
+    def configure_logger(self, name: str, log_file: str = "../logs/webcrawlers.json", level='info'):
+        """
+        Konfiguriert einen Logger mit Datei- und Konsolenausgabe.
+
+        :param name: Name des Loggers
+        :param log_file: Pfad zur Log-Datei
+        :param level: Logging-Level für die Konsole
+        :return: Logger-Objekt
+        """
+        log_file_path = os.path.abspath(log_file)
+        os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+        level = getattr(logging, level.upper(), None)
+
+        self.logger = logging.getLogger(name)
+
+        # Falls der Logger bereits konfiguriert wurde, Handler nicht doppelt hinzufügen
+        if self.logger.hasHandlers():
+            self.logger.handlers.clear()
+
+        self.logger.setLevel(logging.DEBUG)  # Generelle Logger-Einstellung (niedrigstes Level für File)
+
+        # JSON-Formatter für Datei-Logs
+        json_formatter = JsonFormatter()
+
+        # FileHandler (Immer DEBUG-Level)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(json_formatter)
+        file_handler.setLevel(logging.DEBUG)
+        self.logger.addHandler(file_handler)
+
+        # ConsoleHandler (Mit übergebenem Level)
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        console_handler.setLevel(level)
+        self.logger.addHandler(console_handler)
+
+        # Verhindere, dass Logs an den Root-Logger weitergegeben werden
+        self.logger.propagate = False
+
     @classmethod
     def cli_entry(cls):
         """
@@ -309,40 +315,121 @@ class WebCrawler(object):
 
     # ----------------------------------------------------------------
     # ----------------------- private methods -----------------------
-    def _read_temp_files(self, sep=';'):
+    # def _read_temp_files(self, sep=';'):
+    #     """
+    #     Reads the temporary files in the download directory and stores them in the data dictionary
+    #     :return:
+    #     """
+    #     # read all files in the download directory sorted in a dict
+    #     try:
+    #         files_in_dir = os.listdir(self._download_directory)
+    #         self.logger.debug(f"Dateien im temporären Verzeichnis: {files_in_dir}")
+    #
+    #         file_content = dict()
+    #         if files_in_dir:
+    #             for f in files_in_dir:
+    #                 if f.endswith(".csv"):
+    #                     logging.debug(f"CSV-Datei gefunden: {f}")
+    #                     downloaded_file = os.path.join(self._download_directory, f)
+    #                     df = pd.read_csv(downloaded_file, sep=sep)
+    #                     file_content[f] = df
+    #                     logging.debug(df.head())
+    #                     logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
+    #                 elif f.endswith(".xls"):
+    #                     logging.debug(f"Excel-Datei gefunden: {f}")
+    #                     downloaded_file = os.path.join(self._download_directory, f)
+    #                     df = pd.read_excel(downloaded_file, engine='xlrd')
+    #                     file_content[f] = df
+    #                     logging.debug(df.head())
+    #                     logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
+    #                 elif f.endswith(".tmp"):
+    #                     time.sleep(0.5)
+    #                     self._read_temp_files(sep)
+    #                 elif f.endswith(".crdownload"):
+    #                     time.sleep(0.5)
+    #                     self._read_temp_files(sep)
+    #
+    #             self.__data = file_content
+    #             self.logger.info('{len_files} Dateien im temporären Verzeichnis gefunden.'.format(len_files=len(files_in_dir)))
+    #             return True
+    #         else:
+    #             logging.info("Keine Datei im temporären Verzeichnis gefunden.")
+    #             return False
+    #     except Exception as e:
+    #         self.logger.error("Fehler beim Einlesen der heruntergeladenen Dateien", exc_info=True)
+
+    def _read_temp_files(self, sep=';', max_retries=10, retry_wait=1, check_interval=0.5, download_timeout=10):
         """
-        Reads the temporary files in the download directory and stores them in the data dictionary
-        :return:
+        Reads the temporary files in the download directory and stores them in the data dictionary.
+
+        Args:
+            sep (str): Separator used in CSV files. Default is ';'.
+            max_retries (int): Maximum number of retries for detecting incomplete downloads.
+            retry_wait (float): Time in seconds to wait between retries for missing files.
+            check_interval (float): Interval in seconds to check for pending files.
+            download_timeout (float): Maximum waiting time for downloads to complete.
+
+        Returns:
+            bool: True if files were read successfully, False otherwise.
         """
-        # read all files in the download directory sorted in a dict
-        try:
-            files_in_dir = os.listdir(self._download_directory)
-            self.logger.debug(f"Dateien im temporären Verzeichnis: {files_in_dir}")
-            self.logger.info('{len_files} Dateien im temporären Verzeichnis gefunden.'.format(len_files=len(files_in_dir)))
-            file_content = dict()
-            if files_in_dir:
-                for f in files_in_dir:
+        retries = 0
+        while retries < max_retries:
+            try:
+                files_in_dir = os.listdir(self._download_directory)
+                self.logger.debug(f"Dateien im temporären Verzeichnis: {files_in_dir}")
+
+                if not files_in_dir:
+                    self.logger.debug("Keine Datei im temporären Verzeichnis gefunden.")
+                    retries += 1
+                    time.sleep(retry_wait)
+                    continue
+
+                # Check for incomplete downloads
+                start_time = time.time()
+                while time.time() - start_time < download_timeout:
+                    pending_files = [f for f in os.listdir(self._download_directory) if f.endswith(".tmp") or f.endswith(".crdownload")]
+
+                    if not pending_files:
+                        break  # Download ist abgeschlossen
+
+                    self.logger.info(f"Warte auf {len(pending_files)} unvollständige Datei(en)... (Timeout in {round(download_timeout - (time.time() - start_time), 1)}s)")
+                    time.sleep(check_interval)
+
+                # Wenn nach Timeout noch immer pending files existieren → Fehler
+                pending_files = [f for f in os.listdir(self._download_directory) if f.endswith(".tmp") or f.endswith(".crdownload")]
+                if pending_files:
+                    self.logger.warning(f"Timeout erreicht! {len(pending_files)} Datei(en) sind immer noch unvollständig: {pending_files}")
+                    return False
+
+                # Verarbeiten der vollständigen Dateien
+                file_content = {}
+                for f in os.listdir(self._download_directory):
+                    downloaded_file = os.path.join(self._download_directory, f)
+
                     if f.endswith(".csv"):
                         logging.debug(f"CSV-Datei gefunden: {f}")
-                        downloaded_file = os.path.join(self._download_directory, f)
                         df = pd.read_csv(downloaded_file, sep=sep)
-                        file_content[f] = df
-                        logging.debug(df.head())
-                        logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
                     elif f.endswith(".xls"):
                         logging.debug(f"Excel-Datei gefunden: {f}")
-                        downloaded_file = os.path.join(self._download_directory, f)
                         df = pd.read_excel(downloaded_file, engine='xlrd')
-                        file_content[f] = df
-                        logging.debug(df.head())
-                        logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
+                    else:
+                        continue  # Unsupported file type, skipping
+
+                    file_content[f] = df
+                    logging.debug(df.head())
+                    logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
+
                 self.__data = file_content
+                self.logger.info(f"{len(file_content)} Dateien erfolgreich eingelesen.")
                 return True
-            else:
-                logging.info("Keine Datei im temporären Verzeichnis gefunden.")
+
+            except Exception as e:
+                self.logger.error("Fehler beim Einlesen der heruntergeladenen Dateien", exc_info=True)
                 return False
-        except Exception as e:
-            self.logger.error("Fehler beim Einlesen der heruntergeladenen Dateien", exc_info=True)
+
+        self.logger.warning("Maximale Anzahl an Wiederholungen erreicht. Einige Dateien wurden möglicherweise nicht vollständig heruntergeladen.")
+        return False
+
 
     def _read_credentials(self):
         """
@@ -369,19 +456,19 @@ class WebCrawler(object):
 
     # ----------------------------------------------------------------
     # ----------------------- static methods -------------------------
-    @staticmethod
-    def config_logger(logger, log_level=logging.INFO):
-        """
-        Configures the logger for the WebCrawler
-        :param logger: logger object
-        :param log_level: log level
-        """
-        logger.setLevel(log_level)
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        ch = logging.StreamHandler()
-        ch.setLevel(log_level)
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
+    # @staticmethod
+    # def config_logger(logger, log_level=logging.INFO):
+    #     """
+    #     Configures the logger for the WebCrawler
+    #     :param logger: logger object
+    #     :param log_level: log level
+    #     """
+    #     logger.setLevel(log_level)
+    #     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    #     ch = logging.StreamHandler()
+    #     ch.setLevel(log_level)
+    #     ch.setFormatter(formatter)
+    #     logger.addHandler(ch)
 
     # ----------------------------------------------------------------
     # ----------------------- properties ----------------------------
