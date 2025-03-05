@@ -32,6 +32,12 @@ Zur einfacheren Verwendung habe ich meine [Vorlagen](Vorlagen.dat) angehängt.
 2. [Use Ariva Crawler](#use-ariva-crawler)
 3. [Use the other Crawler](#use-the-other-crawler)
 
+## Quick Start
+- set up python venv (e.g. with [setup.bat](setup.bat))
+- create credentials files for the crawler you want to use
+- configure the crawler in the [run.py file](run.py)
+- run the main script with [start.bat](start.bat)
+- import the generated csv files in the Finanzmanager
 
 ## Setting-up Python Environment
 
