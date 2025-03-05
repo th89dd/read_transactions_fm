@@ -12,6 +12,7 @@ Aktuell unterstützt:
 - **Umsätze von Trade Republic**
 - **Umsätze von American Express**
 - **Umsätze von Amazon Visa (Zinia)**
+---
 
 Diese Scriptsammlung dient dazu, Transaktionen via "WebCrawler" 
 von verschiedenen Finanzdienstleistern abzurufen und 
@@ -26,11 +27,7 @@ Dazu über Datei -> Export/Import -> Datenimport  -> **Umsätze** über den Dial
 Zur einfacheren Verwendung, lohnt es sich Vorlagen zu erzeugen, damit die Umsätze schneller in den Finanzmanager importiert werden können. Das kann  im Rahmen des Dialogs erfolgen.
 Zur einfacheren Verwendung habe ich meine [Vorlagen](Vorlagen.dat) angehängt.
 
-## Content
-1. [Installation/Setting-up python](#setting-up-python-environment)
-2. [Use the main script](#use-the-main-script)
-2. [Use Ariva Crawler](#use-ariva-crawler)
-3. [Use the other Crawler](#use-the-other-crawler)
+---
 
 ## Quick Start
 - set up python venv (e.g. with [setup.bat](setup.bat))
@@ -38,6 +35,14 @@ Zur einfacheren Verwendung habe ich meine [Vorlagen](Vorlagen.dat) angehängt.
 - configure the crawler in the [run.py file](run.py)
 - run the main script with [start.bat](start.bat)
 - import the generated csv files in the Finanzmanager
+
+---
+## Content
+1. [Installation/Setting-up python](#setting-up-python-environment)
+2. [Use the main script](#use-the-main-script)
+2. [Use Ariva Crawler](#use-ariva-crawler)
+3. [Use the other Crawler](#use-the-other-crawler)
+
 
 ## Setting-up Python Environment
 
