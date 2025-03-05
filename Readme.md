@@ -34,24 +34,37 @@ Zur einfacheren Verwendung habe ich meine [Vorlagen](Vorlagen.dat) angehängt.
 
 
 ## Setting-up Python Environment
+
+You can use the following steps, or you can use the **[bat-file](setup.bat)** to set up the Python environment on your computer (with Windows).
+
 1. Install Python 3.12 (or newer) 
    - download Python 3.12 from [Python.org](https://www.python.org/downloads/)
    - install Python
-   - you can check if Python 3.8.5 is installed correctly:
+   - you can check if Python is installed correctly:
     ```bash
     python --version
     ```
    
-2. Create a virtual environment:
+1. Create a virtual environment:
    - create a virtual environment in the project folder:
    - open a terminal in the project folder and run:
     ```bash
     python -m venv venv
     ```
+   
+1. Activate the virtual environment:
+     ```bash
+     venv\Scripts\activate
+     ```
 
-3. Install required packages:
+1. Install required packages:
     ```bash
     pip install -r requirements.txt
+    ```
+   
+1. Deactivate the virtual environment:
+    ```bash
+    deactivate
     ```
 
 ## Use the Main Script
