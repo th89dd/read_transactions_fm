@@ -13,8 +13,8 @@ selenium
 
 # Gui
 # pyqt5  # old package
-pyqt6  # for GUI
-pyqt6-tools  # for GUI design
+# pyqt6  # for GUI
+# pyqt6-tools  # for GUI design
 
 # Image processing - OCR
 # opencv-python
@@ -28,6 +28,6 @@ pyqt6-tools  # for GUI design
 # pytesseract
 
 # Standard packages
-pip~=24.3.1
-wheel~=0.45.1
-setuptools~=75.7.0
+# pip~=24.3.1
+# wheel~=0.45.1
+# setuptools~=75.7.0
