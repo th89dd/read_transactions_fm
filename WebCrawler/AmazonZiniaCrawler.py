@@ -140,9 +140,13 @@ class AmazonVisa(WebCrawler):
             try:
                 show_transactions = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section/div/div/div[2]/button/span/span')))
                 show_transactions.click()
+                confirm_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/footer/section/aside/button/span')))
+                confirm_btn.click()
                 self.__verify_identity()
             except TimeoutException:
                 self.logger.info("Keine Umsätze älter als 90 Tage vorhanden.")
+
+
 
             # download-button klicken
             download_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[data-testid='transactions-all-download']")))
@@ -215,8 +219,6 @@ class AmazonVisa(WebCrawler):
         wait = WebDriverWait(self.driver, 10)
 
         try:
-            confirm_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/footer/section/aside/button/span')))
-            confirm_btn.click()
             mycode = self.__check_sms_code_input()
 
             input_field = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/div/div/div/div/section/div/div/section/section/div/div[1]/section/input')))
@@ -231,12 +233,13 @@ class AmazonVisa(WebCrawler):
             submit_btn2.click()
 
             # falls fehler, dann nochmal
-            # try:
-            #     restart_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div[2]/div/div/div[2]/button/span')))
-            #     restart_btn.click()
-            #     self.__verify_identity()
-            # except TimeoutException:
-            #     pass
+            try:
+                restart_btn = WebDriverWait(self.driver, 1).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/div/div/div/div[2]/div/div/div[2]/button')))
+                restart_btn.click()
+                self.logger.warning("Falscher SMS-Code eingegeben. Identifizierung wird wiederholt.")
+                self.__verify_identity()
+            except TimeoutException:
+                pass
             
         except Exception:
             self.logger.error("Fehler bei der Authentifizierung", exc_info=True)
