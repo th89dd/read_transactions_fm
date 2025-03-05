@@ -13,8 +13,8 @@ selenium
 
 # Gui
 # pyqt5  # old package
-# pyqt6  # for GUI
-# pyqt6-tools  # for GUI design
+pyqt6  # for GUI
+pyqt6-tools  # for GUI design
 
 # Image processing - OCR
 # opencv-python
