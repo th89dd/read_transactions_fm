@@ -164,7 +164,6 @@ class Amex(WebCrawler):
 
         try:
             # search for sms choose button
-            self.logger.info('test')
             sms_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//h3[text()='Einmaliger Verifizierungscode (SMS)']/ancestor::button")))
             sms_button.click()
             self.logger.info("SMS Authentifizierung-Button geklickt.")

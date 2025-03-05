@@ -187,10 +187,12 @@ class WebCrawler(object):
         Saves the downloaded data to a file
         """
         try:
-            self.__data.to_csv(os.path.join(self.__output_path, '{}.csv'.format(self.__name)), sep=";", index=False)
-            # self.logger.info('Data saved to {}'.format(os.path.join(self.__output_path, '{}.csv'.format(self.__name))))
-            # self.logger.info('Data saved to {}'.format(os.path.abspath(os.path.join(self.__output_path, '{}.csv'.format(self.__name)))))
-            self.logger.info('Data saved to {}'.format(os.path.abspath('{}.csv'.format(self.__name))))
+            file_path = os.path.join(self.__output_path, '{}.csv'.format(self.__name))
+            absolute_path = os.path.abspath(file_path)
+            # save data
+            self.__data.to_csv(file_path, sep=";", index=False)
+            # log success
+            self.logger.info('Data saved to {}'.format(absolute_path))
         except Exception as e:
             self.logger.error('Error saving data', exc_info=True)
 
@@ -250,7 +252,7 @@ class WebCrawler(object):
 
         self.logger.info(f"Logging-Level geändert auf: {level}")
 
-    def configure_logger(self, name: str, log_file: str = "../logs/webcrawlers.json", level='info'):
+    def configure_logger(self, name: str, log_file: str = "logs/webcrawlers.json", level='info'):
         """
         Konfiguriert einen Logger mit Datei- und Konsolenausgabe.
 
@@ -259,7 +261,7 @@ class WebCrawler(object):
         :param level: Logging-Level für die Konsole
         :return: Logger-Objekt
         """
-        log_file_path = os.path.abspath(log_file)
+        log_file_path = os.path.join(log_file)
         os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
         level = getattr(logging, level.upper(), None)
 
