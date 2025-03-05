@@ -30,6 +30,7 @@ Zur einfacheren Verwendung habe ich meine [Vorlagen](Vorlagen.dat) angehängt.
 ---
 
 ## Quick Start
+- download the project as zip file and extract it to a folder on your computer
 - set up python venv (e.g. with [setup.bat](setup.bat))
 - create credentials files for the crawler you want to use
 - configure the crawler in the [run.py file](run.py)
