@@ -63,118 +63,50 @@ class TradeRepublic(WebCrawler):
         self.__identify()
 
     def download_data(self):
+        # Basis-Methode aufrufen
+        super().download_data()
         try:
             self.logger.info("Navigiere zur Transaktions-Seite.")
             self.driver.get(self.urls['transactions'])
         except Exception as e:
             self.logger.error("Fehler beim Navigieren zur Transaktions-Seite", exc_info=True)
 
+        # Bis nach unten scrollen, um alle Transaktionen zu laden
         self.driver.maximize_window()
-        time.sleep(1)
-
-        wait = WebDriverWait(self.driver, 10)
-        wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'timeline')))
-        # Scroll down the page in a loop until the bottom is reached
-        last_height = self.driver.execute_script("return document.body.scrollHeight")
-        while True:
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(0.2)  # Wait for new elements to load
-            new_height = self.driver.execute_script("return document.body.scrollHeight")
-            if new_height == last_height:
-                break
-            last_height = new_height
-
+        self.__scroll_to_bottom()
         self.driver.minimize_window()
 
-        daten = []
-        month = pd.to_datetime('today').strftime('%B')
-        year = pd.to_datetime('today').year
-        self.logger.info("start downloading transactions")
+        # Warten bis Timeline sichtbar ist
+        wait = WebDriverWait(self.driver, 15)
         try:
-            wait = WebDriverWait(self.driver, 10)
+            wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'timeline')))
+        except TimeoutException:
+            self.logger.error("Timeline konnte nicht geladen werden.")
+            return
+
+        # Elemente sammeln
+        try:
             li_elements = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'timeline__entry')))
-            # li_elements = li_elements[:40]
-            # self.li_elements = li_elements
-            for li in li_elements:
-                try:
-                    # Klassen des <li> Elements abrufen
-                    classes = li.get_attribute('class')
-                    # Prüfen, ob das <li> Element die unerwünschten Klassen enthält
-                    if '-isNewSection' in classes or '-isMonthDivider' in classes:
-                        if li.text == "Dieser Monat":
-                            month = pd.to_datetime('today').strftime('%B')
-                            self.logger.debug("Neuer Monat gefunden: {} {}".format(month, year))
-                        else:
-                            month, year = li.text.split(' ')
-                            year = int(year)
-                            # new_month = li.text
-                            # if month == 'Dezember' and new_month == 'Januar':
-                            #     year = year - 1
-                            # if new_month in ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']:
-                            #     month = new_month
-                            #     self.logger.debug("Neuer Monat gefunden: {} {}".format(month, year))
-                                # current_date = pd.to_datetime(f"{month} {year}", format='%B %Y') + pd.DateOffset(months=1)
-                                # if current_date < pd.to_datetime(self.end_date, format='%d.%m.%Y'):
-                                #     break
-                        continue
+        except TimeoutException:
+            self.logger.error("Keine Timeline-Einträge gefunden.")
+            return
 
-                    # Name extrahieren
-                    name_element = li.find_element(By.CLASS_NAME, 'timelineV2Event__title')
-                    name = name_element.text.strip() if name_element else 'N/A'
-
-                    # Preis extrahieren
-                    preis_element = li.find_element(By.CLASS_NAME, 'timelineV2Event__price')
-                    if preis_element:
-                        preis = preis_element.text.replace(' €', '').replace('.', '').strip()
-                        preis = preis.replace(',', '.')
-                        if not preis.startswith('+'):
-                            preis = '-{betrag}'.format(betrag=preis)
-                        else:
-                            preis = '{betrag}'.format(betrag=preis.replace('+', ''))
-                    else:
-                        preis = 'N/A'
-
-                    # Datum extrahieren
-                    datum_element = li.find_element(By.CLASS_NAME, 'timelineV2Event__subtitle')
-                    if datum_element:
-                        try:
-                            datum, extra = datum_element.text.strip().split('-')
-                            datum = '{date}{year}'.format(date=datum.strip(), year=year)
-                            name += ' ' + extra.strip()
-                        except ValueError:
-                            datum = datum_element.text.strip()
-                            datum = '{date}{year}'.format(date=datum.strip(), year=year)
-
-                        # Prüfen, ob das Datum in der gewünschten Zeitspanne liegt
-                        if pd.to_datetime(datum, format='%d.%m.%Y') < self.end_date:
-                            break
-                    else:
-                        datum = 'N/A'
-
-                    daten.append({
-                        'Datum': datum,
-                        'Verwendungszweck': name,
-                        'Betrag [€]': preis,
-                    })
-                except Exception as inner_e:
-                    # interner fehler, eintrag lässt sich nicht auslesen
-                    self.logger.debug("interner Fehler beim Auslesen der einzelnen Zeilen, li-text: {}".format(li.text), exc_info=True)
-        except Exception as e:
-            self.logger.error("Fehler beim Auslesen der Transaktionsdaten", exc_info=True)
-
-        self.logger.info("{} Transaktionsdaten wurden erfolgreich ausgelesen.".format(len(daten)))
-
-        self.data = pd.DataFrame(daten)
+        # Transaktionsdaten auslesen
+        self.data = self.__parse_transaction_elements(li_elements)
+        self.logger.info(f"{len(self.data)} Transaktionsdaten erfolgreich ausgelesen.")
 
     def process_data(self):
         """
         Performs post-processing on the transaction data.
         """
+        super().process_data()
         # convert lebensmittel
-        lebensmittel_list = ['edeka', 'penny', 'lidl', 'aldi', 'rewe', 'netto', 'konsum', 'kaufland', 'real', 'marktkauf']
-        self.data['Empfänger'] = self.data['Verwendungszweck'].apply(lambda x: x if any(l in x.lower() for l in lebensmittel_list) else None)
+        # lebensmittel_list = ['edeka', 'penny', 'lidl', 'aldi', 'rewe', 'netto', 'konsum', 'kaufland', 'real', 'marktkauf']
+        # self.data['Empfänger'] = self.data['Verwendungszweck'].apply(lambda x: x if any(l in x.lower() for l in lebensmittel_list) else None)
 
-        self.data['Verwendungszweck'] = self.data['Verwendungszweck'].apply(TradeRepublic.find_umbuchungen)
+        # Umbuchungen finden und Verwendungszweck sowie Empfänger anpassen
+        # self.data['Verwendungszweck'] = self.data['Verwendungszweck'].apply(TradeRepublic.find_umbuchungen)
+        # self.data.loc[self.data['Verwendungszweck'] == '[DKB_Tim]', 'Empfänger'] = None
 
     # bestätige das Cookie-Banner
     def handle_cookie_banner(self):
@@ -307,6 +239,129 @@ class TradeRepublic(WebCrawler):
             self.logger.error("Error sending the SMS code.", exc_info=True)
             self.error_close()
 
+    def __scroll_to_bottom(self, wait_time: int = 10, pause_time:float = 0.01, stable_rounds: int = 3):
+        """
+        Scrollt die Seite bis zum Ende und wartet jeweils, bis neue Elemente geladen sind.
+        """
+
+        self.logger.info("Scrolle, bis alle Transaktionen geladen sind...")
+        wait = WebDriverWait(self.driver, wait_time)
+        last_count = 0
+        same_count = 0
+
+        while same_count < stable_rounds:
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(pause_time)
+            li_elements = self.driver.find_elements(By.CLASS_NAME, 'timeline__entry')
+            current_count = len(li_elements)
+
+            if current_count == last_count:
+                same_count += 1
+            else:
+                same_count = 0
+            last_count = current_count
+
+        self.logger.info(f"Scrollen abgeschlossen. Insgesamt {last_count} Einträge geladen.")
+
+    def __parse_transaction_elements(self, li_elements):
+        """
+        Parsed alle Timeline-Einträge in eine DataFrame-kompatible Struktur.
+        """
+        daten = []
+        month = pd.to_datetime('today').strftime('%B')
+        year = pd.to_datetime('today').year
+
+        for li in li_elements:
+            try:
+                classes = li.get_attribute('class')
+
+                # Monatsabschnitte erkennen
+                if '-isNewSection' in classes or '-isMonthDivider' in classes:
+                    self.__update_month_context(li, month, year)
+                    continue
+
+                eintrag = self.__parse_single_transaction(li, month, year)
+                if eintrag is None:
+                    break  # Datumsgrenze erreicht
+                daten.append(eintrag)
+
+            except Exception as inner_e:
+                self.logger.debug(f"Fehler beim Verarbeiten eines Eintrags: {li.text[:60]}...", exc_info=True)
+
+        return pd.DataFrame(daten)
+
+    def __update_month_context(self, li, month, year):
+        """
+        Aktualisiert den aktuellen Monat und das Jahr basierend auf der Monatsüberschrift.
+        """
+        text = li.text.strip()
+        if text == "Dieser Monat":
+            month = pd.to_datetime('today').strftime('%B')
+            self.logger.debug(f"Wechsel zu Monat: {month} {year}")
+        else:
+            try:
+                month_text, year_text = text.split(' ')
+                month = month_text
+                year = int(year_text)
+                self.logger.debug(f"Wechsel zu Monat: {month} {year}")
+            except ValueError:
+                self.logger.debug(f"Unbekannte Monatszeile: '{text}'")
+        return month, year
+
+    def __parse_single_transaction(self, li, month, year):
+        """
+        Liest eine einzelne Transaktion aus einem Timeline-Element aus.
+        Gibt ein Dictionary mit Datum, Empfänger, Verwendungszweck und Betrag zurück.
+        Bricht zurück, wenn die end_date erreicht wurde.
+        """
+        # Empfänger
+        try:
+            empfaenger = li.find_element(By.CLASS_NAME, 'timelineV2Event__title').text.strip()
+        except NoSuchElementException:
+            empfaenger = 'N/A'
+
+        # Betrag
+        try:
+            preis_element = li.find_element(By.CLASS_NAME, 'timelineV2Event__price')
+            if preis_element:
+                preis = preis_element.text.replace(' €', '').replace('.', '').strip()
+                preis = preis.replace(',', '.')
+                preis = preis.replace('+', '') if preis.startswith('+') else f"-{preis}"
+            else:
+                preis = 'N/A'
+        except NoSuchElementException:
+            preis = 'N/A'
+
+        # Datum + Verwendungszweck
+        try:
+            datum_element = li.find_element(By.CLASS_NAME, 'timelineV2Event__subtitle')
+            if datum_element:
+                raw_datum = datum_element.text.strip()
+                try:
+                    datum, extra = raw_datum.split('-')
+                    datum = f"{datum.strip()}{year}"
+                    verwendungszweck = f"{empfaenger} {extra.strip()}"
+                except ValueError:
+                    datum = f"{raw_datum}{year}"
+                    verwendungszweck = empfaenger
+
+                # Datumsgrenze prüfen
+                if pd.to_datetime(datum, format='%d.%m.%Y') < self.end_date:
+                    self.logger.debug(f"Datumsgrenze erreicht bei {datum}.")
+                    return None
+            else:
+                datum = 'N/A'
+                verwendungszweck = empfaenger
+        except NoSuchElementException:
+            datum = 'N/A'
+            verwendungszweck = empfaenger
+
+        return {
+            'Datum': datum,
+            'Empfänger': empfaenger,
+            'Verwendungszweck': verwendungszweck,
+            'Betrag [€]': preis,
+        }
 
     # ----------------------------------------------------------------
     # --------------------- static methods ---------------------------
@@ -323,13 +378,16 @@ class TradeRepublic(WebCrawler):
 
 
 if __name__ == '__main__':
-    # tr = TradeRepublic(perform_download=False)
-    # tr.credentials_file = '../credentials_traderepublic.txt'  # if you want to use another credentials file or path
+    tr = TradeRepublic(perform_download=False, output_path='../out')
+    tr.credentials_file = '../credentials_traderepublic.txt'  # if you want to use another credentials file or path
     # tr.set_logging_level('debug')
-    # tr._read_credentials()
-    # tr.login()
-    # tr.download_data()
-    # tr.close()
+    tr._read_credentials()
+    tr.end_date = tr.start_date - pd.DateOffset(months=12)
+    tr.login()
+    tr.download_data()
+    tr.close()
+    tr.process_data()
+    tr.save_data()
 
     # wait = WebDriverWait(tr.driver, 10)
     # timer_element = wait.until(EC.presence_of_element_located((By.XPATH, "//button[@class='trLink smsCode__resendCode']//span[@role='timer']")))
