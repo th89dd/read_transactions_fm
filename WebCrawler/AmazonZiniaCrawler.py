@@ -90,6 +90,7 @@ class AmazonVisa(WebCrawler):
             self.logger.error("Fehler beim Einloggen", exc_info=True)
 
     def download_data(self):
+        super().download_data()
         wait_sec = 20
         wait = WebDriverWait(self.driver, wait_sec)
         self.logger.info("Navigiere zur Transaktions-Seite.")
@@ -136,12 +137,28 @@ class AmazonVisa(WebCrawler):
 
             self.driver.minimize_window()
 
+            # mehr anzeigen
+            # try:
+            #     more_button = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/footer/footer/a/span[1]/span')))
+            #     more_button.click()
+            # except TimeoutException:
+            #     self.logger.debug("kein Mehr anzeigen Button verfügbar", exc_info=True)
+
+            time.sleep(2)
+
+            # download-button klicken
+            download_button = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div[1]/aside/a[2]/span[1]/span')))
+            download_button.click()
+
+            xls_download_button = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div[1]/aside/div/div/footer/section/aside/button[1]/span')))
+            xls_download_button.click()
+
             # umsätze älter als 90 tage anzeigen
             try:
-                show_transactions = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section/div/div/div[2]/button/span/span')))
+                show_transactions = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/footer/section/aside/button/span')))
                 show_transactions.click()
-                confirm_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/footer/section/aside/button/span')))
-                confirm_btn.click()
+                # confirm_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/footer/section/aside/button/span')))
+                # confirm_btn.click()
                 self.__verify_identity()
             except TimeoutException:
                 self.logger.info("Keine Umsätze älter als 90 Tage vorhanden.")
@@ -149,15 +166,15 @@ class AmazonVisa(WebCrawler):
 
 
             # download-button klicken
-            download_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[data-testid='transactions-all-download']")))
-            download_button.click()
+            # download_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[data-testid='transactions-all-download']")))
+            # download_button.click()
             self.driver.minimize_window()
 
             time.sleep(1)
 
             # excel downloaden
-            xls_download_button = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div[1]/aside/div/div/footer/section/aside/button[1]/span')))
-            xls_download_button.click()
+            # xls_download_button = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/header/div[1]/aside/div/div/footer/section/aside/button[1]/span')))
+            # xls_download_button.click()
 
             # # umsätze älter als 90 tage
             # try:
@@ -221,20 +238,20 @@ class AmazonVisa(WebCrawler):
         try:
             mycode = self.__check_sms_code_input()
 
-            input_field = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/div/div/div/div/section/div/div/section/section/div/div[1]/section/input')))
+            input_field = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div/div/section/section/div/div[1]/section/input')))
             input_field.send_keys(mycode)
 
-            submit_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/div/div/div/div/section/div/div/section/button/span')))
+            submit_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div/div/section/button/span')))
             submit_btn.click()
 
             time.sleep(0.5)
 
-            submit_btn2 = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/footer/section/aside/button/span')))
+            submit_btn2 = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/footer/section/aside/button/span')))
             submit_btn2.click()
 
             # falls fehler, dann nochmal
             try:
-                restart_btn = WebDriverWait(self.driver, 1).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/div/div/div/div[2]/div/div/div[2]/button')))
+                restart_btn = WebDriverWait(self.driver, 1).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div[2]/div/div/div[2]/button/span')))
                 restart_btn.click()
                 self.logger.warning("Falscher SMS-Code eingegeben. Identifizierung wird wiederholt.")
                 self.__verify_identity()
@@ -260,7 +277,7 @@ class AmazonVisa(WebCrawler):
         Request another SMS code.
         """
         wait = WebDriverWait(self.driver, 5)
-        resend_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div[2]/div/div/div/div/div/section/div/div/section/section/section/a/span')))
+        resend_button = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/main/section/section/div/section/div/div/section/section/section/section[2]/div/div/div/div/div/section/div/div/section/section/section/a/span')))
         resend_button.click()
         self.logger.info("Neuer SMS-Code angefordert.")
 
@@ -288,7 +305,7 @@ if __name__ == '__main__':
     amazon.download_data()
     amazon.close()
     amazon.process_data()
-    # amazon.save_data()
+    amazon.save_data()
 
 
     # wait = WebDriverWait(amazon.driver, 10)

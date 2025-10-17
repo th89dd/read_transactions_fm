@@ -5,6 +5,7 @@
 :date: 24.11.2024
 :organisation: TU Dresden, FZM
 """
+import time
 
 # -------- start import block ---------
 from WebCrawler.Base import *
@@ -53,14 +54,25 @@ class ArivaKurse(WebCrawler):
         """
         Handles the advertisement banner that appears after logging in.
         """
+        time.sleep(1) # Kurze Pause, um sicherzustellen, dass der Banner geladen ist
         try:
             wait_sec = 5
             WebDriverWait(self.driver, wait_sec).until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
             iframes = self.driver.find_elements(By.TAG_NAME, "iframe")
             self.logger.debug(f"Anzahl der iFrames gefunden: {len(iframes)}")
 
-            self.driver.switch_to.frame(iframes[2])
-            accept_button = self.driver.find_element(By.XPATH, "//button[@title='Akzeptieren und weiter']")
+            accept_button = None
+            for idx, iframe in enumerate(iframes):
+                self.driver.switch_to.frame(iframe)
+                try:
+                    accept_button = self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div[3]/div[1]/div[3]/div/button')
+                    self.logger.debug(f"'Accept'-Button im iFrame {idx} gefunden.")
+                    break
+                except Exception:
+                    self.driver.switch_to.default_content()
+                    continue
+            if accept_button is None:
+                self.logger.info("Kein 'Accept'-Button in den iFrames gefunden.")
 
             if accept_button.is_displayed():
                 accept_button.click()
@@ -73,19 +85,26 @@ class ArivaKurse(WebCrawler):
             self.logger.error("Fehler beim Suchen des Buttons im iFrame", exc_info=True)
 
     def download_data(self):
-        wait_sec = 1
+        super().download_data()
         time.sleep(1)
         self.driver.minimize_window()
-        for key, url in self.urls.items():
+        for idx, (key, url) in enumerate(self.urls.items(), start=1):
+            self.logger.info(f"({idx}/{len(self.urls)}) Navigiere zu {key}-Kursseite und lade Daten...")
             self.driver.get(url)
-            self.logger.info(f"Navigiere zu {key}-Kursseite.")
 
             try:
-                currency_dropdown = self.driver.find_element(By.CLASS_NAME, "waehrung")
-                select_currency = Select(currency_dropdown)
-                select_currency.select_by_value("EUR")
-                logging.debug("Währung auf Euro gesetzt.")
+                # Optionales Dropdown für Währung
+                try:
+                    currency_dropdown = self.driver.find_element(By.CLASS_NAME, "waehrung")
+                    select_currency = Select(currency_dropdown)
+                    select_currency.select_by_value("EUR")
+                    self.logger.debug("Währung auf EUR gesetzt.")
+                except NoSuchElementException:
+                    self.logger.debug("Kein Währungs-Dropdown vorhanden – wird übersprungen.")
+                except Exception as e:
+                    self.logger.warning(f"Währungsfeld gefunden, aber konnte nicht gesetzt werden: {e}")
 
+                # Pflichtfelder ausfüllen
                 start_date_field = self.driver.find_element(By.ID, "minTime")
                 start_date_field.clear()
                 start_date_field.send_keys(self.end_date.strftime('%d.%m.%Y'))
@@ -98,12 +117,14 @@ class ArivaKurse(WebCrawler):
                 delimiter_field.clear()
                 delimiter_field.send_keys(";")
 
+                # Download starten
                 download_button = self.driver.find_element(By.XPATH, "//input[@type='submit' and @value='Download']")
                 download_button.click()
-                logging.debug("Download-Button geklickt, CSV wird heruntergeladen.")
+                self.logger.debug("Download-Button geklickt, CSV wird heruntergeladen.")
+                # warten, bis die Datei heruntergeladen ist (maximal 30 Sekunden)
+                self._wait_for_new_file(timeout=30)
             except Exception as e:
-                logging.debug(f"Fehler beim Ausfüllen des Formulars: {e}")
-            time.sleep(wait_sec)
+                self.logger.error("Fehler beim Ausfüllen oder Absenden des Formulars", exc_info=True)
 
         # read all files in the download directory sorted in a dict
         self._read_temp_files()
@@ -157,13 +178,16 @@ class ArivaKurse(WebCrawler):
 
 if __name__ == '__main__':
     # from WebCrawler.ArivaCrawler import ArivaKurse
-    # ariva = ArivaKurse(start_date='1.11.2024', perform_download=False, output_path='../out')  # if perform_download is True, the following steps will done automatically
-    # ariva.end_date = '13.10.2024'  # you can also set the date by property, not only by constructor
-    # ariva.credentials_file = '../credentials_ariva.txt'  # if you want to use another credentials file or path
-    # ariva._read_credentials()
-    # ariva.login()
-    # ariva.download_data()
-    # ariva.close()
-    # ariva.process_data()
-    # ariva.save_data()
-     pass
+    ariva = ArivaKurse(perform_download=False, output_path='../out')  # if perform_download is True, the following steps will done automatically
+    #ariva.start_date = '14.07.2025'  # you can set the start date by constructor
+    #ariva.end_date = '01.07.2023'  # you can also set the date by property, not only by constructor
+    ariva.end_date = ariva.start_date - pd.DateOffset(months=12)
+    ariva.credentials_file = '../credentials_ariva.txt'  # if you want to use another credentials file or path
+    # ariva.set_logging_level('debug')
+    ariva._read_credentials()
+    ariva.login()
+    ariva.download_data()
+    ariva.close()
+    ariva.process_data()
+    ariva.save_data()
+    pass

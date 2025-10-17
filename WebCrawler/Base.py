@@ -31,6 +31,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 # from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import NoSuchElementException
 
 # time format
 import locale
@@ -125,6 +126,7 @@ class WebCrawler(object):
         # create temporary directory
         self._download_directory = tempfile.mkdtemp()
         self.logger.info(f'Temporary directory created: {self._download_directory}')
+        self._initial_file_count = 0  # Initial file count for wait_for_new_file
 
         # initialize webdriver
         # options = uc.ChromeOptions()
@@ -173,6 +175,7 @@ class WebCrawler(object):
         Downloads the data from the online banking platform
         """
         self._state = 'download_data'
+        self.logger.info('Starting data download from start_date: {} to end_date: {}'.format(self.start_date.strftime('%d.%m.%Y'), self.end_date.strftime('%d.%m.%Y')))
         pass
 
     def process_data(self):
@@ -359,6 +362,68 @@ class WebCrawler(object):
     #             return False
     #     except Exception as e:
     #         self.logger.error("Fehler beim Einlesen der heruntergeladenen Dateien", exc_info=True)
+
+    def _wait_for_new_file(self, timeout=30, check_interval=0.5, include_temp=True):
+        """
+        Wartet darauf, dass im Download-Ordner eine neue Datei erscheint.
+        Nutzt die Anzahl der Dateien als Referenz.
+
+        Args:
+            timeout (float): Maximale Wartezeit in Sekunden.
+            check_interval (float): Prüfintervall in Sekunden.
+            include_temp (bool): Ob temporäre Dateien (.crdownload, .tmp) mitgezählt werden sollen.
+
+        Returns:
+            str | None: Der Name der neu gefundenen Datei, oder None bei Timeout.
+        """
+        start_time = time.time()
+
+        def list_files():
+            try:
+                files = os.listdir(self._download_directory)
+                if not include_temp:
+                    files = [f for f in files if not f.endswith((".crdownload", ".tmp"))]
+                return files
+            except Exception as e:
+                self.logger.error(f"Fehler beim Auflisten der Dateien: {e}", exc_info=True)
+                return []
+
+        # Falls der initiale Zustand noch nicht gesetzt ist
+        if not hasattr(self, "_initial_file_count"):
+            try:
+                self._initial_file_count = len(list_files())
+                self.logger.debug(f"Initialer Dateicount gesetzt: {self._initial_file_count}")
+            except Exception as e:
+                self.logger.error(f"Fehler beim Setzen des initialen Dateicounts: {e}", exc_info=True)
+                return None
+
+        while time.time() - start_time < timeout:
+            try:
+                current_files = list_files()
+                current_count = len(current_files)
+
+                if current_count > self._initial_file_count:
+                    # Neueste Datei finden (nach Änderungszeit)
+                    newest_file = max(
+                        (os.path.join(self._download_directory, f) for f in current_files),
+                        key=os.path.getmtime
+                    )
+                    filename = os.path.basename(newest_file)
+                    self.logger.debug(f"Neue Datei erkannt: {filename}")
+
+                    # neuen Zustand speichern
+                    self._initial_file_count = current_count
+                    return filename
+
+                time.sleep(check_interval)
+
+            except Exception as e:
+                self.logger.error(f"Fehler in der Überwachungsschleife: {e}", exc_info=True)
+                return None
+
+        self.logger.warning(f"Timeout nach {timeout}s – keine neue Datei erkannt.")
+        return None
+
 
     def _read_temp_files(self, sep=';', max_retries=10, retry_wait=1, check_interval=0.5, download_timeout=10):
         """
