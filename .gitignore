@@ -7,6 +7,8 @@
 # build files
 /build/
 /dist/
+/src/read_transactions.egg-info
+
 
 
 !/credentials_example.txt
