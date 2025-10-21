@@ -1,559 +1,552 @@
 # -*- coding: utf-8 -*-
 """
 :author: Tim Häberlein
-:version: 1.0
-:date: 06.10.2024
+:version: 2.2
+:date: 21.10.2025
 :organisation: TU Dresden, FZM
+
+WebCrawler
+-----------
+Zentrale Basisklasse für alle Crawler im Projekt `read_transactions_fm`.
+- Einheitliches Logging über MainLogger
+- Nutzung einer externen WebDriverFactory
+- Robuste Typprüfung & flexible Datumsübergabe
+- Standardmethoden für Login, Download, Verarbeitung und Speicherung
 """
 
-# -------- start import block ---------
-# standard libraries
+from __future__ import annotations
+
 import os
 import shutil
 import time
-import logging
-import argparse
-
-# data handling
+import datetime
 import tempfile
 import pandas as pd
+import logging
+from typing import Any, Dict, Optional, Union
 
-# web scraping
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-# import undetected_chromedriver as uc  # pip install undetected-chromedriver
-from selenium.webdriver.support.ui import Select
-# from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import NoSuchElementException
+from src.read_transactions.logger import MainLogger
+from src.read_transactions.webcrawler.webdriver import WebDriverFactory
+from src.read_transactions.config import ConfigManager
 
 
-import locale
-locale.setlocale(locale.LC_TIME, 'de_DE.UTF-8')
+class WebCrawler:
+    """Basisklasse für alle WebCrawler.
 
-# -------- end import block ---------
-
-
-class WebCrawler(object):
+    Stellt Logging, WebDriver, Dateihandling und Standard-Lifecycle bereit.
     """
-    WebCrawler is a main class to download bank data
-    """
-    def __init__(self, name='WebCrawler', output_path='out',
-                 start_date=pd.to_datetime('today'),
-                 end_date=(pd.to_datetime('today') - pd.DateOffset(months=6)),
-                 autosave=True,
-                 logging_level='INFO'):
-        """
-        Initializes the WebCrawler with the specified output path
 
-        Args:
-            output_path (str): The directory where the output files will be saved. Default is 'out'.
-            start_date (str): The start date for the data download in the format 'dd.mm.yyyy'. Default is today's date.
-            end_date (str): The end date for the data download in the format 'dd.mm.yyyy'. Default is 6 months ago from today's date.
-            perform_download (bool): Whether to download the data or not. Default is True.
-            autosave (bool): Whether to save downloaded data to the output directory. Default is True.
-            logging_level (str): The logging level ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'). Default is 'INFO'.
-        """
+    # ------------------------------------------------------------------
+    # Konstruktor
+    # ------------------------------------------------------------------
+    def __init__(
+            self,
+            name: str = "WebCrawler",
+            output_path: str = "out",
+            start_date: Union[str, pd.Timestamp, datetime.date, None] = pd.to_datetime("today"),
+            end_date: Union[str, pd.Timestamp, datetime.date, None] = (pd.to_datetime("today") - pd.DateOffset(months=6)),
+            logging_level: str = "INFO",
+            global_log_level: str = "INFO",
+            logfile: Optional[str] = "logs/read_transactions.log",
+            *,
+            browser: str = "edge",
+            headless: bool = False,
+            user_agent: Optional[str] = None,
+    ) -> None:
+        """Initialisiert den Crawler mit Standardparametern."""
+        self.__name = name
+        self.__output_path = output_path
 
-        # set default values
-        if name is None:
-            name = 'WebCrawler'
-        if output_path is None:
-            output_path = 'out'
-        if start_date is None:
-            start_date = pd.to_datetime('today')
-        if end_date is None:
-            end_date = pd.to_datetime('today') - pd.DateOffset(months=6)
-        if autosave is None:
-            autosave = True
-        if logging_level is None:
-            logging_level = 'INFO'
+        # Logging einrichten
+        MainLogger.configure(level=global_log_level, logfile=logfile)
+        self.__logger = MainLogger.get_logger(self.__name)
+        self.__logger.setLevel(getattr(logging, logging_level.upper(), logging.INFO))
 
-
-        # initialize variables
-        self.__name = name  # name of the WebCrawler
-        self.__output_path = output_path  # output path
-        self.__autosave = autosave  # weather to save the data or not
+        # Zeitparameter setzen
         self.start_date = start_date
         self.end_date = end_date
-        self.account_balance = None
 
-        self.__credentials_file = 'credentials.txt'
-        self.__credentials = dict()  # dictionary to store credentials
-        self.__urls = dict()  # dictionary to store urls
-        self.__data = pd.DataFrame()  # data frame to store the downloaded data
-
-        self._state = None  # state of the WebCrawler
-
-        # set up logging
-        self.__logger = None
-        # self.__logger = logging.getLogger(self.__name)
-        self.configure_logger(self.__name, level=logging_level)
-        self.__logger.info('initialized')
-
-        # create output directory if it does not exist
-        if not os.path.exists(self.__output_path):
-            os.makedirs(self.__output_path)
-            # clear output directory
-            self.__logger.info(f'Output directory created: {self.__output_path}')
-        # delete all files in the output directory
-        # [os.remove(os.path.join(self.__output_path, f)) for f in os.listdir(self.__output_path) if os.path.isfile(os.path.join(self.__output_path, f))]
-
-        # create temporary directory
+        # State & interne Felder
+        self._state = "initialized"
         self._download_directory = tempfile.mkdtemp()
-        self.__logger.info(f'Temporary directory created: {self._download_directory}')
-        self._initial_file_count = 0  # Initial file count for wait_for_new_file
+        self._initial_file_count = 0
+        self.__credentials: Dict[str, str] = {}
+        self.__urls: Dict[str, str] = {}
+        self.__data: pd.DataFrame | Dict[str, pd.DataFrame] = pd.DataFrame()
 
-        # initialize webdriver
-        # options = uc.ChromeOptions()
-        options = webdriver.EdgeOptions()
-        # options.add_argument('--disable-gpu')
-        # options.add_argument("--disable-software-rasterizer")  # Software-Rendering deaktivieren
-        options.add_argument("--log-level=3")  # Weniger Logs, nur kritische Fehler
-        # options.add_argument("--disable-renderer-backgrounding")
-        # options.add_argument("--renderer-process-limit=1")  # Weniger Prozesse
-        # options.add_argument("--disable-accelerated-2d-canvas")  # Kein Hardware-Canvas
-        # options.add_argument("--disable-accelerated-video-decode")
-        # options.add_argument("--enable-software-compositing")
-        # options.add_argument('--headless')  # ohne browserfenster -> funktioniert zB bei TR nicht (scrollen erforderlich, Banner wird nicht gefunden)
-        # options.add_argument('--start-minimized')
-        # Setze einige Optionen, um die Automatisierung weniger erkennbar zu machen
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        # options.add_argument("--allow-running-insecure-content")  # unsichere Protokolle aktivieren
-        # options.add_argument("--ignore-certificate-errors")  # SSL-Zertifikatsfehler ignorieren
-        # options.add_argument("--allow-insecure-localhost")   # Für lokale unsichere Zertifikate
+        # WebDriver aus externer Factory
+        self.driver = WebDriverFactory.create(
+            browser=browser,
+            headless=headless,
+            download_dir=self._download_directory,
+            user_agent=user_agent,
+        )
+        self.driver.minimize_window()
 
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option('useAutomationExtension', False)
-        options.add_experimental_option("prefs", {
-            "download.default_directory": self._download_directory,
-            "download.prompt_for_download": False,
-            "download.directory_upgrade": True,
-            "safebrowsing.enabled": False,
-        })
-        # self.driver = uc.Chrome(options=options)
-        self.driver = webdriver.Edge(options=options)
+        self.__logger.info(f"WebCrawler {self.__name} initialized", extra={"crawler": self.__name})
 
-        self._state = 'initialized'
+    # ------------------------------------------------------------------
+    # Properties
+    # ------------------------------------------------------------------
+    @property
+    def name(self) -> str:
+        """Name der Crawler-Instanz."""
+        return self.__name
 
-    # ----------------------------------------------------------------
-    # ----------------------- public methods ------------------------
-    def login(self):
-        """
-        Logs in to the online banking platform.
-        Note that you need to import the credentials from a file bevor calling this method.
-        """
-        self._state = 'login'
-        pass
+    @property
+    def start_date(self) -> pd.Timestamp:
+        """Startdatum (immer als pandas.Timestamp gespeichert)."""
+        return self.__start_date
 
-    def download_data(self):
-        """
-        Downloads the data from the online banking platform
-        """
-        self._state = 'download_data'
-        self.__logger.info('Starting data download from start_date: {} to end_date: {}'.format(self.start_date.strftime('%d.%m.%Y'), self.end_date.strftime('%d.%m.%Y')))
-        pass
+    @start_date.setter
+    def start_date(self, value: Union[str, pd.Timestamp, datetime.date, None]):
+        if value is None:
+            value = pd.to_datetime("today")
+        if isinstance(value, str):
+            value = pd.to_datetime(value, format="%d.%m.%Y", errors="raise")
+        elif isinstance(value, datetime.date):
+            value = pd.Timestamp(value)
+        elif not isinstance(value, pd.Timestamp):
+            raise TypeError("start_date must be str, datetime.date, or pd.Timestamp")
+        self.__start_date = value
 
-    def process_data(self):
-        """
-        Processes the downloaded data
-        """
-        self._state = 'process_data'
-        pass
+    @property
+    def end_date(self) -> pd.Timestamp:
+        """Enddatum (immer als pandas.Timestamp gespeichert)."""
+        return self.__end_date
 
-    def save_data(self):
+    @end_date.setter
+    def end_date(self, value: Union[str, pd.Timestamp, datetime.date, None]):
+        if value is None:
+            value = pd.to_datetime("today") - pd.DateOffset(months=6)
+        if isinstance(value, str):
+            value = pd.to_datetime(value, format="%d.%m.%Y", errors="raise")
+        elif isinstance(value, datetime.date):
+            value = pd.Timestamp(value)
+        elif not isinstance(value, pd.Timestamp):
+            raise TypeError("end_date must be str, datetime.date, or pd.Timestamp")
+        self.__end_date = value
+
+    @property
+    def data(self) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
+        """Heruntergeladene und ggf. verarbeitete Daten."""
+        return self.__data
+
+    @data.setter
+    def data(self, value: Union[pd.DataFrame, Dict[str, pd.DataFrame]]):
+        if not (isinstance(value, pd.DataFrame) or (isinstance(value, dict) and all(isinstance(v, pd.DataFrame) for v in value.values()))):
+            raise TypeError("data must be a pandas DataFrame or dict[str, DataFrame]")
+        self.__data = value
+
+    @property
+    def _credentials(self) -> Dict[str, str]:
+        """Login-Daten für den Crawler."""
+        return self.__credentials
+
+    @property
+    def _urls(self) -> Dict[str, str]:
+        """URLs für den Crawler."""
+        return self.__urls
+
+    @property
+    def _logger(self) -> logging.Logger:
+        """Interner Logger (für Subklassen)."""
+        return self.__logger
+
+    # ------------------------------------------------------------------
+    # Lifecycle-Methoden
+    # ------------------------------------------------------------------
+    def login(self) -> None:
+        """Wird von Subklassen überschrieben – führt Login auf der Webseite aus."""
+        self._state = "login"
+        self.__logger.info(f"Starting login process für {self.__name}")
+        self.driver.get(self._urls.get("login", "about:blank"))
+
+    def download_data(self) -> None:
+        """Wird von Subklassen überschrieben – startet Download-Vorgang."""
+        self._state = "download_data"
+        self.__logger.info(
+            "Starting data download",
+            extra={"start_date": str(self.start_date), "end_date": str(self.end_date)},
+        )
+
+    def process_data(self) -> None:
+        """Optional von Subklassen überschreiben – verarbeitet geladene Daten."""
+        self._state = "process_data"
+        if self._read_temp_files():
+            self._logger.info(f"Verarbeite {len(self.data)} heruntergeladene Dateien")
+        else:
+            self._logger.debug('Keine Dateien im Temp-Verzeichnis')
+
+    def save_data(self) -> None:
+        """Speichert geladene Daten als CSV."""
+        try:
+            os.makedirs(self.__output_path, exist_ok=True)
+            file_path = os.path.join(self.__output_path, f"{self.__name}.csv")
+            if isinstance(self.__data, pd.DataFrame):
+                self.__data.to_csv(file_path, sep=";", index=False)
+            elif isinstance(self.__data, dict):
+                for fname, df in self.__data.items():
+                    df.to_csv(os.path.join(self.__output_path, fname), sep=";", index=False)
+            self.__logger.info(f"Data saved to: {self.__output_path}")
+        except Exception:
+            self.__logger.error("Error saving data", exc_info=True)
+
+    def close(self) -> None:
+        """Schließt WebDriver und löscht temporäre Ordner."""
+        try:
+            if hasattr(self, "driver"):
+                self.driver.quit()
+        except Exception:
+            self.__logger.warning("Driver quit failed", exc_info=True)
+        try:
+            shutil.rmtree(self._download_directory)
+            self.__logger.debug(f"Temporary directory removed: {self._download_directory}")
+        except Exception:
+            self.__logger.warning("Could not remove temporary directory", exc_info=True)
+        self.__logger.info(f"{self.__name} closed")
+
+    # ------------------------------------------------------------------
+    # Config & Credentials
+    # ------------------------------------------------------------------
+    def _load_config(self) -> None:
         """
-        Saves the downloaded data to a file
+        Lädt Crawler-spezifische Konfiguration aus der zentralen config.yaml.
+
+        Diese Methode liest:
+          - Zugangsdaten (user, password, token, ...)
+          - URLs (für den jeweiligen Crawler)
+
+        Raises:
+            FileNotFoundError: Wenn keine gültige config.yaml gefunden wurde.
+            KeyError: Wenn keine passenden Einträge für diesen Crawler vorhanden sind.
         """
         try:
-            file_path = os.path.join(self.__output_path, '{}.csv'.format(self.__name))
-            absolute_path = os.path.abspath(file_path)
-            # save data
-            self.__data.to_csv(file_path, sep=";", index=False)
-            # log success
-            self.__logger.info('Data saved to {}'.format(absolute_path))
+            self.__credentials = ConfigManager.get_credentials(self.__name)
+            self.__urls = ConfigManager.get_urls(self.__name)
+            self._logger.info(
+                f"Konfiguration für {self.__name} geladen.",
+                extra={"credentials_keys": list(self.__credentials.keys()), "urls_count": len(self.__urls)},
+            )
+        except FileNotFoundError as e:
+            self._logger.error(f"Config-Datei nicht gefunden: {e}")
+            raise
+        except KeyError as e:
+            self._logger.warning(f"Eintrag fehlt in config.yaml: {e}")
+            raise
         except Exception as e:
-            self.__logger.error('Error saving data', exc_info=True)
+            self._logger.error(f"Fehler beim Laden der Konfiguration: {e}", exc_info=True)
+            raise
 
-        self._state = 'save_data'
+    # ------------------------------------------------------------------
+    # Context Manager
+    # ------------------------------------------------------------------
+    def __enter__(self) -> "WebCrawler":
+        """
+        Context-Manager-Einstiegspunkt.
 
-    def close(self):
-        """
-        Closes the webdriver and the temporary directory
-        Note that this method should be called after the download process is finished and the data is stored in the internal variable self.data
-        """
-        self.driver.quit()
-        # del self.driver
-        shutil.rmtree(self._download_directory)
-        self.__logger.info('Temporary directory removed: {}'.format(self._download_directory))
-        self.__logger.info('{} closed'.format(self.__name))
-        self._state = 'closed'
+        Wird automatisch aufgerufen, wenn der Crawler in einem
+        `with`-Block verwendet wird. Gibt die aktuelle Instanz zurück,
+        sodass alle Methoden wie gewohnt verfügbar sind.
 
-    def error_close(self):
-        self.close()
-        os._exit(1)
-        self.__logger.error('WebCrawler closed due to error')
+        Beispiel:
+            >>> with WebCrawler(browser="edge", headless=True) as crawler:
+            ...     crawler.login()
+            ...     crawler.download_data()
+            ...     crawler.process_data()
+            ...     crawler.save_data()
+            # Nach Ende des Blocks wird automatisch close() ausgeführt.
+        """
+        self._logger.debug("Entering context manager", extra={"crawler": self.__name})
+        return self
 
-    def perform_download(self):
+    def __exit__(self, exc_type, exc_value, traceback) -> bool:
         """
-        Performs the download process automatically.
-        - read credentials
-        - login
-        - download data
-        - close webdriver
-        - process data
-        - save data (if autosave is True)
-        """
-        # zugangsdaten einlesen
-        self._read_credentials()
-        self.login()
-        self.download_data()
-        self.close()
-        self.process_data()
-        if self.__autosave:
-            self.save_data()
+        Context-Manager-Ausstiegspunkt.
 
-    def set_logging_level(self, level):
-        """
-        Ändert das Logging-Level zur Laufzeit.
+        Wird automatisch aufgerufen, wenn der `with`-Block endet,
+        unabhängig davon, ob ein Fehler aufgetreten ist.
+        Führt `close()` aus, um den WebDriver zu schließen und temporäre
+        Dateien zu löschen.
 
         Args:
-            level (str): Das neue Logging-Level ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL').
-        """
-        numeric_level = getattr(logging, level.upper(), None)
-        if not isinstance(numeric_level, int):
-            self.__logger.error(f"Ungültiges Logging-Level: {level}")
-            return
-
-        self.__logger.setLevel(numeric_level)
-        for handler in self.__logger.handlers:
-            handler.setLevel(numeric_level)
-
-        self.__logger.info(f"Logging-Level geändert auf: {level}")
-
-    def __configure_logger(self, name: str, log_file: str = "logs/webcrawlers.json", level='info'):
-        """
-        Konfiguriert einen Logger mit Datei- und Konsolenausgabe.
-
-        :param name: Name des Loggers
-        :param log_file: Pfad zur Log-Datei
-        :param level: Logging-Level für die Konsole
-        :return: Logger-Objekt
-        """
-        log_file_path = os.path.join(log_file)
-        os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
-        level = getattr(logging, level.upper(), None)
-
-        self.__logger = logging.getLogger(name)
-
-        # Falls der Logger bereits konfiguriert wurde, Handler nicht doppelt hinzufügen
-        if self.__logger.hasHandlers():
-            self.__logger.handlers.clear()
-
-        self.__logger.setLevel(logging.DEBUG)  # Generelle Logger-Einstellung (niedrigstes Level für File)
-
-        # JSON-Formatter für Datei-Logs
-        json_formatter = JsonFormatter()
-
-        # FileHandler (Immer DEBUG-Level)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(json_formatter)
-        file_handler.setLevel(logging.DEBUG)
-        self.__logger.addHandler(file_handler)
-
-        # ConsoleHandler (Mit übergebenem Level)
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        console_handler.setLevel(level)
-        self.__logger.addHandler(console_handler)
-
-        # Verhindere, dass Logs an den Root-Logger weitergegeben werden
-        self.__logger.propagate = False
-
-
-
-
-    # ----------------------------------------------------------------
-    # ----------------------- private methods -----------------------
-    def _wait_for_new_file(self, timeout=30, check_interval=0.5, include_temp=True):
-        """
-        Wartet darauf, dass im Download-Ordner eine neue Datei erscheint.
-        Nutzt die Anzahl der Dateien als Referenz.
-
-        Args:
-            timeout (float): Maximale Wartezeit in Sekunden.
-            check_interval (float): Prüfintervall in Sekunden.
-            include_temp (bool): Ob temporäre Dateien (.crdownload, .tmp) mitgezählt werden sollen.
+            exc_type: Typ der Exception (falls eine aufgetreten ist)
+            exc_value: Exception-Instanz
+            traceback: Traceback-Objekt der Exception
 
         Returns:
-            str | None: Der Name der neu gefundenen Datei, oder None bei Timeout.
+            bool: False, damit Exceptions im `with`-Block *nicht*
+            unterdrückt werden. (Python wirft sie weiter.)
+        """
+        if exc_type is not None:
+            self._logger.error(
+                "Exception occurred in context",
+                extra={"type": str(exc_type), "value": str(exc_value)}
+            )
+        self.close()
+        self._logger.debug(f"Exiting context manager for {self.__name}", extra={"crawler": self.__name})
+        # False sorgt dafür, dass Exceptions weitergereicht werden
+        return False
+
+    # ------------------------------------------------------------------
+    # Download & Selenium Helpers
+    # ------------------------------------------------------------------
+    def wait_for_element(self, by: str, selector: str, timeout: int = 15):
+        """Wartet auf das Vorhandensein eines Elements und gibt es zurück.
+
+        Args:
+            by: Selenium-By-Strategie, z. B. "css selector"/By.CSS_SELECTOR.
+            selector: Selektor-String.
+            timeout: Max. Wartezeit in Sekunden.
+
+        Returns:
+            WebElement: Gefundenes Element.
+
+        Raises:
+            TimeoutException: Wenn das Element nicht rechtzeitig erscheint.
+        """
+        from selenium.webdriver.common.by import By as _By
+        from selenium.webdriver.support.ui import WebDriverWait as _WebDriverWait
+        from selenium.webdriver.support import expected_conditions as _EC
+
+        by_map = {
+            "id": _By.ID,
+            "name": _By.NAME,
+            "css": _By.CSS_SELECTOR,
+            "css selector": _By.CSS_SELECTOR,
+            "xpath": _By.XPATH,
+            "link text": _By.LINK_TEXT,
+            "partial link text": _By.PARTIAL_LINK_TEXT,
+            "tag": _By.TAG_NAME,
+            "class": _By.CLASS_NAME,
+        }
+        _by = by_map.get(str(by).lower(), _By.CSS_SELECTOR)
+        return _WebDriverWait(self.driver, timeout).until(
+            _EC.presence_of_element_located((_by, selector))
+        )
+
+    def wait_clickable_and_click(self, by: str, selector: str, timeout: int = 15) -> None:
+        """Wartet, bis ein Element klickbar ist, und klickt es dann an.
+        by_map = {
+            "id": _By.ID,
+            "name": _By.NAME,
+            "css": _By.CSS_SELECTOR,
+            "css selector": _By.CSS_SELECTOR,
+            "xpath": _By.XPATH,
+            "link text": _By.LINK_TEXT,
+            "partial link text": _By.PARTIAL_LINK_TEXT,
+            "tag": _By.TAG_NAME,
+            "class": _By.CLASS_NAME,
+            }
+
+        Args:
+            by (str): by je nach by_map
+            selector (str): selector
+            timeout (int): Timeout in sekunden
+
+
+        """
+        from selenium.webdriver.common.by import By as _By
+        from selenium.webdriver.support.ui import WebDriverWait as _WebDriverWait
+        from selenium.webdriver.support import expected_conditions as _EC
+
+        by_map = {
+            "id": _By.ID,
+            "name": _By.NAME,
+            "css": _By.CSS_SELECTOR,
+            "css selector": _By.CSS_SELECTOR,
+            "xpath": _By.XPATH,
+            "link text": _By.LINK_TEXT,
+            "partial link text": _By.PARTIAL_LINK_TEXT,
+            "tag": _By.TAG_NAME,
+            "class": _By.CLASS_NAME,
+        }
+        _by = by_map.get(str(by).lower(), _By.CSS_SELECTOR)
+        elem = _WebDriverWait(self.driver, timeout).until(
+            _EC.element_to_be_clickable((_by, selector))
+        )
+        elem.click()
+
+    def scroll_into_view(self, element) -> None:
+        """Scrollt ein Element ins Viewport."""
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+
+    def click_js(self, element) -> None:
+        """Klickt ein Element via JavaScript (Fallback bei Overlay o.Ä.)."""
+        self.driver.execute_script("arguments[0].click();", element)
+
+    def accept_cookies_if_present(self, selectors: tuple[str, ...] = ("button#onetrust-accept-btn-handler",
+                                                                      "button[aria-label='Akzeptieren']",
+                                                                      "button.cookie-accept"),
+                                  timeout_each: int = 3) -> bool:
+        """Versucht gängige Cookie-Banner wegzuklicken.
+
+        Args:
+            selectors: Liste möglicher CSS-Selektoren für Zustimmungs-Buttons.
+            timeout_each: Zeitfenster pro Selektor.
+
+        Returns:
+            bool: True, wenn ein Banner geschlossen wurde.
+        """
+        from selenium.common.exceptions import TimeoutException as _Timeout
+        for css in selectors:
+            try:
+                self.wait_clickable_and_click("css", css, timeout=timeout_each)
+                self._logger.debug("Cookie-Banner bestätigt", extra={"selector": css})
+                return True
+            except _Timeout:
+                continue
+            except Exception:
+                # Banner evtl. schon weg – kein harter Fehler
+                continue
+        return False
+
+    def _wait_for_new_file(self, timeout: float = 30, check_interval: float = 0.5, include_temp: bool = True) -> Optional[str]:
+        """Wartet auf eine neue Datei im Download-Ordner und gibt deren Dateinamen zurück.
+
+        Args:
+            timeout: Maximale Wartezeit in Sekunden.
+            check_interval: Prüfintervall in Sekunden.
+            include_temp: Ob temporäre Dateien (.crdownload/.tmp) berücksichtigt werden.
+
+        Returns:
+            Der Dateiname der neu erkannten Datei oder None bei Timeout.
         """
         start_time = time.time()
 
-        def list_files():
+        def list_files() -> list[str]:
             try:
                 files = os.listdir(self._download_directory)
                 if not include_temp:
                     files = [f for f in files if not f.endswith((".crdownload", ".tmp"))]
                 return files
-            except Exception as e:
-                self.__logger.error(f"Fehler beim Auflisten der Dateien: {e}", exc_info=True)
+            except Exception:
+                self._logger.error("Fehler beim Auflisten der Dateien", exc_info=True)
                 return []
 
-        # Falls der initiale Zustand noch nicht gesetzt ist
         if not hasattr(self, "_initial_file_count"):
             try:
                 self._initial_file_count = len(list_files())
-                self.__logger.debug(f"Initialer Dateicount gesetzt: {self._initial_file_count}")
-            except Exception as e:
-                self.__logger.error(f"Fehler beim Setzen des initialen Dateicounts: {e}", exc_info=True)
+                self._logger.debug("Initialer Dateicount gesetzt", extra={"count": self._initial_file_count})
+            except Exception:
+                self._logger.error("Fehler beim Setzen des initialen Dateicounts", exc_info=True)
                 return None
 
         while time.time() - start_time < timeout:
             try:
                 current_files = list_files()
                 current_count = len(current_files)
-
                 if current_count > self._initial_file_count:
-                    # Neueste Datei finden (nach Änderungszeit)
                     newest_file = max(
                         (os.path.join(self._download_directory, f) for f in current_files),
                         key=os.path.getmtime
                     )
                     filename = os.path.basename(newest_file)
-                    self.__logger.debug(f"Neue Datei erkannt: {filename}")
-
-                    # neuen Zustand speichern
+                    self._logger.debug(f"Neue Datei erkannt: {filename}")
                     self._initial_file_count = current_count
                     return filename
-
                 time.sleep(check_interval)
-
-            except Exception as e:
-                self.__logger.error(f"Fehler in der Überwachungsschleife: {e}", exc_info=True)
+            except Exception:
+                self._logger.error("Fehler in der Überwachungsschleife", exc_info=True)
                 return None
 
-        self.__logger.warning(f"Timeout nach {timeout}s – keine neue Datei erkannt.")
+        self._logger.warning("Timeout – keine neue Datei erkannt", extra={"timeout": timeout})
         return None
 
+    def _read_temp_files(
+            self,
+            sep: str = ';',
+            max_retries: int = 10,
+            retry_wait: float = 1.0,
+            check_interval: float = 0.5,
+            download_timeout: float = 10.0,
+    ) -> bool:
+        """Liest Dateien aus dem Download-Ordner in `self.data`.
 
-    def _read_temp_files(self, sep=';', max_retries=10, retry_wait=1, check_interval=0.5, download_timeout=10):
-        """
-        Reads the temporary files in the download directory and stores them in the data dictionary.
-
-        Args:
-            sep (str): Separator used in CSV files. Default is ';'.
-            max_retries (int): Maximum number of retries for detecting incomplete downloads.
-            retry_wait (float): Time in seconds to wait between retries for missing files.
-            check_interval (float): Interval in seconds to check for pending files.
-            download_timeout (float): Maximum waiting time for downloads to complete.
+        Unterstützt CSV, XLS, XLSX. Wartet optional, bis temporäre
+        Download-Dateien (.crdownload/.tmp) verschwunden sind.
 
         Returns:
-            bool: True if files were read successfully, False otherwise.
+            True bei Erfolg, sonst False.
         """
         retries = 0
         while retries < max_retries:
             try:
                 files_in_dir = os.listdir(self._download_directory)
-                self.__logger.debug(f"Dateien im temporären Verzeichnis: {files_in_dir}")
+                self._logger.debug("Dateien im temporären Verzeichnis", extra={"files": files_in_dir})
 
                 if not files_in_dir:
-                    self.__logger.debug("Keine Datei im temporären Verzeichnis gefunden.")
+                    self._logger.debug("Keine Datei im temporären Verzeichnis gefunden.")
                     retries += 1
                     time.sleep(retry_wait)
                     continue
 
-                # Check for incomplete downloads
                 start_time = time.time()
                 while time.time() - start_time < download_timeout:
-                    pending_files = [f for f in os.listdir(self._download_directory) if f.endswith(".tmp") or f.endswith(".crdownload")]
-
-                    if not pending_files:
-                        break  # Download ist abgeschlossen
-
-                    self.__logger.info(f"Warte auf {len(pending_files)} unvollständige Datei(en)... (Timeout in {round(download_timeout - (time.time() - start_time), 1)}s)")
+                    pending = [f for f in os.listdir(self._download_directory) if f.endswith((".tmp", ".crdownload"))]
+                    if not pending:
+                        break
+                    self._logger.info(
+                        "Warte auf unvollständige Downloads",
+                        extra={"pending": pending, "remaining": round(download_timeout - (time.time() - start_time), 1)}
+                    )
                     time.sleep(check_interval)
 
-                # Wenn nach Timeout noch immer pending files existieren → Fehler
-                pending_files = [f for f in os.listdir(self._download_directory) if f.endswith(".tmp") or f.endswith(".crdownload")]
-                if pending_files:
-                    self.__logger.warning(f"Timeout erreicht! {len(pending_files)} Datei(en) sind immer noch unvollständig: {pending_files}")
+                pending = [f for f in os.listdir(self._download_directory) if f.endswith((".tmp", ".crdownload"))]
+                if pending:
+                    self._logger.warning("Timeout: Dateien unvollständig", extra={"pending": pending})
                     return False
 
-                # Verarbeiten der vollständigen Dateien
-                file_content = {}
+                file_content: Dict[str, pd.DataFrame] = {}
                 for f in os.listdir(self._download_directory):
                     downloaded_file = os.path.join(self._download_directory, f)
+                    try:
+                        if f.lower().endswith(".csv"):
+                            df = pd.read_csv(downloaded_file, sep=sep)
+                        elif f.lower().endswith(".xls"):
+                            df = pd.read_excel(downloaded_file, engine='xlrd')
+                        elif f.lower().endswith(".xlsx"):
+                            df = pd.read_excel(downloaded_file, engine='openpyxl')
+                        else:
+                            continue
+                        file_content[f] = df
+                        self._logger.debug("Datei eingelesen", extra={"file": f, "rows": len(df)})
+                    except Exception:
+                        self._logger.error("Fehler beim Einlesen einer Datei", exc_info=True)
 
-                    if f.endswith(".csv"):
-                        logging.debug(f"CSV-Datei gefunden: {f}")
-                        df = pd.read_csv(downloaded_file, sep=sep)
-                    elif f.endswith(".xls"):
-                        logging.debug(f"Excel-Datei gefunden: {f}")
-                        df = pd.read_excel(downloaded_file, engine='xlrd')
-                    else:
-                        continue  # Unsupported file type, skipping
+                if not file_content:
+                    self._logger.warning("Keine unterstützten Dateien gefunden")
+                    return False
 
-                    file_content[f] = df
-                    logging.debug(df.head())
-                    logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
-
-                self.__data = file_content
-                self.__logger.info(f"{len(file_content)} Dateien erfolgreich eingelesen.")
+                # Bei 1 Datei → direkt DF speichern, sonst dict
+                self.data = file_content if len(file_content) > 1 else next(iter(file_content.values()))
+                self._logger.info("Dateien erfolgreich eingelesen", extra={"count": len(file_content)})
                 return True
 
-            except Exception as e:
-                self.__logger.error("Fehler beim Einlesen der heruntergeladenen Dateien", exc_info=True)
+            except Exception:
+                self._logger.error("Fehler beim Einlesen der heruntergeladenen Dateien", exc_info=True)
                 return False
 
-        self.__logger.warning("Maximale Anzahl an Wiederholungen erreicht. Einige Dateien wurden möglicherweise nicht vollständig heruntergeladen.")
+        self._logger.debug("Maximale Wiederholungen erreicht – ggf. unvollständige Downloads")
         return False
 
 
-    def _read_credentials(self):
-        """
-        Reads the credentials from a file and returns them as a dictionary
-        """
-        try:
-            with open(self.__credentials_file, 'r', encoding='utf-8') as file:
-                lines = file.readlines()
-            credentials = {}
-            for line in lines:
-                try:
-                    if len(line) > 1:
-                        key, value = line.strip().split(':', 1)
-                        credentials[key] = value.strip()
-                    else:
-                        continue
-                except ValueError:
-                    self.__logger.error('Error reading credentials line: {}'.format(line), exc_info=True)
-                    continue
-        except Exception as e:
-            self.__logger.error('Error reading credentials file', exc_info=True)
-
-        self.credentials = credentials
-
-    # ----------------------------------------------------------------
-    # ----------------------- static methods -------------------------
-
-    # ----------------------------------------------------------------
-    # ----------------------- properties ----------------------------
-    @property
-    def name(self) -> str:
-        """
-        Getter for the name property.
-        :return: Name of the WebCrawler
-        """
-        return self.__name
-
-    @name.setter
-    def name(self, value):
-        """
-        Setter for the name property.
-        :param value: new name value
-        :type value: str
-        """
-        assert isinstance(value, str), 'Name must be a string'
-        self.__name = value
-
-    @property
-    def output_path(self):
-        return self.__output_path
-
-    @property
-    def start_date(self):
-        return self.__start_date
-
-    @start_date.setter
-    def start_date(self, value):
-        try:
-            date = pd.to_datetime(value, format='%d.%m.%Y')
-        except ValueError:
-            raise ValueError('Start date must be in the format dd.mm.yyyy')
-        self.__start_date = date
-
-    @property
-    def end_date(self):
-        return self.__end_date
-
-    @end_date.setter
-    def end_date(self, value):
-        try:
-            date = pd.to_datetime(value, format='%d.%m.%Y')
-        except ValueError:
-            raise ValueError('End date must be in the format dd.mm.yyyy')
-        self.__end_date = date
-
-    @property
-    def urls(self) -> dict:
-        """
-        Getter for the urls property.
-        :return: url as dictionary
-        """
-        return self.__urls
-
-    @urls.setter
-    def urls(self, value):
-        """
-        Setter for the urls property.
-        :param value: new url value
-        :type value: dict
-        """
-        assert isinstance(value, dict), 'URLs must be a dictionary'
-        self.__urls = value
-
-    @property
-    def data(self) -> pd.DataFrame:
-        """
-        Getter for the data property.
-        Return the downloaded data as a pandas DataFrame.
-
-        :return: data as Dataframe
-        """
-        return self.__data
-
-    @data.setter
-    def data(self, value):
-        """
-        Setter for the data property.
-        :param value: new data value
-        :type value: pd.DataFrame
-        """
-        assert isinstance(value, pd.DataFrame), 'Data must be a pandas DataFrame'
-        self.__data = value
-
-    @property
-    def credentials_file(self):
-        return self.__credentials_file
-
-    @credentials_file.setter
-    def credentials_file(self, value):
-        self.__credentials_file = value
-
-    @property
-    def credentials(self) -> dict:
-        return self.__credentials
-
-    @credentials.setter
-    def credentials(self, value):
-        assert isinstance(value, dict), 'Credentials must be a dictionary with user and password'
-        self.__credentials = value
-    
-    @property
-    def _logger(self) -> logging.Logger:
-        return self.__logger
 
 
-if __name__ == '__main__':
-    # crawler = WebCrawler()
-    # crawler.set_logging_level('DEBUG')
+
+if __name__ == "__main__":
+    # Beispielhafte Nutzung des WebCrawlers
+    with WebCrawler(
+        name="ExampleCrawler",
+        output_path="output",
+        start_date="01.01.2023",
+        end_date="30.06.2023",
+        autosave=True,
+        logging_level="DEBUG",
+        logfile=None,
+    ) as crawler:
+        crawler.login()
+
+    # crawler = WebCrawler(logging_level="DEBUG")
+    # crawler.login()
     # crawler.close()
-    pass
-
-
-
-
-

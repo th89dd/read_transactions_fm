@@ -61,16 +61,27 @@ class MainLogger:
         console_handler.setFormatter(logging.Formatter(log_format, datefmt))
         root_logger.addHandler(console_handler)
 
-        # Datei (optional)
+        # Optionale Datei
         if logfile:
-            logfile = os.path.abspath(logfile)
-            file_handler = logging.FileHandler(logfile, encoding="utf-8")
-            file_handler.setFormatter(logging.Formatter(log_format, datefmt))
-            root_logger.addHandler(file_handler)
-            root_logger.info(f"Logging in Datei: {logfile}")
+            try:
+                logfile = os.path.abspath(logfile)
+                os.makedirs(os.path.dirname(logfile), exist_ok=True)
+                file_handler = logging.FileHandler(logfile, encoding="utf-8")
+                file_handler.setFormatter(logging.Formatter(log_format, datefmt))
+                root_logger.addHandler(file_handler)
+                root_logger.info(f"Logging in Datei: {logfile}")
+                cls.__logfile_path = logfile
+            except Exception as e:
+                root_logger.warning(
+                    f"Konnte Logdatei '{logfile}' nicht anlegen: {e}. "
+                    "Falle auf Konsolen-Logging zurück."
+                )
+                cls.__logfile_path = None
+        else:
+            root_logger.debug("Kein Logfile angegeben – Logging nur auf Konsole aktiv.")
 
         cls.__is_configured = True
-        root_logger.debug("LoggerFactory erfolgreich konfiguriert.")
+        root_logger.debug("MainLogger konfiguriert.")
 
     @classmethod
     def get_logger(cls, name: Optional[str] = None) -> logging.Logger:
@@ -86,7 +97,7 @@ class MainLogger:
         if not cls.__is_configured:
             cls.configure()
         if not name:
-            name = "excel_protection_remover"
+            name = "read_transactions"
         return logging.getLogger(name)
 
     @classmethod

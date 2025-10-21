@@ -7,10 +7,11 @@
 !/credentials_ariva_example.txt
 # personal credentials
 credentials_*.txt
-
+config.yaml
 
 # stuff to ignore
 /out
 /backup
 /data
 /logs/
+

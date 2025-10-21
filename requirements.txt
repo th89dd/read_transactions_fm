@@ -1,6 +1,7 @@
 # Datenhandling
 pandas  # main package for data handling
 xlrd  # for reading excel files
+pyyaml  # for reading yaml files
 # numpy
 # pdfplumber
 # openpyxl
