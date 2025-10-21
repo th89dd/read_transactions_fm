@@ -7,8 +7,11 @@
 """
 import time
 
+import pandas as pd
+
 # -------- start import block ---------
 from WebCrawler.Base import *
+import re
 
 # -------- end import block ---------
 
@@ -73,6 +76,7 @@ class TradeRepublic(WebCrawler):
 
         # Bis nach unten scrollen, um alle Transaktionen zu laden
         self.driver.maximize_window()
+        time.sleep(0.5)
         self.__scroll_to_bottom()
         self.driver.minimize_window()
 
@@ -84,15 +88,25 @@ class TradeRepublic(WebCrawler):
             self.logger.error("Timeline konnte nicht geladen werden.")
             return
 
-        # Elemente sammeln
-        try:
-            li_elements = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'timeline__entry')))
-        except TimeoutException:
-            self.logger.error("Keine Timeline-Einträge gefunden.")
-            return
+        # Transaktionsdaten auslesen & elemente sammeln (alter Parser)
+        # try:
+        #     li_elements = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'timeline__entry')))
+        # except TimeoutException:
+        #     self.logger.error("Keine Timeline-Einträge gefunden.")
+        #     return
+        # self.data = self.__parse_transaction_elements(li_elements)
+        # self.logger.info(f"{len(self.data)} Transaktionsdaten erfolgreich ausgelesen.")
 
-        # Transaktionsdaten auslesen
-        self.data = self.__parse_transaction_elements(li_elements)
+        # Transaktionsdaten auslesen & elemente sammeln (neuer JS-basierter Parser)
+        try:
+            raw_entries = self.__get_raw_entries()
+            if self.logger.level == logging.DEBUG:
+                self.raw_entries = raw_entries
+        except Exception:
+            self.logger.error("Fehler beim Auslesen der Rohdaten-Einträge.", exc_info=True)
+            return
+        self.logger.info(f"Verarbeite {len(raw_entries)} Rohdaten-Einträge...")
+        self.data = self.__process_js_transactions(raw_entries)
         self.logger.info(f"{len(self.data)} Transaktionsdaten erfolgreich ausgelesen.")
 
     def process_data(self):
@@ -239,7 +253,7 @@ class TradeRepublic(WebCrawler):
             self.logger.error("Error sending the SMS code.", exc_info=True)
             self.error_close()
 
-    def __scroll_to_bottom(self, wait_time: int = 10, pause_time:float = 0.01, stable_rounds: int = 3):
+    def __scroll_to_bottom(self, wait_time: int = 10, pause_time:float = 0.1, stable_rounds: int = 3):
         """
         Scrollt die Seite bis zum Ende und wartet jeweils, bis neue Elemente geladen sind.
         """
@@ -363,6 +377,247 @@ class TradeRepublic(WebCrawler):
             'Betrag [€]': preis,
         }
 
+    def __get_raw_entries(self):
+        """
+        Liest alle Rohdaten-Einträge mittels Java-Scriot aus der Timeline.
+        """
+        js = """
+            return Array.from(document.querySelectorAll('.timeline__entry')).map(li => {
+                const cls = li.className || '';
+                const title = li.querySelector('.timelineV2Event__title')?.innerText || '';
+                const subtitle = li.querySelector('.timelineV2Event__subtitle')?.innerText || '';
+                const price = li.querySelector('.timelineV2Event__price')?.innerText || '';
+                const text = li.innerText || '';
+                return {class: cls, title: title, subtitle: subtitle, price: price, text: text};
+            });
+        """
+        try:
+            raw_entries = self.driver.execute_script(js)
+            self.logger.info(f"{len(raw_entries)} Rohdaten-Einträge erfolgreich ausgelesen.")
+            return raw_entries
+        except Exception as e:
+            self.logger.error("Fehler beim Auslesen der Rohdaten-Einträge.", exc_info=True)
+            return []
+    def __process_js_transactions(self, raw_entries):
+        """Verarbeitet die JavaScript-Rohdaten in DataFrame-kompatible Form."""
+
+        # ---- Hilfsfunktionen ----
+        def extract_date_and_purpose(subtitle, title, year):
+            """Zerlegt das Datumsfeld und bildet den Verwendungszweck."""
+            try:
+                if not subtitle or not isinstance(subtitle, str):
+                    raise ValueError("Kein gültiger subtitle-Text")
+
+                match = re.match(r"^(\d{2}\.\d{2}\.)(?:\s*-\s*(.*))?$", subtitle.strip())
+                if match:
+                    datum_str = f"{match.group(1)}{year}"
+                    verwendungszweck = f"{title} {match.group(2)}" if match.group(2) else title
+                else:
+                    datum_str = f"{subtitle.strip()}{year}"
+                    verwendungszweck = title
+
+                datum = pd.to_datetime(datum_str, format='%d.%m.%Y', errors='coerce')
+                return datum, verwendungszweck
+
+            except Exception as e:
+                # Fehlerprotokoll für Debug
+                self.logger.debug(f"Fehler beim Parsen von subtitle='{subtitle}': {e}")
+                # Fallback
+                return pd.NaT, title
+
+        def normalize_price(price_str):
+            """Bereinigt und formatiert Preisangaben."""
+            if not price_str:
+                return 'N/A'
+            preis = price_str.replace('€', '').replace('.', '').replace(',', '.').strip()
+            if not preis:
+                return 'N/A'
+            if preis.startswith('+'):
+                preis = preis.replace('+', '')
+            else:
+                preis = f"-{preis}"
+            return preis
+
+        def update_month_context_from_text(text, month, year):
+            """Aktualisiert Monat/Jahr basierend auf Monatsüberschrift."""
+            text = text.strip()
+
+            if text == "Dieser Monat":
+                month = pd.to_datetime('today').strftime('%B')
+                self.logger.debug(f"Wechsel zu Monat: {month} {year}")
+                return month, year
+
+            # 🧠 Regex:
+            # ^([A-Za-zäöüÄÖÜß]+)         → fängt den Monatsnamen ein (auch mit Umlauten)
+            # (?:\s+(\d{4}))?$            → optional: Leerzeichen + vierstellige Jahreszahl
+            match = re.match(r"^([A-Za-zäöüÄÖÜß]+)(?:\s+(\d{4}))?$", text)
+
+            if match:
+                month = match.group(1)
+                if match.group(2):
+                    year = int(match.group(2))
+                self.logger.debug(f"Wechsel zu Monat: {month} {year}")
+            else:
+                self.logger.debug(f"Unbekannte Monatszeile: '{text}'")
+
+            return month, year
+        # ----------------------------------------------------------------
+        # ---- Hauptverarbeitungslogik ----
+        daten = []
+        month = pd.to_datetime('today').strftime('%B')
+        year = pd.to_datetime('today').year
+        stop_parsing = False
+
+        for idx, e in enumerate(raw_entries):
+            if stop_parsing:
+                break
+
+            classes = e.get('class', '')
+            if '-isMonthDivider' in classes or '-isNewSection' in classes:
+                month, year = update_month_context_from_text(e.get('text', ''), month, year)
+                continue
+
+            empfaenger = e.get('title', '').strip() or 'N/A'
+            preis = normalize_price(e.get('price', '').strip())
+            subtitle = e.get('subtitle', '').strip()
+            datum, verwendungszweck = extract_date_and_purpose(subtitle, empfaenger, year)
+
+            # 🔥 Enddatum-Abbruch
+            if datum and datum < self.end_date:
+                self.logger.info(f"Enddatum erreicht bei {datum.strftime('%d.%m.%Y')} – Parsing beendet.")
+                stop_parsing = True
+                break
+
+            entry_dict ={
+                'Datum': datum.strftime('%d.%m.%Y') if pd.notna(datum) else 'N/A',
+                'Empfänger': empfaenger,
+                'Verwendungszweck': verwendungszweck,
+                'Betrag [€]': preis,
+            }
+
+            # self.driver.maximize_window()
+            order_detail_keys = ['Kauforder', 'Verkaufsorder', 'Sparplan ausgeführt', 'Saveback']
+            if any(key in verwendungszweck for key in order_detail_keys):
+                details = self.__get_order_details_from_entry(idx)
+                entry_dict['details'] = str(details)
+
+            daten.append(entry_dict)
+
+
+
+        return pd.DataFrame(daten)
+
+    def __get_order_details_from_entry(self, index: int) -> dict:
+        """
+        Klickt auf einen timeline__entry, öffnet die Detailansicht,
+        liest Label–Wert-Paare (Transaktion, Summe, Gebühr, …) aus
+        und schließt das Overlay zuverlässig wieder.
+        Gibt ein Dictionary der gefundenen Details zurück.
+        """
+        wait = WebDriverWait(self.driver, 12)
+        details = {}
+
+        # --- Subfunktion: Detailtabelle parsen ---
+        def parse_detail_table():
+            data = {}
+            try:
+                table = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "div.detailTable"))
+                )
+                rows = table.find_elements(By.CSS_SELECTOR, "div.detailTable__row")
+                for row in rows:
+                    try:
+                        label = row.find_element(By.CSS_SELECTOR, "dt.detailTable__label").text.strip()
+                        value = row.find_element(By.CSS_SELECTOR, "dd.detailTable__value").text.strip()
+                        if label:
+                            data[label] = value
+                            self.logger.debug(f"Detail: {label} = {value}")
+                    except Exception:
+                        continue
+
+                # Transaktion: „50 × 4,14 €“
+                trans = data.get("Transaktion", "")
+                m = re.match(r"(\d+(?:[.,]\d+)?)\s*[×x*]\s*([\d.,]+)\s*€", trans)
+                if m:
+                    data["Stückzahl"]  = float(m.group(1).replace(',', '.'))
+                    data["Stückpreis"] = float(m.group(2).replace(',', '.'))
+
+                # Numerische Felder konvertieren
+                for key in ("Summe", "Gebühr"):
+                    val = data.get(key)
+                    if val and "€" in val:
+                        data[key] = float(val.replace('€', '').replace('.', '').replace(',', '.').strip())
+            except Exception as e:
+                self.logger.warning(f"Detailtabelle konnte nicht gelesen werden: {e}", exc_info=True)
+            return data
+
+        # --- Subfunktion: Overlay schließen ---
+        def close_overlay():
+            for attempt, action in enumerate(("Button", "ESC", "Backdrop"), start=1):
+                try:
+                    if action == "Button":
+                        btn = self.driver.find_element(By.CSS_SELECTOR, "button.closeButton.sideModal__close")
+                        btn.click()
+                    elif action == "ESC":
+                        self.driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
+                    elif action == "Backdrop":
+                        self.driver.find_element(By.CSS_SELECTOR, ".overlay.-raised").click()
+
+                    WebDriverWait(self.driver, 5).until(
+                        EC.invisibility_of_element_located((By.CSS_SELECTOR, ".timelineDetailModal"))
+                    )
+                    return True
+                except Exception:
+                    continue
+            self.logger.debug("Detail-Overlay konnte nicht sicher geschlossen werden.")
+            return False
+
+        # --- Hauptablauf ---
+        try:
+            entries = self.driver.find_elements(By.CSS_SELECTOR, ".timeline__entry")
+            if index < 0 or index >= len(entries):
+                self.logger.debug(f"Index {index} außerhalb der Eintragsliste ({len(entries)}).")
+                return {}
+
+            entry = entries[index]
+
+            # Nur echte klickbare Orders
+            try:
+                entry.find_element(By.CSS_SELECTOR, ".clickable.timelineEventAction")
+            except NoSuchElementException:
+                self.logger.debug(f"Entry {index} hat kein klickbares Event – überspringe.")
+                return {}
+
+            # Scroll-Offset (Header nicht verdecken)
+            self.driver.execute_script("""
+                const header = document.querySelector('header') || document.querySelector('.topBar');
+                const h = header ? header.offsetHeight : 100;
+                const y = arguments[0].getBoundingClientRect().top + window.scrollY - h - 20;
+                window.scrollTo({top: y});
+            """, entry)
+            time.sleep(0.3)
+
+            # Klick auf Entry
+            entry.click()
+
+            # Warte bis Overlay sichtbar und Tabelle da ist
+            wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".timelineDetailModal")))
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.detailTable")))
+
+            # Tabelle parsen
+            details = parse_detail_table()
+
+        except TimeoutException:
+            self.logger.warning(f"Timeout beim Öffnen/Lesen der Order-Details (Index {index})")
+        except Exception as e:
+            self.logger.warning(f"Fehler beim Lesen der Order-Details (Index {index}): {e}", exc_info=True)
+        finally:
+            close_overlay()
+
+        return details
+
+
+
     # ----------------------------------------------------------------
     # --------------------- static methods ---------------------------
     @staticmethod
@@ -380,16 +635,24 @@ class TradeRepublic(WebCrawler):
 if __name__ == '__main__':
     tr = TradeRepublic(perform_download=False, output_path='../out')
     tr.credentials_file = '../credentials_traderepublic.txt'  # if you want to use another credentials file or path
-    # tr.set_logging_level('debug')
+    tr.set_logging_level('debug')
+    # tr.end_date = tr.start_date - pd.DateOffset(months=12)
+    tr.end_date = pd.to_datetime('15.10.2025', format='%d.%m.%Y')
+
     tr._read_credentials()
-    tr.end_date = tr.start_date - pd.DateOffset(months=12)
     tr.login()
     tr.download_data()
-    tr.close()
-    tr.process_data()
-    tr.save_data()
+    # tr.close()
+    # tr.process_data()
+    # tr.save_data()
 
     # wait = WebDriverWait(tr.driver, 10)
+    # entries = tr.driver.find_elements(By.CSS_SELECTOR, ".timeline__entry")
+    # entry = entries[1]
+    # container = modal.find_element(By.CSS_SELECTOR,
+    #                                "div.timelineDetailModal__timelineDetail div:nth-child(2) > div"
+    #                                )
+    # rows = container.find_elements(By.CSS_SELECTOR, "div")
     # timer_element = wait.until(EC.presence_of_element_located((By.XPATH, "//button[@class='trLink smsCode__resendCode']//span[@role='timer']")))
     # button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[@class='trLink smsCode__resendCode']//span[text()='Code als SMS senden']")))
 

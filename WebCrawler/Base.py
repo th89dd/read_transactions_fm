@@ -11,10 +11,7 @@
 import os
 import shutil
 import time
-import threading
 import logging
-import json
-import traceback
 import argparse
 
 # data handling
@@ -33,30 +30,12 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
 
-# time format
+
 import locale
 locale.setlocale(locale.LC_TIME, 'de_DE.UTF-8')
-# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 # -------- end import block ---------
 
-
-class JsonFormatter(logging.Formatter):
-    def format(self, record):
-        log_record = {
-            "time": self.formatTime(record, self.datefmt) if self.datefmt else self.formatTime(record, "%Y-%m-%dT%H:%M:%S"),
-            "level": record.levelname,
-            "name": record.name,
-            "message": record.getMessage(),
-            "module": record.module,
-            "line": record.lineno,
-        }
-
-        # Falls eine Exception vorhanden ist, Stacktrace als String speichern
-        if record.exc_info:
-            log_record["exception"] = "".join(traceback.format_exception(*record.exc_info))
-
-        return json.dumps(log_record, ensure_ascii=False)
 
 class WebCrawler(object):
     """
@@ -66,7 +45,7 @@ class WebCrawler(object):
                  start_date=pd.to_datetime('today'),
                  end_date=(pd.to_datetime('today') - pd.DateOffset(months=6)),
                  autosave=True,
-                 logging_level='Info'):
+                 logging_level='INFO'):
         """
         Initializes the WebCrawler with the specified output path
 
@@ -110,22 +89,22 @@ class WebCrawler(object):
         self._state = None  # state of the WebCrawler
 
         # set up logging
-        self.logger = None
-        # self.logger = logging.getLogger(self.__name)
+        self.__logger = None
+        # self.__logger = logging.getLogger(self.__name)
         self.configure_logger(self.__name, level=logging_level)
-        self.logger.info('initialized')
+        self.__logger.info('initialized')
 
         # create output directory if it does not exist
         if not os.path.exists(self.__output_path):
             os.makedirs(self.__output_path)
             # clear output directory
-            self.logger.info(f'Output directory created: {self.__output_path}')
+            self.__logger.info(f'Output directory created: {self.__output_path}')
         # delete all files in the output directory
         # [os.remove(os.path.join(self.__output_path, f)) for f in os.listdir(self.__output_path) if os.path.isfile(os.path.join(self.__output_path, f))]
 
         # create temporary directory
         self._download_directory = tempfile.mkdtemp()
-        self.logger.info(f'Temporary directory created: {self._download_directory}')
+        self.__logger.info(f'Temporary directory created: {self._download_directory}')
         self._initial_file_count = 0  # Initial file count for wait_for_new_file
 
         # initialize webdriver
@@ -175,7 +154,7 @@ class WebCrawler(object):
         Downloads the data from the online banking platform
         """
         self._state = 'download_data'
-        self.logger.info('Starting data download from start_date: {} to end_date: {}'.format(self.start_date.strftime('%d.%m.%Y'), self.end_date.strftime('%d.%m.%Y')))
+        self.__logger.info('Starting data download from start_date: {} to end_date: {}'.format(self.start_date.strftime('%d.%m.%Y'), self.end_date.strftime('%d.%m.%Y')))
         pass
 
     def process_data(self):
@@ -195,9 +174,9 @@ class WebCrawler(object):
             # save data
             self.__data.to_csv(file_path, sep=";", index=False)
             # log success
-            self.logger.info('Data saved to {}'.format(absolute_path))
+            self.__logger.info('Data saved to {}'.format(absolute_path))
         except Exception as e:
-            self.logger.error('Error saving data', exc_info=True)
+            self.__logger.error('Error saving data', exc_info=True)
 
         self._state = 'save_data'
 
@@ -209,14 +188,14 @@ class WebCrawler(object):
         self.driver.quit()
         # del self.driver
         shutil.rmtree(self._download_directory)
-        self.logger.info('Temporary directory removed: {}'.format(self._download_directory))
-        self.logger.info('{} closed'.format(self.__name))
+        self.__logger.info('Temporary directory removed: {}'.format(self._download_directory))
+        self.__logger.info('{} closed'.format(self.__name))
         self._state = 'closed'
 
     def error_close(self):
         self.close()
         os._exit(1)
-        self.logger.error('WebCrawler closed due to error')
+        self.__logger.error('WebCrawler closed due to error')
 
     def perform_download(self):
         """
@@ -246,16 +225,16 @@ class WebCrawler(object):
         """
         numeric_level = getattr(logging, level.upper(), None)
         if not isinstance(numeric_level, int):
-            self.logger.error(f"Ungültiges Logging-Level: {level}")
+            self.__logger.error(f"Ungültiges Logging-Level: {level}")
             return
 
-        self.logger.setLevel(numeric_level)
-        for handler in self.logger.handlers:
+        self.__logger.setLevel(numeric_level)
+        for handler in self.__logger.handlers:
             handler.setLevel(numeric_level)
 
-        self.logger.info(f"Logging-Level geändert auf: {level}")
+        self.__logger.info(f"Logging-Level geändert auf: {level}")
 
-    def configure_logger(self, name: str, log_file: str = "logs/webcrawlers.json", level='info'):
+    def __configure_logger(self, name: str, log_file: str = "logs/webcrawlers.json", level='info'):
         """
         Konfiguriert einen Logger mit Datei- und Konsolenausgabe.
 
@@ -268,13 +247,13 @@ class WebCrawler(object):
         os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
         level = getattr(logging, level.upper(), None)
 
-        self.logger = logging.getLogger(name)
+        self.__logger = logging.getLogger(name)
 
         # Falls der Logger bereits konfiguriert wurde, Handler nicht doppelt hinzufügen
-        if self.logger.hasHandlers():
-            self.logger.handlers.clear()
+        if self.__logger.hasHandlers():
+            self.__logger.handlers.clear()
 
-        self.logger.setLevel(logging.DEBUG)  # Generelle Logger-Einstellung (niedrigstes Level für File)
+        self.__logger.setLevel(logging.DEBUG)  # Generelle Logger-Einstellung (niedrigstes Level für File)
 
         # JSON-Formatter für Datei-Logs
         json_formatter = JsonFormatter()
@@ -283,86 +262,22 @@ class WebCrawler(object):
         file_handler = logging.FileHandler(log_file)
         file_handler.setFormatter(json_formatter)
         file_handler.setLevel(logging.DEBUG)
-        self.logger.addHandler(file_handler)
+        self.__logger.addHandler(file_handler)
 
         # ConsoleHandler (Mit übergebenem Level)
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
         console_handler.setLevel(level)
-        self.logger.addHandler(console_handler)
+        self.__logger.addHandler(console_handler)
 
         # Verhindere, dass Logs an den Root-Logger weitergegeben werden
-        self.logger.propagate = False
+        self.__logger.propagate = False
 
-    @classmethod
-    def cli_entry(cls):
-        """
-       Command line interface for the WebCrawler
-        """
 
-        parser = argparse.ArgumentParser(description='{}_WebCrawler'.format(cls.name))
-        cls.add_arguments(parser)
-        args = parser.parse_args()
-
-        instance = cls(**vars(args))
-
-    @staticmethod
-    def add_arguments(parser):
-        """
-        Adds arguments to the command line interface
-        """
-        parser.add_argument('--start_date', type=str, help='The start date for the data download in the format dd.mm.yyyy. Default is today.')
-        parser.add_argument('--end_date', type=str, help='The end date for the data download in the format dd.mm.yyyy. Default is 6 months ago from today.')
-        parser.add_argument('--output_path', type=str, help='The directory where the output files will be saved. Default is "out".')
-        parser.add_argument('--logging_level', type=str, help='The logging level ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"). Default is "INFO".')
-        parser.add_argument('--autosave', type=bool, help='Whether to save downloaded data to the output directory. Default is True.')
 
 
     # ----------------------------------------------------------------
     # ----------------------- private methods -----------------------
-    # def _read_temp_files(self, sep=';'):
-    #     """
-    #     Reads the temporary files in the download directory and stores them in the data dictionary
-    #     :return:
-    #     """
-    #     # read all files in the download directory sorted in a dict
-    #     try:
-    #         files_in_dir = os.listdir(self._download_directory)
-    #         self.logger.debug(f"Dateien im temporären Verzeichnis: {files_in_dir}")
-    #
-    #         file_content = dict()
-    #         if files_in_dir:
-    #             for f in files_in_dir:
-    #                 if f.endswith(".csv"):
-    #                     logging.debug(f"CSV-Datei gefunden: {f}")
-    #                     downloaded_file = os.path.join(self._download_directory, f)
-    #                     df = pd.read_csv(downloaded_file, sep=sep)
-    #                     file_content[f] = df
-    #                     logging.debug(df.head())
-    #                     logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
-    #                 elif f.endswith(".xls"):
-    #                     logging.debug(f"Excel-Datei gefunden: {f}")
-    #                     downloaded_file = os.path.join(self._download_directory, f)
-    #                     df = pd.read_excel(downloaded_file, engine='xlrd')
-    #                     file_content[f] = df
-    #                     logging.debug(df.head())
-    #                     logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
-    #                 elif f.endswith(".tmp"):
-    #                     time.sleep(0.5)
-    #                     self._read_temp_files(sep)
-    #                 elif f.endswith(".crdownload"):
-    #                     time.sleep(0.5)
-    #                     self._read_temp_files(sep)
-    #
-    #             self.__data = file_content
-    #             self.logger.info('{len_files} Dateien im temporären Verzeichnis gefunden.'.format(len_files=len(files_in_dir)))
-    #             return True
-    #         else:
-    #             logging.info("Keine Datei im temporären Verzeichnis gefunden.")
-    #             return False
-    #     except Exception as e:
-    #         self.logger.error("Fehler beim Einlesen der heruntergeladenen Dateien", exc_info=True)
-
     def _wait_for_new_file(self, timeout=30, check_interval=0.5, include_temp=True):
         """
         Wartet darauf, dass im Download-Ordner eine neue Datei erscheint.
@@ -385,16 +300,16 @@ class WebCrawler(object):
                     files = [f for f in files if not f.endswith((".crdownload", ".tmp"))]
                 return files
             except Exception as e:
-                self.logger.error(f"Fehler beim Auflisten der Dateien: {e}", exc_info=True)
+                self.__logger.error(f"Fehler beim Auflisten der Dateien: {e}", exc_info=True)
                 return []
 
         # Falls der initiale Zustand noch nicht gesetzt ist
         if not hasattr(self, "_initial_file_count"):
             try:
                 self._initial_file_count = len(list_files())
-                self.logger.debug(f"Initialer Dateicount gesetzt: {self._initial_file_count}")
+                self.__logger.debug(f"Initialer Dateicount gesetzt: {self._initial_file_count}")
             except Exception as e:
-                self.logger.error(f"Fehler beim Setzen des initialen Dateicounts: {e}", exc_info=True)
+                self.__logger.error(f"Fehler beim Setzen des initialen Dateicounts: {e}", exc_info=True)
                 return None
 
         while time.time() - start_time < timeout:
@@ -409,7 +324,7 @@ class WebCrawler(object):
                         key=os.path.getmtime
                     )
                     filename = os.path.basename(newest_file)
-                    self.logger.debug(f"Neue Datei erkannt: {filename}")
+                    self.__logger.debug(f"Neue Datei erkannt: {filename}")
 
                     # neuen Zustand speichern
                     self._initial_file_count = current_count
@@ -418,10 +333,10 @@ class WebCrawler(object):
                 time.sleep(check_interval)
 
             except Exception as e:
-                self.logger.error(f"Fehler in der Überwachungsschleife: {e}", exc_info=True)
+                self.__logger.error(f"Fehler in der Überwachungsschleife: {e}", exc_info=True)
                 return None
 
-        self.logger.warning(f"Timeout nach {timeout}s – keine neue Datei erkannt.")
+        self.__logger.warning(f"Timeout nach {timeout}s – keine neue Datei erkannt.")
         return None
 
 
@@ -443,10 +358,10 @@ class WebCrawler(object):
         while retries < max_retries:
             try:
                 files_in_dir = os.listdir(self._download_directory)
-                self.logger.debug(f"Dateien im temporären Verzeichnis: {files_in_dir}")
+                self.__logger.debug(f"Dateien im temporären Verzeichnis: {files_in_dir}")
 
                 if not files_in_dir:
-                    self.logger.debug("Keine Datei im temporären Verzeichnis gefunden.")
+                    self.__logger.debug("Keine Datei im temporären Verzeichnis gefunden.")
                     retries += 1
                     time.sleep(retry_wait)
                     continue
@@ -459,13 +374,13 @@ class WebCrawler(object):
                     if not pending_files:
                         break  # Download ist abgeschlossen
 
-                    self.logger.info(f"Warte auf {len(pending_files)} unvollständige Datei(en)... (Timeout in {round(download_timeout - (time.time() - start_time), 1)}s)")
+                    self.__logger.info(f"Warte auf {len(pending_files)} unvollständige Datei(en)... (Timeout in {round(download_timeout - (time.time() - start_time), 1)}s)")
                     time.sleep(check_interval)
 
                 # Wenn nach Timeout noch immer pending files existieren → Fehler
                 pending_files = [f for f in os.listdir(self._download_directory) if f.endswith(".tmp") or f.endswith(".crdownload")]
                 if pending_files:
-                    self.logger.warning(f"Timeout erreicht! {len(pending_files)} Datei(en) sind immer noch unvollständig: {pending_files}")
+                    self.__logger.warning(f"Timeout erreicht! {len(pending_files)} Datei(en) sind immer noch unvollständig: {pending_files}")
                     return False
 
                 # Verarbeiten der vollständigen Dateien
@@ -487,14 +402,14 @@ class WebCrawler(object):
                     logging.debug(f"Heruntergeladene Datei: {downloaded_file} erfolgreich eingelesen")
 
                 self.__data = file_content
-                self.logger.info(f"{len(file_content)} Dateien erfolgreich eingelesen.")
+                self.__logger.info(f"{len(file_content)} Dateien erfolgreich eingelesen.")
                 return True
 
             except Exception as e:
-                self.logger.error("Fehler beim Einlesen der heruntergeladenen Dateien", exc_info=True)
+                self.__logger.error("Fehler beim Einlesen der heruntergeladenen Dateien", exc_info=True)
                 return False
 
-        self.logger.warning("Maximale Anzahl an Wiederholungen erreicht. Einige Dateien wurden möglicherweise nicht vollständig heruntergeladen.")
+        self.__logger.warning("Maximale Anzahl an Wiederholungen erreicht. Einige Dateien wurden möglicherweise nicht vollständig heruntergeladen.")
         return False
 
 
@@ -514,28 +429,15 @@ class WebCrawler(object):
                     else:
                         continue
                 except ValueError:
-                    self.logger.error('Error reading credentials line: {}'.format(line), exc_info=True)
+                    self.__logger.error('Error reading credentials line: {}'.format(line), exc_info=True)
                     continue
         except Exception as e:
-            self.logger.error('Error reading credentials file', exc_info=True)
+            self.__logger.error('Error reading credentials file', exc_info=True)
 
         self.credentials = credentials
 
     # ----------------------------------------------------------------
     # ----------------------- static methods -------------------------
-    # @staticmethod
-    # def config_logger(logger, log_level=logging.INFO):
-    #     """
-    #     Configures the logger for the WebCrawler
-    #     :param logger: logger object
-    #     :param log_level: log level
-    #     """
-    #     logger.setLevel(log_level)
-    #     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    #     ch = logging.StreamHandler()
-    #     ch.setLevel(log_level)
-    #     ch.setFormatter(formatter)
-    #     logger.addHandler(ch)
 
     # ----------------------------------------------------------------
     # ----------------------- properties ----------------------------
@@ -639,6 +541,10 @@ class WebCrawler(object):
     def credentials(self, value):
         assert isinstance(value, dict), 'Credentials must be a dictionary with user and password'
         self.__credentials = value
+    
+    @property
+    def _logger(self) -> logging.Logger:
+        return self.__logger
 
 
 if __name__ == '__main__':
