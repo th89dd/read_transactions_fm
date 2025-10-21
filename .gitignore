@@ -2,6 +2,12 @@
 /.idea
 /venv/
 /.venv39
+/.venv
+
+# build files
+/build/
+/dist/
+
 
 !/credentials_example.txt
 !/credentials_ariva_example.txt
