@@ -135,6 +135,7 @@ class WebCrawler:
         self.__credentials: Dict[str, str] = {}
         self.__urls: Dict[str, str] = {}
         self.__data: pd.DataFrame | Dict[str, pd.DataFrame] = pd.DataFrame()
+        self.__account_balance = 0.0
 
         # WebDriver aus externer Factory
         self.driver = WebDriverFactory.create(
@@ -248,6 +249,37 @@ class WebCrawler:
     def _logger(self) -> logging.Logger:
         """Interner Logger (für Subklassen)."""
         return self.__logger
+    @property
+    def account_balance(self) -> str:
+        """Gibt den aktuellen Kontostand zurück."""
+        return str(round(self.__account_balance, 2))
+    @account_balance.setter
+    def account_balance(self, value: Any) -> None:
+        """
+        Setzt den aktuellen Kontostand.
+        Args:
+            value (str | float | int): Neuer Kontostand-Wert.
+        """
+        if isinstance(value, str):
+            value = value.replace("€", "").replace(",", ".").strip()
+            try:
+                value = float(value)
+            except ValueError:
+                self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
+                value = 0.0
+        elif isinstance(value, (int, float)):
+            try:
+                value = float(value)
+            except ValueError:
+                self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
+                value = 0.0
+        else:
+            try:
+                value = float(value)
+            except (ValueError, TypeError):
+                self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
+                value = 0.0
+        self.__account_balance = value
 
     # ------------------------------------------------------------------
     # Lifecycle-Methoden

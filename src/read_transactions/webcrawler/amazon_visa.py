@@ -94,40 +94,7 @@ class AmazonVisaCrawler(WebCrawler):
     def __init__(self, logfile=None, *args, **kwargs):
         super().__init__(name="amazon_visa", logfile=logfile, *args, **kwargs)
         self._verified = False
-        self.__account_balance = 0.0
         self._load_config()  # lädt credentials + urls aus config.yaml
-
-    @property
-    def account_balance(self) -> str:
-        """Gibt den aktuellen Kontostand zurück."""
-        return str(round(self.__account_balance, 2))
-    @account_balance.setter
-    def account_balance(self, value: Any) -> None:
-        """
-        Setzt den aktuellen Kontostand.
-        Args:
-            value (str | float | int): Neuer Kontostand-Wert.
-        """
-        if isinstance(value, str):
-            value = value.replace("€", "").replace(",", ".").strip()
-            try:
-                value = float(value)
-            except ValueError:
-                self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
-                value = 0.0
-        elif isinstance(value, (int, float)):
-            try:
-                value = float(value)
-            except ValueError:
-                self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
-                value = 0.0
-        else:
-            try:
-                value = float(value)
-            except (ValueError, TypeError):
-                self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
-                value = 0.0
-        self.__account_balance = value
 
     # ------------------------------------------------------------------
     # Login
