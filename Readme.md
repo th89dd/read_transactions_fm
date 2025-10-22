@@ -5,14 +5,14 @@
 
 
 
-# Readme zur Scripsammlung "read transactions" für Finanzmanagerimport
+# Read Transactions für Finanzmanager
 
 Aktuell unterstützt:
 - **Aktienkurse von Ariva**
 - **Umsätze von Trade Republic**
 - **Umsätze von American Express**
 - **Umsätze von Amazon Visa (Zinia)**
----
+***
 
 Diese Scriptsammlung dient dazu, Transaktionen via "WebCrawler" 
 von verschiedenen Finanzdienstleistern abzurufen und 
@@ -27,15 +27,10 @@ Dazu über Datei -> Export/Import -> Datenimport  -> **Umsätze** über den Dial
 Zur einfacheren Verwendung, lohnt es sich Vorlagen zu erzeugen, damit die Umsätze schneller in den Finanzmanager importiert werden können. Das kann  im Rahmen des Dialogs erfolgen.
 Zur einfacheren Verwendung habe ich meine [Vorlagen](Vorlagen.dat) angehängt.
 
----
+***
 
 ## Quick Start
-- download the project as zip file and extract it to a folder on your computer
-- set up python venv (e.g. with [setup.bat](setup.bat))
-- create credentials files for the crawler you want to use
-- configure the crawler in the [run.py file](run.py)
-- run the main script with [start.bat](start.bat)
-- import the generated csv files in the Finanzmanager
+- was auch immer
 
 ---
 ## Content
@@ -45,39 +40,105 @@ Zur einfacheren Verwendung habe ich meine [Vorlagen](Vorlagen.dat) angehängt.
 3. [Use the other Crawler](#use-the-other-crawler)
 
 
-## Setting-up Python Environment
+## Installation
+
+You can use the following methods to install and use the package.
+1. Install it in your Python environment
+    - set up a Python environment (see [Setting-up Python Environment](#setting-up-python-environment))
+    - install the package
+      - from github (see [install from github](#install-from-github))
+      - from wheel file (see [install from wheel file](#install-from-wheel-file))
+
+2. Use the provided readtx.exe (Windows only)
+
+### install from github
+- aktivate your python environment
+- install the package with pip:
+```bash
+pip install git+https://github.com/th89dd/read_transactions_fm.git
+```
+
+### install from wheel file
+- download the wheel from [releases](https://github.com/th89dd/read_transactions_fm/releases)
+- aktivate your python environment
+- install the wheel file with pip:
+```bash
+pip read_transactions_fm-1.0.0-py3-none-any.whl
+```
+
+### Setting-up Python Environment
 
 You can use the following steps, or you can use the **[bat-file](setup.bat)** to set up the Python environment on your computer (with Windows).
 
-1. Install Python 3.12 (or newer) 
-   - download Python 3.12 from [Python.org](https://www.python.org/downloads/)
-   - install Python
-   - you can check if Python is installed correctly:
+1. Install Python 3.12 (or newer)
+    - download Python 3.12 from [Python.org](https://www.python.org/downloads/)
+    - install Python
+    - you can check if Python is installed correctly:
     ```bash
     python --version
     ```
-   
+
 1. Create a virtual environment:
-   - create a virtual environment in the project folder:
-   - open a terminal in the project folder and run:
+    - create a virtual environment in the project folder:
+    - open a terminal in the project folder and run:
     ```bash
     python -m venv venv
     ```
-   
+
 1. Activate the virtual environment:
      ```bash
      venv\Scripts\activate
      ```
 
-1. Install required packages:
-    ```bash
-    pip install -r requirements.txt
-    ```
-   
 1. Deactivate the virtual environment:
     ```bash
     deactivate
     ```
+## Entwicklung
+
+### Build Package
+Folgende Pakete müssen installiert sein:
+```bash
+pip install setuptools build
+```
+
+Um read_transactions nur als wheel zu bauen, kann folgendes Kommando genutzt werden.  
+Es wird eine Wheel-Datei im Ordner `dist/` erstellt.
+
+```bash
+python -m build --wheel
+```
+
+Um read_transactions als Paket zu bauen, kann folgendes Kommando genutzt werden.  
+Es werden sowohl eine Wheel-Datei als auch ein Source-Distribution-Paket im Ordner `dist/` erstellt.
+
+```bash
+python -m build
+```
+
+
+### Get Required Packages
+Bei bestehendem venv können alle pakete mit pip ausgelesen werden:
+```bash
+pip freeze > requirements.txt
+```
+
+Installation von ``pip-tools`` (falls noch nicht installiert) und Synchronisation der benötigten Pakete:
+```bash 
+pip install pip-tools
+```
+Generate the `requirements.txt` file from `pyproject.toml`:
+```bash
+pip-compile pyproject.toml --output-file=requirements.txt
+```
+
+Install required packages from `requirements.txt`:
+```bash
+pip install -r requirements.txt
+```
+
+
+
 
 ## Use the Main Script
 you can use the main script to run all configured crawler at once
