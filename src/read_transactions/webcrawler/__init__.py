@@ -43,7 +43,7 @@ for module_info in pkgutil.iter_modules([str(pkg_path)]):
 
     # Erstelle beide möglichen Modulpfade
     candidates = [
-        f"src.read_transactions.webcrawler.{name}",
+        # f"src.read_transactions.webcrawler.{name}",
         f"read_transactions.webcrawler.{name}",
     ]
 

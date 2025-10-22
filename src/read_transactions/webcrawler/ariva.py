@@ -10,7 +10,7 @@ ArivaCrawler
 Crawler für Kursdaten von ariva.de.
 
 Verwendung:
-    from src.read_transactions.webcrawler.ariva import ArivaCrawler
+    from read_transactions.webcrawler.ariva import ArivaCrawler
 
     with ArivaCrawler() as crawler:
         crawler.login()
@@ -18,6 +18,8 @@ Verwendung:
         crawler.process_data()
         crawler.save_data()
 """
+
+# -------- start import block ---------
 
 import os
 import time
@@ -30,9 +32,68 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 from .base import WebCrawler
 
+# -------- /import block ---------
 
 class ArivaCrawler(WebCrawler):
-    """Crawler für Ariva-Kursdaten (CSV-Download)."""
+    """
+    Crawler für Kursdaten von ariva.de.
+
+    Der Crawler automatisiert den Login auf ariva.de, öffnet für alle in der
+    Konfiguration hinterlegten Wertpapiere die Kursseiten, lädt CSV-Dateien
+    herunter und führt sie zu einem einheitlichen Datensatz zusammen.
+
+    Ablauf:
+        1. Optionaler Login (sofern Zugangsdaten vorhanden)
+        2. Aufruf aller in der Konfiguration definierten URLs
+        3. Auswahl von Währung, Zeitraum und Trenner
+        4. Start des CSV-Downloads
+        5. Zusammenführung und Bereinigung der Daten
+
+    Voraussetzungen:
+        - gültige Zugangsdaten und URL-Mappings in `config.yaml`
+        - funktionierender Selenium-WebDriver (Edge, Chrome oder Firefox)
+
+    CLI-Beispiel:
+        ```bash
+        readtx run ariva --start 01.01.2024 --end 31.03.2024 --log_level DEBUG
+        ```
+
+    Parameter
+    ----------
+    logfile : str, optional
+        Pfad zu einer Logdatei. Wenn `None`, wird nur in die Konsole geloggt.
+    output_path : str, optional
+        Verzeichnis, in dem die verarbeiteten Daten gespeichert werden.
+        Standard: ``out``.
+    start_date : str | pandas.Timestamp | datetime.date, optional
+        Startdatum für den Download (Format: ``dd.mm.yyyy``).
+        Standard: heutiges Datum.
+    end_date : str | pandas.Timestamp | datetime.date, optional
+        Enddatum für den Download (Format: ``dd.mm.yyyy``).
+        Standard: sechs Monate vor `start_date`.
+    logging_level : str, optional
+        Log-Level der Crawler-Instanz (z. B. "DEBUG", "INFO", "WARNING").
+        Standard: ``INFO``.
+    global_log_level : str, optional
+        Globales Log-Level für das gesamte Paket (Standard: ``INFO``).
+    browser : str, optional
+        Zu verwendender Browser-Treiber (``edge``, ``chrome`` oder ``firefox``).
+        Standard: ``edge``.
+    headless : bool, optional
+        Falls `True`, wird der Browser im Hintergrundmodus gestartet.
+        Standard: ``False``.
+    user_agent : str, optional
+        Optionaler User-Agent-String für den Browser.
+
+    Attribute
+    ----------
+    data : pandas.DataFrame
+        Zusammengeführte Kursdaten aller Wertpapiere.
+    _urls : dict
+        Enthält alle Kurs-URLs aus der Konfiguration.
+    _logger : logging.Logger
+        Instanzspezifischer Logger.
+    """
 
     def __init__(self, logfile=None, *args, **kwargs):
         super().__init__(name="ariva", logfile=logfile, *args, **kwargs)

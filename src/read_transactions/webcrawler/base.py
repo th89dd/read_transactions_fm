@@ -14,6 +14,8 @@ Zentrale Basisklasse für alle Crawler im Projekt `read_transactions_fm`.
 - Standardmethoden für Login, Download, Verarbeitung und Speicherung
 """
 
+# -------- start import block ---------
+
 from __future__ import annotations
 
 import os
@@ -29,11 +31,70 @@ from ..logger import MainLogger
 from .webdriver import WebDriverFactory
 from ..config import ConfigManager
 
+# -------- /import block ---------
 
 class WebCrawler:
-    """Basisklasse für alle WebCrawler.
+    """
+    Abstrakte Basisklasse für alle Crawler im Paket `read_transactions`.
 
-    Stellt Logging, WebDriver, Dateihandling und Standard-Lifecycle bereit.
+    Diese Klasse kapselt den gesamten gemeinsamen Funktionsumfang:
+    - zentrale Logging-Initialisierung über `MainLogger`
+    - automatisches Laden von Konfiguration und Zugangsdaten aus `config.yaml`
+    - standardisierte Selenium-WebDriver-Erzeugung über `WebDriverFactory`
+    - konsistente Handhabung von Downloads, Datenverarbeitung und Speicherung
+
+    Subklassen (z. B. `ArivaCrawler`, `AmazonCrawler`) müssen mindestens
+    die Methoden `login()` und `download_data()` überschreiben.
+
+    Typischer Ablauf:
+        ```python
+        with MyCrawler(start_date="01.01.2024", end_date="31.03.2024") as crawler:
+            crawler.login()
+            crawler.download_data()
+            crawler.process_data()
+            crawler.save_data()
+        ```
+
+    Parameter
+    ----------
+    name : str, optional
+        Logisch eindeutiger Name der Crawler-Instanz (z. B. ``"ariva"``).
+    output_path : str, optional
+        Verzeichnis, in dem Ausgabedateien gespeichert werden (Standard: ``out``).
+    start_date : str | pandas.Timestamp | datetime.date, optional
+        Startdatum für den Datenabruf.
+    end_date : str | pandas.Timestamp | datetime.date, optional
+        Enddatum für den Datenabruf.
+    logging_level : str, optional
+        Log-Level der Instanz (z. B. "DEBUG", "INFO", "WARNING").
+        Standard: ``INFO``.
+    global_log_level : str, optional
+        Globales Log-Level für das gesamte Paket (Standard: ``INFO``).
+    logfile : str, optional
+        Pfad zu einer zentralen Logdatei (Standard: ``logs/read_transactions.log``).
+    browser : str, optional
+        Verwendeter Browser-Treiber (``edge``, ``chrome`` oder ``firefox``).
+        Standard: ``edge``.
+    headless : bool, optional
+        Aktiviert Headless-Modus (sofern vom Browser unterstützt).
+        Standard: ``False``.
+    user_agent : str, optional
+        Optionaler benutzerdefinierter User-Agent.
+
+    Attribute
+    ----------
+    driver : selenium.webdriver.Remote
+        Aktiver Selenium-WebDriver.
+    data : pandas.DataFrame | dict[str, pandas.DataFrame]
+        Heruntergeladene bzw. verarbeitete Daten.
+    _credentials : dict
+        Login-Daten des Crawlers (aus `config.yaml`).
+    _urls : dict
+        URL-Mappings des Crawlers (aus `config.yaml`).
+    _logger : logging.Logger
+        Instanzspezifischer Logger.
+    _download_directory : str
+        Temporäres Verzeichnis für heruntergeladene Dateien.
     """
 
     # ------------------------------------------------------------------
@@ -101,6 +162,15 @@ class WebCrawler:
 
     @start_date.setter
     def start_date(self, value: Union[str, pd.Timestamp, datetime.date, None]):
+        """
+        Setzt das Startdatum. Unterstützte Typen: str (Format "DD.MM.YYYY"),
+        pandas.Timestamp, datetime.date.
+
+        Bei None wird das heutige Datum verwendet.
+
+        :param value: Startdatum als str, pd.Timestamp, datetime.date oder None
+        :return: -
+        """
         if value is None:
             value = pd.to_datetime("today")
         if isinstance(value, str):
@@ -118,6 +188,15 @@ class WebCrawler:
 
     @end_date.setter
     def end_date(self, value: Union[str, pd.Timestamp, datetime.date, None]):
+        """
+        Setzt das Enddatum. Unterstützte Typen: str (Format "DD.MM.YYYY"),
+        pandas.Timestamp, datetime.date.
+
+        Bei None wird das Datum von vor 6 Monaten verwendet.
+
+        :param value: Enddatum als str, pd.Timestamp, datetime.date oder None
+        :return: -
+        """
         if value is None:
             value = pd.to_datetime("today") - pd.DateOffset(months=6)
         if isinstance(value, str):
@@ -135,18 +214,34 @@ class WebCrawler:
 
     @data.setter
     def data(self, value: Union[pd.DataFrame, Dict[str, pd.DataFrame]]):
+        """
+        Setzt die heruntergeladenen/verarbeiteten Daten.
+
+        :param value: Daten als DataFrame oder dict[str, DataFrame]
+        :type value: pd.DataFrame | dict[str, pd.DataFrame]
+        :return: -
+        """
         if not (isinstance(value, pd.DataFrame) or (isinstance(value, dict) and all(isinstance(v, pd.DataFrame) for v in value.values()))):
             raise TypeError("data must be a pandas DataFrame or dict[str, DataFrame]")
         self.__data = value
 
     @property
     def _credentials(self) -> Dict[str, str]:
-        """Login-Daten für den Crawler."""
+        """
+        Login-Daten für den Crawler. Beinhaltet z. B. Benutzername und Passwort.
+        - user: str, Benutzername
+        - password: str, Passwort
+        """
         return self.__credentials
 
     @property
     def _urls(self) -> Dict[str, str]:
-        """URLs für den Crawler."""
+        """
+        URLs für den Crawler. Beinhaltet z. B. Login- und Download-Links.
+        - login: str, Login-URL
+        - transactions: str, Transaktions-URL
+        - kurse: Dict[str, str]: Kurs-URLs
+        """
         return self.__urls
 
     @property
@@ -169,25 +264,25 @@ class WebCrawler:
         self.__logger.info(
             f"Starting data download start_data={self.start_date} end_date={self.end_date}")
 
-    def process_data(self) -> None:
+    def process_data(self, sep: str = ';') -> None:
         """Optional von Subklassen überschreiben – verarbeitet geladene Daten."""
         self._state = "process_data"
-        if self._read_temp_files():
-            self._logger.info(f"Verarbeite {len(self.data)} heruntergeladene Dateien")
-        else:
+        if not self._read_temp_files(sep=sep):
             self._logger.debug('Keine Dateien im Temp-Verzeichnis')
 
     def save_data(self) -> None:
         """Speichert geladene Daten als CSV."""
         try:
             os.makedirs(self.__output_path, exist_ok=True)
-            file_path = os.path.join(self.__output_path, f"{self.__name}.csv")
             if isinstance(self.__data, pd.DataFrame):
+                file_path = os.path.join(self.__output_path, f"{self.__name}.csv")
                 self.__data.to_csv(file_path, sep=";", index=False)
+                self._logger.info(f"Data saved to: {os.path.abspath(file_path)}")
             elif isinstance(self.__data, dict):
                 for fname, df in self.__data.items():
-                    df.to_csv(os.path.join(self.__output_path, fname), sep=";", index=False)
-            self.__logger.info(f"Data saved to: {self.__output_path}")
+                    file_path = os.path.join(self.__output_path, f"{fname}.csv")
+                    df.to_csv(file_path, sep=";", index=False)
+                    self.__logger.info(f"Data saved to: {os.path.abspath(file_path)}")
         except Exception:
             self.__logger.error("Error saving data", exc_info=True)
 
@@ -226,12 +321,15 @@ class WebCrawler:
             self._logger.info(f"Konfiguration für {self.__name} geladen.")
         except FileNotFoundError as e:
             self._logger.error(f"Config-Datei nicht gefunden: {e}")
+            self.close()
             raise
         except KeyError as e:
             self._logger.warning(f"Eintrag fehlt in config.yaml: {e}")
+            self.close()
             raise
         except Exception as e:
             self._logger.error(f"Fehler beim Laden der Konfiguration: {e}", exc_info=True)
+            self.close()
             raise
 
     # ------------------------------------------------------------------
@@ -406,6 +504,7 @@ class WebCrawler:
             Der Dateiname der neu erkannten Datei oder None bei Timeout.
         """
         start_time = time.time()
+        last_log_time = start_time
 
         def list_files() -> list[str]:
             try:
@@ -438,6 +537,9 @@ class WebCrawler:
                     self._logger.debug(f"Neue Datei erkannt: {filename}")
                     self._initial_file_count = current_count
                     return filename
+                if (time.time() - last_log_time) >= 2.0:
+                    last_log_time = time.time()
+                    self._logger.info(f'Warte auf neue Datei... time remaining: {round(timeout - (time.time() - start_time), 1)}s')
                 time.sleep(check_interval)
             except Exception:
                 self._logger.error("Fehler in der Überwachungsschleife", exc_info=True)
@@ -451,7 +553,7 @@ class WebCrawler:
             sep: str = ';',
             max_retries: int = 10,
             retry_wait: float = 1.0,
-            check_interval: float = 0.5,
+            check_interval: float = 0.1,
             download_timeout: float = 10.0,
     ) -> bool:
         """Liest Dateien aus dem Download-Ordner in `self.data`.
@@ -503,7 +605,7 @@ class WebCrawler:
                         else:
                             continue
                         file_content[f] = df
-                        self._logger.debug(f"Datei eingelesen file:{f}, rows:{len(df)}")
+                        self._logger.debug(f"Datei mit name {f} eingelesen, rows: {len(df)}")
                     except Exception:
                         self._logger.error("Fehler beim Einlesen einer Datei", exc_info=True)
 
@@ -513,7 +615,7 @@ class WebCrawler:
 
                 # Bei 1 Datei → direkt DF speichern, sonst dict
                 self.data = file_content if len(file_content) > 1 else next(iter(file_content.values()))
-                self._logger.info(f"Dateien erfolgreich eingelesen count:{len(file_content)}")
+                self._logger.info(f"{len(file_content)} Datei(en) erfolgreich eingelesen")
                 return True
 
             except Exception:
@@ -549,6 +651,19 @@ class WebCrawler:
                     time.sleep(wait_seconds)
         self._logger.error(f"Maximale Versuche erreicht – Funktion {func} fehlgeschlagen")
         return False
+
+    def _wait_for_manual_exit(self, msg: str = None):
+        """
+        Wartet auf manuelles Schließen des Browsers durch den Nutzer.
+
+        :param msg: Nachricht, die angezeigt werden soll. (Optional)
+        :return: -
+        """
+
+        msg = f"Drücke ENTER, um fortzufahren \n {msg}"
+        self._logger.info(msg)
+        input("\n")
+
 
 
 
