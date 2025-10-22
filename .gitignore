@@ -8,6 +8,7 @@
 /build/
 /dist/
 /src/read_transactions.egg-info
+readtx.spec
 
 
 

@@ -96,8 +96,19 @@ You can use the following steps, or you can use the **[bat-file](setup.bat)** to
     ```
 ## Entwicklung
 
+### Use Package in Editable Mode
+Um read_transactions im "editable mode" zu installieren, sodass Änderungen am Code sofort wirksam werden,
+kann folgendes Kommando genutzt werden:
+```bash
+pip install -e .
+```
+Das Paket kann ist dann als read_transactions in Python nutzbar aber Code-Änderungen werden sofort übernommen.
+
+Über das Kommando `pip uninstall read_transactions` kann die Installation wieder entfernt werden.
+
+
 ### Build Package
-Folgende Pakete müssen installiert sein:
+Folgende Pakete müssen installiert sein, um das Projekt zu bauen:
 ```bash
 pip install setuptools build
 ```
@@ -115,6 +126,19 @@ Es werden sowohl eine Wheel-Datei als auch ein Source-Distribution-Paket im Ordn
 ```bash
 python -m build
 ```
+
+### Build Standalone Executable (Windows)
+Um eine standalone ausführbare Datei (exe) für Windows zu bauen, muss folgendes paket installiert sein: 
+```bash
+pip install pyinstaller
+```
+Um read_transactions als ausführbare Datei zu bauen, kann folgendes Kommando genutzt werden.
+Es wird eine ausführbare Datei im Ordner `dist/` erstellt.
+```bash
+pyinstaller --onefile src/read_transactions/cli.py -n readtx
+```
+
+
 
 
 ### Get Required Packages
