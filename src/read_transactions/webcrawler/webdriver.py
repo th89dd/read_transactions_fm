@@ -63,6 +63,7 @@ class WebDriverFactory:
             options = webdriver.EdgeOptions()
             options.add_argument("--log-level=3")
             options.add_argument("--disable-blink-features=AutomationControlled")
+            # options.add_argument("--start-minimized")
             if headless:
                 options.add_argument("--headless=new")
             if user_agent:
@@ -83,6 +84,7 @@ class WebDriverFactory:
             options = webdriver.ChromeOptions()
             options.add_argument("--log-level=3")
             options.add_argument("--disable-blink-features=AutomationControlled")
+            # options.add_argument("--start-minimized")
             if headless:
                 options.add_argument("--headless=new")
             if user_agent:
@@ -101,6 +103,7 @@ class WebDriverFactory:
 
         elif browser == "firefox":
             options = webdriver.FirefoxOptions()
+            # options.add_argument('--start-minimized')
             if headless:
                 options.add_argument("-headless")
             profile = webdriver.FirefoxProfile()

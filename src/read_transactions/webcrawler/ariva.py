@@ -28,7 +28,7 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-from src.read_transactions.webcrawler.base import WebCrawler
+from .base import WebCrawler
 
 
 class ArivaCrawler(WebCrawler):
@@ -49,15 +49,18 @@ class ArivaCrawler(WebCrawler):
         sendet das Formular ab und schließt anschließend eventuelle
         Werbe-Overlays (über handle_ad_banner).
         """
-        super().login()
-        creds = self._credentials
-        if not creds or "user" not in creds or "password" not in creds:
-            self._logger.info("Keine Login-Daten konfiguriert – Login wird übersprungen.")
-            return
+        def _single_login() -> None:
+            """
+            Führt den Login-Vorgang auf ariva.de durch.
 
-        driver = self.driver
-        try:
-            time.sleep(0.5)  # kurze Pause für Initialisierung
+            Öffnet die Login-Seite, füllt Benutzername und Passwort aus,
+            sendet das Formular ab und schließt anschließend eventuelle
+            Werbe-Overlays (über handle_ad_banner).
+            """
+
+            driver = self.driver
+            creds = self._credentials
+            # time.sleep(0.5)  # kurze Pause für Initialisierung
 
             # Warte, bis Eingabefelder erscheinen
             self.wait_for_element(by='id', selector="username", timeout=10)
@@ -72,26 +75,21 @@ class ArivaCrawler(WebCrawler):
 
             self._logger.debug("Anmeldedaten eingegeben, Formular abgeschickt.")
 
+            # prüfen, ob login erfolgreich war
+            self.wait_for_element("id", "navigation__profile", 5)
+
             # Ad-Banner / Werbe-Overlay nach Login schließen
             self._handle_ad_banner()
 
-            # prüfen, ob login erfolgreich war
-            try:
-                self.wait_for_element("id", "navigation__profile", 5)
-            except TimeoutException:
-                self._logger.error("Fehler beim Login")
-                raise
+        super().login()
+        creds = self._credentials
+        if not creds or "user" not in creds or "password" not in creds:
+            self._logger.info("Keine Login-Daten konfiguriert – Login wird übersprungen.")
+            return
 
-            self._logger.info("Loginvorgang abgeschlossen.")
-
-        except Exception as e:
-            self._logger.error(f"Fehler beim Login auf ariva.de: {e}", exc_info=True)
-            # sicherstellen, dass Driver bei kritischem Fehler sauber beendet wird
-            try:
-                self.close()
-            except Exception:
-                self._logger.warning("Fehler beim Schließen nach Login-Exception.", exc_info=True)
-            raise
+        login_sucess = self._retry_func(func=_single_login, max_retries=5, wait_seconds=0.5)
+        if not login_sucess:
+            raise RuntimeError("Login bei ariva.de fehlgeschlagen nach mehreren Versuchen.")
 
     # ----------------------------------------------------------
     # Download
@@ -164,7 +162,7 @@ class ArivaCrawler(WebCrawler):
                 self.close()
             except Exception:
                 self._logger.warning("Fehler beim Schließen nach Login-Exception.", exc_info=True)
-            raise
+            raise RuntimeError("Download-Vorgang bei ariva.de fehlgeschlagen.")
 
 
     # ----------------------------------------------------------
@@ -326,7 +324,6 @@ class ArivaCrawler(WebCrawler):
             self._logger.error("Fehler beim Suchen oder Schließen des Werbe-iFrames", exc_info=True)
 
         return closed
-
 
 
 if __name__ == "__main__":

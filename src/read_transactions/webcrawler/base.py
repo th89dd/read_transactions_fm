@@ -25,9 +25,9 @@ import pandas as pd
 import logging
 from typing import Any, Dict, Optional, Union
 
-from src.read_transactions.logger import MainLogger
-from src.read_transactions.webcrawler.webdriver import WebDriverFactory
-from src.read_transactions.config import ConfigManager
+from ..logger import MainLogger
+from .webdriver import WebDriverFactory
+from ..config import ConfigManager
 
 
 class WebCrawler:
@@ -69,6 +69,7 @@ class WebCrawler:
         # State & interne Felder
         self._state = "initialized"
         self._download_directory = tempfile.mkdtemp()
+        self._logger.debug(f"Temporary download directory created: {self._download_directory}")
         self._initial_file_count = 0
         self.__credentials: Dict[str, str] = {}
         self.__urls: Dict[str, str] = {}
@@ -83,7 +84,7 @@ class WebCrawler:
         )
         self.driver.minimize_window()
 
-        self.__logger.info(f"WebCrawler {self.__name} initialized", extra={"crawler": self.__name})
+        self.__logger.info(f"WebCrawler {self.__name} initialized")
 
     # ------------------------------------------------------------------
     # Properties
@@ -166,9 +167,7 @@ class WebCrawler:
         """Wird von Subklassen überschrieben – startet Download-Vorgang."""
         self._state = "download_data"
         self.__logger.info(
-            "Starting data download",
-            extra={"start_date": str(self.start_date), "end_date": str(self.end_date)},
-        )
+            f"Starting data download start_data={self.start_date} end_date={self.end_date}")
 
     def process_data(self) -> None:
         """Optional von Subklassen überschreiben – verarbeitet geladene Daten."""
@@ -204,7 +203,7 @@ class WebCrawler:
             self.__logger.debug(f"Temporary directory removed: {self._download_directory}")
         except Exception:
             self.__logger.warning("Could not remove temporary directory", exc_info=True)
-        self.__logger.info(f"{self.__name} closed")
+        self.__logger.info(f"WebCrawler {self.__name} closed")
 
     # ------------------------------------------------------------------
     # Config & Credentials
@@ -224,10 +223,7 @@ class WebCrawler:
         try:
             self.__credentials = ConfigManager.get_credentials(self.__name)
             self.__urls = ConfigManager.get_urls(self.__name)
-            self._logger.info(
-                f"Konfiguration für {self.__name} geladen.",
-                extra={"credentials_keys": list(self.__credentials.keys()), "urls_count": len(self.__urls)},
-            )
+            self._logger.info(f"Konfiguration für {self.__name} geladen.")
         except FileNotFoundError as e:
             self._logger.error(f"Config-Datei nicht gefunden: {e}")
             raise
@@ -257,7 +253,7 @@ class WebCrawler:
             ...     crawler.save_data()
             # Nach Ende des Blocks wird automatisch close() ausgeführt.
         """
-        self._logger.debug("Entering context manager", extra={"crawler": self.__name})
+        self._logger.debug("Entering context manager")
         return self
 
     def __exit__(self, exc_type, exc_value, traceback) -> bool:
@@ -279,12 +275,9 @@ class WebCrawler:
             unterdrückt werden. (Python wirft sie weiter.)
         """
         if exc_type is not None:
-            self._logger.error(
-                "Exception occurred in context",
-                extra={"type": str(exc_type), "value": str(exc_value)}
-            )
+            self._logger.error(f"Exception occurred in context type {str(exc_type)}, value {str(exc_value)}")
         self.close()
-        self._logger.debug(f"Exiting context manager for {self.__name}", extra={"crawler": self.__name})
+        self._logger.debug(f"Exiting context manager for {self.__name}")
         # False sorgt dafür, dass Exceptions weitergereicht werden
         return False
 
@@ -392,7 +385,7 @@ class WebCrawler:
         for css in selectors:
             try:
                 self.wait_clickable_and_click("css", css, timeout=timeout_each)
-                self._logger.debug("Cookie-Banner bestätigt", extra={"selector": css})
+                self._logger.debug(f"Cookie-Banner bestätigt selector {css}")
                 return True
             except _Timeout:
                 continue
@@ -427,7 +420,7 @@ class WebCrawler:
         if not hasattr(self, "_initial_file_count"):
             try:
                 self._initial_file_count = len(list_files())
-                self._logger.debug("Initialer Dateicount gesetzt", extra={"count": self._initial_file_count})
+                self._logger.debug(f"Initialer Dateicount gesetzt count: {self._initial_file_count}")
             except Exception:
                 self._logger.error("Fehler beim Setzen des initialen Dateicounts", exc_info=True)
                 return None
@@ -450,7 +443,7 @@ class WebCrawler:
                 self._logger.error("Fehler in der Überwachungsschleife", exc_info=True)
                 return None
 
-        self._logger.warning("Timeout – keine neue Datei erkannt", extra={"timeout": timeout})
+        self._logger.warning(f"Timeout – keine neue Datei erkannt timeout: {timeout}")
         return None
 
     def _read_temp_files(
@@ -473,7 +466,7 @@ class WebCrawler:
         while retries < max_retries:
             try:
                 files_in_dir = os.listdir(self._download_directory)
-                self._logger.debug("Dateien im temporären Verzeichnis", extra={"files": files_in_dir})
+                self._logger.debug(f"Dateien im temporären Verzeichnis {files_in_dir}")
 
                 if not files_in_dir:
                     self._logger.debug("Keine Datei im temporären Verzeichnis gefunden.")
@@ -487,14 +480,14 @@ class WebCrawler:
                     if not pending:
                         break
                     self._logger.info(
-                        "Warte auf unvollständige Downloads",
-                        extra={"pending": pending, "remaining": round(download_timeout - (time.time() - start_time), 1)}
+                        f"Warte auf unvollständige Downloads pending:{pending}, "
+                        f"remaining: {round(download_timeout - (time.time() - start_time), 1)}"
                     )
                     time.sleep(check_interval)
 
                 pending = [f for f in os.listdir(self._download_directory) if f.endswith((".tmp", ".crdownload"))]
                 if pending:
-                    self._logger.warning("Timeout: Dateien unvollständig", extra={"pending": pending})
+                    self._logger.warning(f"Timeout: Dateien unvollständig: {pending}")
                     return False
 
                 file_content: Dict[str, pd.DataFrame] = {}
@@ -510,7 +503,7 @@ class WebCrawler:
                         else:
                             continue
                         file_content[f] = df
-                        self._logger.debug("Datei eingelesen", extra={"file": f, "rows": len(df)})
+                        self._logger.debug(f"Datei eingelesen file:{f}, rows:{len(df)}")
                     except Exception:
                         self._logger.error("Fehler beim Einlesen einer Datei", exc_info=True)
 
@@ -520,7 +513,7 @@ class WebCrawler:
 
                 # Bei 1 Datei → direkt DF speichern, sonst dict
                 self.data = file_content if len(file_content) > 1 else next(iter(file_content.values()))
-                self._logger.info("Dateien erfolgreich eingelesen", extra={"count": len(file_content)})
+                self._logger.info(f"Dateien erfolgreich eingelesen count:{len(file_content)}")
                 return True
 
             except Exception:
@@ -528,6 +521,33 @@ class WebCrawler:
                 return False
 
         self._logger.debug("Maximale Wiederholungen erreicht – ggf. unvollständige Downloads")
+        return False
+
+    def _retry_func(self, func, max_retries: int = 3, wait_seconds: float = 1.0) -> bool:
+        """Versucht die Funktion mehrfach bei Fehlschlag.
+
+        Args:
+            func: Funktion, die ausgeführt werden soll.
+            max_retries: Maximale Anzahl an Versuchen.
+            wait_seconds: Wartezeit zwischen den Versuchen.
+        Returns:
+            bool: True bei erfolgreicher Ausfürhung, sonst False.
+        """
+        from selenium.common.exceptions import TimeoutException
+        for attempt in range(1, max_retries + 1):
+            try:
+                func()
+                self._logger.debug(f"Funktion {func} erfolgreich nach {attempt} Versuch(en)")
+                return True
+            except TimeoutException:
+                self._logger.debug(f"Funktion {func} bei Versuch {attempt} fehlgeschlagen: Timeout")
+                if attempt < max_retries:
+                    time.sleep(wait_seconds)
+            except Exception as e:
+                self._logger.debug(f"Funktion {func} bei Versuch {attempt} fehlgeschlagen: {e}")
+                if attempt < max_retries:
+                    time.sleep(wait_seconds)
+        self._logger.error(f"Maximale Versuche erreicht – Funktion {func} fehlgeschlagen")
         return False
 
 

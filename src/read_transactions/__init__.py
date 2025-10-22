@@ -6,11 +6,22 @@
 :organisation: TU Dresden, FZM
 """
 
-# -------- start import block ---------
+"""
+read_transactions
+-----------------
+Zentrales Paket für alle Crawler und CLI-Funktionen.
+"""
 
+__version__ = "2.0.0"
+__author__ = "Tim Häberlein"
+__license__ = "MIT"
 
-# -------- end import block ---------
+# Optionale vereinfachte Exporte (z. B. direkt aufrufbare CLI)
+from .cli import main
+from .webcrawler import AVAILABLE_CRAWLERS
+
+__all__ = ["main", "AVAILABLE_CRAWLERS"]
 
 
 if __name__ == '__main__':
-    pass
+    main()
