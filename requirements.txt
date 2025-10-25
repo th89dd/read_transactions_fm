@@ -4,10 +4,13 @@
 # Datenhandling
 pandas~=2.3.1  # main package for data handling
 xlrd~=2.0.2 # for reading excel files
-PyYAML~=6.0.3  # for reading yaml files
+openpyxl~=3.1.2  # for reading/writing xlsx excel files
+# PyYAML~=6.0.3  # for reading yaml files
+ruamel-yaml~=0.18.16  # for reading/writing yaml files with comments
+cryptography~=46.0.3  # for secure pw handling
 # numpy
 # pdfplumber
-# openpyxl
+
 
 # build
 # setuptools

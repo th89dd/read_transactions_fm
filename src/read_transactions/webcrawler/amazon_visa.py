@@ -91,8 +91,8 @@ class AmazonVisaCrawler(WebCrawler):
         data (pd.DataFrame): Aufbereitete Transaktionsdaten.
     """
 
-    def __init__(self, logfile=None, *args, **kwargs):
-        super().__init__(name="amazon_visa", logfile=logfile, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(name="amazon_visa", *args, **kwargs)
         self._verified = False
         self._load_config()  # lädt credentials + urls aus config.yaml
 
@@ -284,7 +284,7 @@ class AmazonVisaCrawler(WebCrawler):
                 selector="//button[contains(.,'Excel') or contains(.,'XLS')]",
                 timeout=5,
             )
-            self._logger.info("Excel-Download gestartet...")
+            self._logger.debug("Excel-Download gestartet...")
 
         def _show_old_transactions():
             """Zeigt ggf. ältere Umsätze an."""
@@ -342,8 +342,13 @@ class AmazonVisaCrawler(WebCrawler):
                 merged_df = self.data
 
             # Kopfzeilen-Bereinigung
-            merged_df = merged_df.iloc[10:].rename(columns=merged_df.iloc[9]).dropna(subset=["Datum"])
-            self.data = merged_df[["Datum", "Betrag", "Beschreibung", "Punkte", "Karte"]]
+            merged_df = self._delete_header(merged_df, header_key='Datum')
+            # spezifische Spalten bearbeiten
+            merged_df.drop(["Umsatzkategorie", "Unterkategorie"], axis=1, inplace=True, errors='ignore')
+            # Datenbereinigung
+            merged_df = self._normalize_dataframe(merged_df)
+
+            self.data = merged_df  #[["Datum", "Betrag", "Beschreibung", "Punkte", "Karte"]]
             self._logger.info(f"{len(self.data)} Transaktionen verarbeitet.")
         except Exception:
             self._logger.error("Fehler bei der Datenverarbeitung", exc_info=True)
@@ -474,6 +479,7 @@ class AmazonVisaCrawler(WebCrawler):
 # Direkter Test
 # ------------------------------------------------------------------
 if __name__ == "__main__":
+    print("Starte AmazonVisaCrawler im Direkt-Testmodus...")
     with AmazonVisaCrawler(logging_level="DEBUG") as crawler:
         # crawler._wait_for_manual_exit()
         crawler.login()
@@ -485,130 +491,12 @@ if __name__ == "__main__":
 
     # crawler = AmazonVisaCrawler(logging_level="DEBUG")
     # crawler.login()
+    # crawler.download_data()
+    # crawler.process_data()
+    # crawler.save_data()
     # crawler.close()
 
-    # driver = crawler.driver
-    # urls = crawler._urls
-    #
-    # driver.get(urls["transactions"])
-    #
-    # crawler.wait_clickable_and_click(
-    #     by="xpath",
-    #     selector="//span[contains(text(),'Filter') or contains(@class,'Filter')]",
-    #     timeout=5,
-    # )
-    #
-    # radio = crawler.wait_for_element(
-    #     by="xpath",
-    #     selector=(
-    #         "//p[@data-testid='radio-button-helper-message' and "
-    #         "normalize-space()='Zeitraum auswählen']"
-    #         "/ancestor::div[contains(@class, 'sc-IqJVf')][1]"
-    #         "//input[@type='radio']"
-    #     ),
-    #     timeout=5,
-    # )
-    # crawler.driver.execute_script("arguments[0].click();", radio)
-    #
-    # crawler.wait_clickable_and_click(
-    #     by="xpath",
-    #     selector=(
-    #         "//div[@data-testid='input-date-picker-component' "
-    #         "and .//label[p[normalize-space()='Von']]]"
-    #         "//div[@data-testid='input-date-picker-value-component']"
-    #     ),
-    #     timeout=2,)
-    #
-    #
-    # start_day = crawler.wait_for_element(
-    #     by="xpath",
-    #     selector="//input[@type='number' and (@placeholder='DD' or @data-orderid='3')]",
-    #     timeout=2,
-    # )
-    # start_month = crawler.wait_for_element("xpath", "//input[@data-orderid='2']", timeout=2)
-    # start_year = crawler.wait_for_element("xpath", "//input[@data-orderid='1']", timeout=2)
-    # start_day.send_keys(crawler.end_date.strftime("%d"))
-    # start_month.send_keys(crawler.end_date.strftime("%m"))
-    # start_year.send_keys(crawler.end_date.strftime("%Y"))
-    #
-    # crawler.wait_clickable_and_click(
-    #     by="css",
-    #     selector="button[data-testid='filter-modal-apply-button']",
-    #     timeout=5,
-    # )
-    #
-    # crawler.wait_clickable_and_click(
-    #     by="xpath",
-    #     selector="//a[contains(@data-testid,'transactions-all-download')]",
-    #     timeout=5,
-    # )
-    #
-    # crawler.wait_clickable_and_click(
-    #     by="xpath",
-    #     selector="//button[contains(.,'Excel') or contains(.,'XLS')]",
-    #     timeout=5,
-    # )
-
-
-
-    # def _open_filter():
-    #     """Öffnet das Filter-Menü."""
-    #     crawler.wait_clickable_and_click(
-    #         by="xpath",
-    #         selector="//span[contains(text(),'Filter') or contains(@class,'Filter')]",
-    #         timeout=2,
-    #     )
-    #     crawler._logger.debug("Filter-Menü geöffnet.")
-
-    # def _select_custom_date_range():
-    #     """Wählt benutzerdefinierten Datumsbereich aus."""
-    #     ratio = crawler.wait_for_element(
-    #         by="xpath",
-    #         selector=(
-    #             "//p[@data-testid='radio-button-helper-message'"
-    #             " and normalize-space()='Zeitraum auswählen']"
-    #             "/preceding::input[@type='radio'][1]"
-    #         ),
-    #         timeout=2,
-    #     )
-    #     crawler.click_js(ratio)
-    #     crawler._logger.debug("Benutzerdefinierter Zeitraum ausgewählt.")
-
-    # def _apply_filter():
-    #     """Klickt auf Anwenden im Filter."""
-    #     crawler.wait_clickable_and_click(
-    #         by="css",
-    #         selector="button[data-testid='filter-modal-apply-button']",
-    #         timeout=2,
-    #     )
-    #     crawler._logger.debug("Filter angewendet.")
-
-    # def _trigger_download():
-    #     """Startet den Excel-Download."""
-    #     crawler.wait_clickable_and_click(
-    #         by="xpath",
-    #         selector="//a[contains(@data-testid,'transactions-all-download')]",
-    #         timeout=2,
-    #     )
-    #     crawler._logger.debug("Download-Button geöffnet.")
-    #
-    #     crawler.wait_clickable_and_click(
-    #         by="xpath",
-    #         selector="//button[contains(.,'Excel') or contains(.,'XLS')]",
-    #         timeout=2,
-    #     )
-    #     crawler._logger.info("Excel-Download gestartet.")
 
 
 
 
-
-        # time.sleep(0.5)  # kleine Pause vor dem Download
-
-        # download button muss gar nicht erneut geklickt werden
-        # downloadbtn = crawler.wait_for_element(
-        #     by="xpath",
-        #     selector="//button[.//span[contains(normalize-space(),'XLS')]]",
-        #     timeout=15)
-        # crawler.click_js(downloadbtn)
-        # crawler._logger.info("Excel-Download gestartet nach Verifizierung.")

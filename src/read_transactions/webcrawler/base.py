@@ -26,6 +26,7 @@ import tempfile
 import pandas as pd
 import logging
 from typing import Any, Dict, Optional, Union
+import warnings
 
 from ..logger import MainLogger
 from .webdriver import WebDriverFactory
@@ -107,8 +108,7 @@ class WebCrawler:
             start_date: Union[str, pd.Timestamp, datetime.date, None] = pd.to_datetime("today"),
             end_date: Union[str, pd.Timestamp, datetime.date, None] = (pd.to_datetime("today") - pd.DateOffset(months=6)),
             logging_level: str = "INFO",
-            global_log_level: str = "INFO",
-            logfile: Optional[str] = "logs/read_transactions.log",
+            logfile: Optional[str | None] = None,
             *,
             browser: str = "edge",
             headless: bool = False,
@@ -119,9 +119,10 @@ class WebCrawler:
         self.__output_path = output_path
 
         # Logging einrichten
-        MainLogger.configure(level=global_log_level, logfile=logfile)
+        if logfile:
+            MainLogger.configure(level=logging_level, logfile=logfile)
         self.__logger = MainLogger.get_logger(self.__name)
-        self.__logger.setLevel(getattr(logging, logging_level.upper(), logging.INFO))
+        MainLogger.set_stream_level(logging_level)
 
         # Zeitparameter setzen
         self.start_date = start_date
@@ -252,7 +253,7 @@ class WebCrawler:
     @property
     def account_balance(self) -> str:
         """Gibt den aktuellen Kontostand zurück."""
-        return str(round(self.__account_balance, 2))
+        return str(round(self.__account_balance, 2)) + " €"
     @account_balance.setter
     def account_balance(self, value: Any) -> None:
         """
@@ -260,25 +261,12 @@ class WebCrawler:
         Args:
             value (str | float | int): Neuer Kontostand-Wert.
         """
-        if isinstance(value, str):
-            value = value.replace("€", "").replace(",", ".").strip()
-            try:
-                value = float(value)
-            except ValueError:
-                self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
-                value = 0.0
-        elif isinstance(value, (int, float)):
-            try:
-                value = float(value)
-            except ValueError:
-                self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
-                value = 0.0
-        else:
-            try:
-                value = float(value)
-            except (ValueError, TypeError):
-                self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
-                value = 0.0
+        value = self._normalize_amount(value)
+        try:
+            value = float(value)
+        except (ValueError, TypeError):
+            self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
+            value = 0.0
         self.__account_balance = value
 
     # ------------------------------------------------------------------
@@ -294,7 +282,8 @@ class WebCrawler:
         """Wird von Subklassen überschrieben – startet Download-Vorgang."""
         self._state = "download_data"
         self.__logger.info(
-            f"Starting data download start_data={self.start_date} end_date={self.end_date}")
+            f"Downloading der Daten vom {self.start_date.strftime('%d.%m.%Y')} "
+            f"bis zum {self.end_date.strftime('%d.%m.%Y')} gestartet.")
 
     def process_data(self, sep: str = ';') -> None:
         """Optional von Subklassen überschreiben – verarbeitet geladene Daten."""
@@ -633,7 +622,13 @@ class WebCrawler:
                         elif f.lower().endswith(".xls"):
                             df = pd.read_excel(downloaded_file, engine='xlrd')
                         elif f.lower().endswith(".xlsx"):
-                            df = pd.read_excel(downloaded_file, engine='openpyxl')
+                            with warnings.catch_warnings():
+                                warnings.filterwarnings(
+                                    "ignore",
+                                    message="Workbook contains no default style, apply openpyxl's default",
+                                    category=UserWarning,
+                                )
+                                df = pd.read_excel(downloaded_file, engine='openpyxl')
                         else:
                             continue
                         file_content[f] = df
@@ -696,9 +691,208 @@ class WebCrawler:
         self._logger.info(msg)
         input("\n")
 
+    def _wait_for_condition(self, condition_func, timeout: float = 30.0, check_interval: float = 0.5) -> bool:
+        """Wartet, bis eine Bedingungsfunktion True zurückgibt.
+
+        Args:
+            condition_func: Funktion, die eine boolesche Bedingung prüft.
+            timeout: Maximale Wartezeit in Sekunden.
+            check_interval: Prüfintervall in Sekunden.
+        Returns:
+            bool: True, wenn die Bedingung erfüllt wurde, sonst False.
+        """
+        start_time = time.time()
+        last_time_log = start_time
+        while time.time() - start_time < timeout:
+            try:
+                if (time.time() - last_time_log) >= 5.0:
+                    last_time_log = time.time()
+                    self._logger.info(f'Warte auf Bedingung... verbleibende Zeit: {round(timeout - (time.time() - start_time), 1)}s')
+                if condition_func():
+                    self._logger.debug("Bedingung erfüllt")
+                    return True
+                time.sleep(check_interval)
+            except Exception:
+                self._logger.error("Fehler beim Ausführen der Bedingungsfunktion", exc_info=True)
+                return False
+        self._logger.debug("Timeout – Bedingung nicht erfüllt")
+        return False
+
+    def _delete_header(self, df: pd.DataFrame, header_key: str = 'datum') -> pd.DataFrame:
+        """
+        Löscht die Header-Zeile bis zum header_key aus einem DataFrame und setzt die Spaltennamen.
+
+        :param df: Eingabe-DataFrame.
+        :param header_key: Key der Spalte, die im Header enthalten sein muss. (Standard: 'datum')
+        :return: DataFrame ohne Header-Zeile.
+        """
+        # Falls Datei leer oder None
+        if df is None or df.empty:
+            self._logger.debug("⚠️ DataFrame ist None oder leer")
+            return pd.DataFrame()
+        # Finde die Header-Zeile
+        header_row_idx = None
+        for i, row in df.iterrows():
+            first_val = str(row.iloc[0]).strip().lower()
+            if first_val == header_key.lower():
+                header_row_idx = i
+                break
+        if header_row_idx is not None and header_row_idx > 0:
+            self._logger.debug(f"✅ Header gefunden in Zeile {header_row_idx}")
+            df = df.iloc[header_row_idx:].reset_index(drop=True)
+            # erste Zeile als Header setzen
+            df.columns = df.iloc[0].to_list()
+            return df.drop(0, axis=0).reset_index(drop=True)
+        else:
+            self._logger.debug(f"⚠️ Kein Header gefunden in DataFrame")
+            return df  # Header nicht gefunden, Original zurückgeben
+
+    def _normalize_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Normalisiert die Transaktionsdaten eines DataFrames.
+        - Datumsspalten in einheitliches Format bringen
+        - Betragsspalten bereinigen
+        - Spaltennamen vereinheitlichen
+
+        :param df: Eingabe-DataFrame.
+        :return: DataFrame mit normalisierten Daten.
+        """
+        def _safe_replace(value: pd.Series, to_replace: str, replacement: str) -> pd.Series:
+            try:
+                return value.astype(str).str.replace(replacement, to_replace)
+            except Exception:
+                return value
+        # -------------------------------------------------------------------------------------------------------------
+        # Spaltennamen erkennen und umbenennen
+        # -------------------------------------------------------------------------------------------------------------
+        # Datumsspalte
+        date_cols = [col for col in df.columns if 'datum' in str(col).lower()]
+        if len(date_cols) > 1:
+            self._logger.debug(f"Mehrere Datumsspalten erkannt: {date_cols}, verwende die erste.")
+        date_cols = date_cols[0] if date_cols else None
+        # Betragsspalte
+        amount_cols = [col for col in df.columns if any(x in str(col).lower() for x in ['betrag', 'summe', 'amount'])]
+        if len(amount_cols) > 1:
+            self._logger.debug(f"Mehrere Betragsspalten erkannt: {amount_cols}, verwende die erste.")
+        amount_cols = amount_cols[0] if amount_cols else None
+        # Verwendungszweck-Spalte
+        purpose_cols = [col for col in df.columns if any(x in str(col).lower() for x in ['verwendungszweck', 'zweck', 'purpose', 'beschreibung'])]
+        if len(purpose_cols) > 1:
+            self._logger.debug(f"Mehrere Verwendungszweck-Spalten erkannt: {purpose_cols}, verwende die erste.")
+        purpose_cols = purpose_cols[0] if purpose_cols else None
+        # Empfänger/Absender-Spalte
+        party_cols = [col for col in df.columns if any(x in str(col).lower() for x in ['empfänger', 'absender', 'receiver', 'sender', 'name'])]
+        if len(party_cols) > 1:
+            self._logger.debug(f"Mehrere Empfänger/Absender-Spalten erkannt: {party_cols}, verwende die erste.")
+        party_cols = party_cols[0] if party_cols else None
+        # Spalten umbenennen
+        rename_map = {}
+        if date_cols:
+            rename_map[date_cols] = 'Datum'
+        if amount_cols:
+            rename_map[amount_cols] = 'Betrag'
+        if purpose_cols:
+            rename_map[purpose_cols] = 'Verwendungszweck'
+        if party_cols:
+            rename_map[party_cols] = 'Empfänger/Absender'
+        df = df.rename(columns=rename_map)
+        self._logger.debug(f"Spalten umbenannt: {rename_map}")
+        # -------------------------------------------------------------------------------------------------------------
+
+        # -------------------------------------------------------------------------------------------------------------
+        # Normalisierungen durchführen
+        # -------------------------------------------------------------------------------------------------------------
+        # Datumsspalte normalisieren
+        if date_cols:
+            try:
+                df[date_cols] = pd.to_datetime(df[date_cols], errors='coerce', dayfirst=True)
+                # NaT (Not a Time) behandeln
+                before_drop = len(df)
+                df = df.dropna(subset=[date_cols])  # Zeilen mit ungültigen Daten entfernen
+                dropped = before_drop - len(df)
+                if dropped > 0:
+                    self._logger.debug(f"{dropped} Zeilen mit ungültigen Datumseinträgen entfernt.")
+                # formatieren
+                df[date_cols] = df[date_cols].dt.strftime('%d.%m.%Y')
+            except Exception:
+                self._logger.error("Fehler bei der Normalisierung der Datumsspalte", exc_info=True)
+
+        # Betragsspalte normalisieren
+        if amount_cols:
+            try:
+                df[amount_cols] = df[amount_cols].pipe(self._normalize_amount)
+                # NaN-Werte behandeln
+                before_drop = len(df)
+                df = df.dropna(subset=[amount_cols])  # Zeilen mit ungültigen Beträgen entfernen
+                dropped = before_drop - len(df)
+                if dropped > 0:
+                    self._logger.debug(f"{dropped} Zeilen mit ungültigen Betragseinträgen entfernt.")
+            except Exception:
+                self._logger.error("Fehler bei der Normalisierug der Betragsspalte", exc_info=True)
+        self._logger.debug("DataFrame normalisiert")
+
+        # alle unerkannten Spaltennamen als key: value in spalte verwendungszweck 2 speichern
+        # known_columns = [date_cols, amount_cols, purpose_cols, party_cols]  # da umbenannt, nicht mehr fkt.fähig
+        known_columns = list(rename_map.values())
+        unknown_cols = [col for col in df.columns if col not in known_columns]
+        if unknown_cols:
+            df["Verwendungszweck 2"] = (
+                df[unknown_cols]
+                .astype(str)
+                .agg(lambda x: " | ".join(f"{col}: {' '.join(str(val).split()).strip()}" for col, val in x.items() if val and val != "nan"), axis=1)
+            )
+            # unbekannte Spalten entfernen
+            df = df.drop(columns=unknown_cols)
+            self._logger.debug(f"Unbekannte Spalten in 'Verwendungszweck 2' zusammengefasst: {unknown_cols}")
+        # -------------------------------------------------------------------------------------------------------------
+
+        return df
 
 
+    def _normalize_amount(self, value: Any) -> Any:
+        """
+        Bereinigt Währungs-Strings und konvertiert sie in float.
+        Unterstützt pandas Series, DataFrames und einzelne Strings.
 
+        :param value: Eingabewert (Series, DataFrame oder String).
+        :return: Bereinigter Wert als float, Series oder DataFrame.
+
+        """
+        try:
+            if isinstance(value, pd.DataFrame):
+                for col in value.columns:
+                    value[col] = self._normalize_amount(value[col])
+                return value
+            if isinstance(value, str):
+                value = pd.Series([value])
+                value = self._normalize_amount(value)
+                return value.iloc[0]
+            if not isinstance(value, pd.Series):
+                return value
+            # Entferne Währungszeichen etc.
+            # regex: ^ - negiert: \d - Digit(0-9), Komma, Punkt oder Minus
+            value = value.astype(str).str.replace(r"[^\d,.\-]", "", regex=True)
+
+            # Erkenne und behandle deutsche 1000er-Trennung (z. B. 1.234,56)
+            # Fall 1: sowohl Punkt als auch Komma → Punkt = Tausender, Komma = Dezimal
+            # regex: \.\d{3,},\d{1,2}$ → Punkt gefolgt von mind. 3 Ziffern, Komma, 1-2 Ziffern am Ende
+            mask = value.str.contains(r"\.\d{3,},\d{1,2}$")
+            value.loc[mask] = value.loc[mask].str.replace(".", "", regex=False)
+
+            # Fall 2: englisch (1,234.56) → Komma = Tausender, Punkt = Dezimal
+            # regex: ,\d{3,}\.\d{1,2}$ → Komma gefolgt von mind. 3 Ziffern, Punkt, 1-2 Ziffern am Ende
+            mask = value.str.contains(r",\d{3,}\.\d{1,2}$")
+            value.loc[mask] = value.loc[mask].str.replace(",", "", regex=False)
+
+            # Alle verbleibenden Kommas als Dezimalpunkte
+            value = value.str.replace(",", ".", regex=False)
+
+            # Zu float konvertieren
+            value = pd.to_numeric(value, errors="coerce")
+            self._logger.debug("Betragsspalte vollständig normalisiert")
+        except Exception:
+            pass
+        return value
 
 
 if __name__ == "__main__":

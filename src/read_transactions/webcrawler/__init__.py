@@ -23,6 +23,7 @@ import inspect
 import sys
 from pathlib import Path
 from .base import WebCrawler
+from ..logger import MainLogger
 
 
 __version__ = "2.0.0"
@@ -63,7 +64,7 @@ for module_info in pkgutil.iter_modules([str(pkg_path)]):
                     AVAILABLE_CRAWLERS[name.lower()] = obj
                     globals()[class_name] = obj
                     __all__.append(class_name)
-                    print(f"📦 Crawler geladen: {name} → {class_name}")
+                    MainLogger._root_logger.debug(f"📦 Crawler geladen: {name} → {class_name}")
 
 
 

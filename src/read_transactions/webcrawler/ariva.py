@@ -95,8 +95,8 @@ class ArivaCrawler(WebCrawler):
         Instanzspezifischer Logger.
     """
 
-    def __init__(self, logfile=None, *args, **kwargs):
-        super().__init__(name="ariva", logfile=logfile, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(name="ariva", *args, **kwargs)
         self._load_config()
 
     # ----------------------------------------------------------
