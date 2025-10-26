@@ -1,13 +1,23 @@
+# Diese Datei wird automatisch aus der pyproject.toml generiert
+# siehe: pip install -e . oder pyproject.toml [dependencies]
+
 # Datenhandling
-pandas  # main package for data handling
-xlrd  # for reading excel files
+pandas~=2.3.1  # main package for data handling
+xlrd~=2.0.2 # for reading excel files
+openpyxl~=3.1.2  # for reading/writing xlsx excel files
+# PyYAML~=6.0.3  # for reading yaml files
+ruamel-yaml~=0.18.16  # for reading/writing yaml files with comments
+cryptography~=46.0.3  # for secure pw handling
 # numpy
 # pdfplumber
-# openpyxl
 
+
+# build
+# setuptools
+# build
 
 # Web scraping
-selenium
+selenium~=4.36.0
 # undetected_chromedriver
 # webdriver-manager
 

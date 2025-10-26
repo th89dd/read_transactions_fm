@@ -2,15 +2,25 @@
 /.idea
 /venv/
 /.venv39
+/.venv
+
+# build files
+/build/
+/dist/
+/src/read_transactions.egg-info
+readtx.spec
+
+
 
 !/credentials_example.txt
 !/credentials_ariva_example.txt
 # personal credentials
 credentials_*.txt
-
+config.yaml
 
 # stuff to ignore
 /out
 /backup
 /data
 /logs/
+

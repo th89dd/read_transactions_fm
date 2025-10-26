@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "read-transactions"
+version = "2.0.0"
+description = "Automatisiertes Crawling und Analyse von Finanztransaktionen (z. B. Ariva, Amex, Trade Republic)."
+readme = "README.md"
+authors = [
+    { name = "Tim Häberlein", email = "tim.haeberlein@tu-dresden.de" }
+]
+requires-python = ">=3.10"
+keywords = ["crawler", "finanzen", "selenium", "trading", "data-processing"]
+license-files = ["LICENSE"]
+dynamic = ["dependencies"]
+
+[project.scripts]
+# CLI-Kommando → ruft read_transactions.cli.main() auf
+readtx = "read_transactions.cli:main"
+
+[tool.setuptools]
+# Paketstruktur
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["read_transactions*"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
