@@ -1,6 +1,6 @@
-![version](https://img.shields.io/badge/version-1.0-blue.svg)
-![date](https://img.shields.io/badge/date-2024--11--13-green.svg)
-![status](https://img.shields.io/badge/status-development-yellow.svg)
+![version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![date](https://img.shields.io/badge/date-2025--10--26-green.svg)
+![status](https://img.shields.io/badge/status-running-green.svg)
 ![python](https://img.shields.io/badge/python-3.12-blue.svg)
 
 
@@ -14,30 +14,138 @@ Aktuell unterstützt:
 - **Umsätze von Amazon Visa (Zinia)**
 ***
 
-Diese Scriptsammlung dient dazu, Transaktionen via "WebCrawler" 
-von verschiedenen Finanzdienstleistern abzurufen und 
-anschließend in ein einheitliches Format zu bringen, 
-um diese in das Tool Finanzmanager importieren zu können. 
+Diese Scriptsammlung dient dazu, Transaktionen via „WebCrawler“\
+von verschiedenen Finanzdienstleistern automatisiert abzurufen und\
+anschließend in ein einheitliches CSV-Format zu überführen,\
+um diese z. B. im **Finanzmanager** zu importieren.
 
-Alle abgeholten Umsätze werden nach Dienstleister sortiert in CSV-Files im Folder [out](out) gespeichert.
+Alle abgeholten Umsätze werden nach Dienstleister sortiert im Ordner [`out`](out) gespeichert.\
+Diese CSV-Dateien können anschließend im Finanzmanager über\
+**Datei → Export/Import → Datenimport → Umsätze** eingelesen werden.\
+Zur Vereinfachung können Importvorlagen genutzt werden – eine Beispielvorlage liegt unter [Vorlagen.dat](Vorlagen.dat).
 
-Die CSV-Dateien können anschließend zB im Finanzmanager importiert werden.
-Dazu über Datei -> Export/Import -> Datenimport  -> **Umsätze** über den Dialog importieren.
-
-Zur einfacheren Verwendung, lohnt es sich Vorlagen zu erzeugen, damit die Umsätze schneller in den Finanzmanager importiert werden können. Das kann  im Rahmen des Dialogs erfolgen.
-Zur einfacheren Verwendung habe ich meine [Vorlagen](Vorlagen.dat) angehängt.
+***
+***
+## Content
+1. [Getting-Started](#-getting-started-empfohlene-nutzung)
+2. [CLI-Interface](#use-the-main-script)
+2. [Use Ariva Crawler](#use-ariva-crawler)
+3. [Use the other Crawler](#use-the-other-crawler)
 
 ***
 
-## Quick Start
-- was auch immer
+## 🌟 Getting Started (empfohlene Nutzung)
 
----
-## Content
-1. [Installation/Setting-up python](#setting-up-python-environment)
-2. [Use the main script](#use-the-main-script)
-2. [Use Ariva Crawler](#use-ariva-crawler)
-3. [Use the other Crawler](#use-the-other-crawler)
+Der einfachste Weg, das Tool zu verwenden, ist über das **vorkompilierte CLI-Programm**:
+
+1. **Download der Windows-EXE**\
+   Lade die Datei `readtx.exe` von der [Release-Seite](https://github.com/th89dd/read_transactions_fm/releases) herunter\
+   und lege sie z. B. in einen eigenen Ordner (z. B. `C:\Tools\readtx`).
+
+2. **Start über die Kommandozeile (CLI)**\
+   Öffne die Eingabeaufforderung (`cmd`) oder PowerShell und rufe auf:
+
+   ```bash
+   readtx list
+   ```
+
+   Damit siehst du alle verfügbaren Crawler (z. B. `ariva`, `amex`, `amazon_visa`, `trade_republic`).
+
+3. **Konfiguration anlegen**\
+   Erstelle deine persönliche Konfigurationsdatei:
+
+   ```bash
+   readtx config init
+   ```
+
+   Dadurch wird automatisch eine Beispiel-`config.yaml` unter\
+   `%USERPROFILE%\.config\read_transactions\config.yaml` erstellt.\
+   Trage dort deine Zugangsdaten (Benutzername/Passwort) ein oder nutze:
+
+   ```bash
+   readtx config set amex --user <USERNAME> --pwd <PASSWORT>
+   ```
+
+4. **Crawler starten** Beispiel – Starte den Ariva-Crawler:
+
+   ```bash
+   readtx run ariva --start 01.01.2024 --end 31.03.2024 --l INFO
+   ```
+
+   oder den Trade-Republic-Crawler im Debug-Modus:
+
+   ```bash
+   readtx run trade_republic --l DEBUG
+   ```
+
+5. **Ergebnisse ansehen**\
+   Nach Abschluss findest du die CSV-Dateien im Ordner:
+
+   ```
+   %USERPROFILE%\out\
+   ```
+
+***
+
+## ⚙️ CLI-Kommandos
+
+Das Tool ist vollständig über die Kommandozeile steuerbar.\
+Alle Befehle folgen dem Schema:
+
+```bash
+readtx <command> [options]
+```
+
+### Verfügbare Hauptbefehle
+
+| Befehl          | Beschreibung                                       | Beispiel                                                         |
+| --------------- | -------------------------------------------------- | ---------------------------------------------------------------- |
+| `list`          | Listet alle verfügbaren Crawler                    | `readtx list`                                                    |
+| `run <crawler>` | Startet einen bestimmten Crawler                   | `readtx run ariva --start 01.01.2024 --end 31.03.2024`           |
+| `config show`   | Zeigt die aktuelle Konfiguration an                | `readtx config show`                                             |
+| `config set`    | Setzt Benutzername und/oder Passwort verschlüsselt | `readtx config set amex --user max --pwd geheim`                 |
+| `config edit`   | Ändert beliebige Einträge in der Config            | `readtx config edit urls.ariva.login https://www.ariva.de/login` |
+| `config clear`  | Löscht Config-Cache oder Datei                     | `readtx config clear --delete`                                   |
+| `config init`   | Erstellt eine neue Standard-Config                 | `readtx config init --overwrite`                                 |
+
+### Parameter beim `run`-Befehl
+
+| Option    | Bedeutung                               | Beispiel                                                  |
+| --------- | --------------------------------------- |-----------------------------------------------------------|
+| `--start` | Startdatum (Standard: heute)            | `--start 01.01.2024`                                      |
+| `--end`   | Enddatum (Standard: heute − 6 Monate)   | `--end 31.03.2024`                                        |
+| `--l`     | Log-Level (DEBUG, INFO, WARNING, ERROR) | `--l DEBUG`                                               |
+| `--o`     | Zusätzliche Parameter (key=value)       | `--o output_path='myout' browser='chrome' headless=False` |
+
+***
+
+## 🧩 Beispiel-Workflows
+
+### Ariva-Kurse für Q1 2024 abrufen
+
+```bash
+readtx run ariva --start 01.01.2024 --end 31.03.2024
+```
+
+### Alle Kreditkartenumsätze der letzten 6 Monate abrufen
+
+```bash
+readtx run amex
+readtx run amazon_visa
+```
+
+### TradeRepublic-Umsätze abrufen
+
+ohne zusätzliche Details der Transaktionen mit Trades (default ist details=True) - wesentlich schneller:
+```bash
+readtx run trade_republic --o details=False
+```
+
+### Config prüfen
+
+```bash
+readtx config show --credentials
+```
 
 
 ## Installation
