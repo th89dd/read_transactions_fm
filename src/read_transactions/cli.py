@@ -10,6 +10,7 @@
 import argparse
 import sys
 import os
+import ast  # Für sichere Auswertung von Literal-Ausdrücken
 import pandas as pd
 from .logger import MainLogger
 from .webcrawler import AVAILABLE_CRAWLERS
@@ -29,8 +30,7 @@ Beispiele:
 
 """
 TODOs:
-- Config über CLI verwalten (s. config.py)
-- alle crawler standardmäßig debug in log_file schreiben (max. Größe, Rotation)
+- [] mehrere crawler auf einmal starten
 """
 
 
@@ -38,6 +38,9 @@ TODOs:
 #     "ariva": ArivaCrawler,
 #     "amex": AmexCrawler, ...}
 
+# -------------------------------------------------------------------
+# Funktionen zum Listen und Ausführen von Crawlern
+# -------------------------------------------------------------------
 def list_crawlers() -> None:
     """Zeigt alle verfügbaren Crawler aus der Registry an."""
     if not AVAILABLE_CRAWLERS:
@@ -49,8 +52,11 @@ def list_crawlers() -> None:
         print(f"  - {key}")
     print()
 
-
-def run_crawler(name: str, start: str, end: str, log_level:str) -> None:
+def run_crawler(name: str, start: str, end: str, log_level: str, options: dict | None = None) -> None:
+    crawler_cls = AVAILABLE_CRAWLERS[name]
+    with crawler_cls(start_date=start, end_date=end, logging_level=log_level, **(options or {})) as crawler:
+        ...
+def run_crawler(name: str, start: str, end: str, log_level:str, options: dict | None = None) -> None:
     """Startet den angegebenen Crawler."""
     if name not in AVAILABLE_CRAWLERS:
         print(f"❌ Unbekannter Crawler: {name}")
@@ -62,7 +68,7 @@ def run_crawler(name: str, start: str, end: str, log_level:str) -> None:
     crawler_cls = AVAILABLE_CRAWLERS[name]
 
     print(f"🚀 Starte {name}-Crawler ...")
-    with crawler_cls(start_date=start, end_date=end, logging_level=log_level) as crawler:
+    with crawler_cls(start_date=start, end_date=end, logging_level=log_level, **(options or {})) as crawler:
         try:
             crawler.login()
             crawler.download_data()
@@ -73,6 +79,25 @@ def run_crawler(name: str, start: str, end: str, log_level:str) -> None:
             sys.exit(1)
 
     print(f"✅ {name}-Crawler abgeschlossen.\n")
+
+# -------------------------------------------------------------------
+# Hilfsfunktionen
+# -------------------------------------------------------------------
+def parse_kv_list(kv_list) -> dict:
+    """Parst eine Liste von key=value Strings in ein Dictionary."""
+    opts = {}
+    if not kv_list:
+        return opts
+    for item in kv_list:
+        if '=' not in item:
+            continue
+        k, v = item.split('=', 1)
+        try:
+            v = ast.literal_eval(v)
+        except Exception:
+            pass
+        opts[k] = v
+    return opts
 
 
 # -------------------------------------------------------------------
@@ -101,7 +126,7 @@ def main() -> None:
     # CLI-Parser einrichten
     # ------------------------------------------------------------------------------------------
     parser = argparse.ArgumentParser(
-        prog="read_transactions",
+        prog="readtx",
         description="CLI für das read_transactions-Projekt – verwaltet und startet Crawler.",
     )
     subparsers = parser.add_subparsers(dest="command", help="Verfügbare Befehle")
@@ -112,16 +137,21 @@ def main() -> None:
     # --- run command ---
     parser_run = subparsers.add_parser("run", help="Startet einen bestimmten Crawler")
     parser_run.add_argument("name", help="Name des Crawlers (z. B. ariva)")
-    parser_run.add_argument("--start", type=str,
-                            help="Startdatum (dd.mm.yyyy) (default: heute)",
+    parser_run.add_argument("--start", metavar='Startdatum', type=str,
+                            help="Startdatum im Format (dd.mm.yyyy) (default: heute)",
                             default=pd.to_datetime("today").strftime('%d.%m.%Y')
                             )
-    parser_run.add_argument("--end", type=str,
-                            help="Enddatum im format (dd.mm.yyyy) (default: 6 Monate vor heute)",
+    parser_run.add_argument("--end", metavar='Enddatum', type=str,
+                            help="Enddatum im Format (dd.mm.yyyy) (default: 6 Monate vor heute)",
                             default=(pd.to_datetime("today")-pd.DateOffset(months=6)).strftime('%d.%m.%Y')
                             )
-    parser_run.add_argument("--log_level", type=str, help="Log_Level (DEBUG, INFO, WARNING, ERROR)",
+    parser_run.add_argument("--l", metavar='log_level', dest='log_level', type=str,
+                            help="log_level = logging Level für den Konsolenhandler (DEBUG, INFO, WARNING, ERROR)",
                             default="INFO")
+    parser_run.add_argument('--o', metavar='options', dest='options', type=str, nargs='*',
+                            help="zusätzliche Parameter für den Crawler im Format key=value key2=value2 ...",
+                            default=None)
+
 
     # --- config command  ---
     parser_config = subparsers.add_parser("config", help="Verwaltet die Konfiguration")
@@ -160,7 +190,9 @@ def main() -> None:
     if args.command == "list":
         list_crawlers()
     elif args.command == "run":
-        run_crawler(args.name, args.start, args.end, args.log_level)
+        options = parse_kv_list(args.options)
+        run_crawler(args.name, args.start, args.end, args.log_level, options=options)
+        # run_crawler(args.name, args.start, args.end, args.log_level)
     elif args.command == "config":
         config_mgr = ConfigManager
         if args.action == "show":

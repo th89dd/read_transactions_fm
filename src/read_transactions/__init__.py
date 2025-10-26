@@ -17,11 +17,10 @@ __author__ = "Tim Häberlein"
 __license__ = "MIT"
 
 # Optionale vereinfachte Exporte (z. B. direkt aufrufbare CLI)
-from .cli import main
 from .webcrawler import AVAILABLE_CRAWLERS
 
-__all__ = ["main", "AVAILABLE_CRAWLERS"]
+__all__ = ["AVAILABLE_CRAWLERS"]
 
 
 if __name__ == '__main__':
-    main()
+    pass

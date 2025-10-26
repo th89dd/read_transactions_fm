@@ -411,6 +411,18 @@ class WebCrawler:
             selector: Selektor-String.
             timeout: Max. Wartezeit in Sekunden.
 
+        by_map = {
+            - "id": _By.ID,
+            - "name": _By.NAME,
+            - "css": _By.CSS_SELECTOR,
+            - "css selector": _By.CSS_SELECTOR,
+            - "xpath": _By.XPATH,
+            - "link text": _By.LINK_TEXT,
+            - "partial link text": _By.PARTIAL_LINK_TEXT,
+            - "tag": _By.TAG_NAME,
+            - "class": _By.CLASS_NAME,
+        }
+
         Returns:
             WebElement: Gefundenes Element.
 
@@ -747,7 +759,7 @@ class WebCrawler:
             self._logger.debug(f"⚠️ Kein Header gefunden in DataFrame")
             return df  # Header nicht gefunden, Original zurückgeben
 
-    def _normalize_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _normalize_dataframe(self, df: pd.DataFrame, remove_nan: bool = False) -> pd.DataFrame:
         """
         Normalisiert die Transaktionsdaten eines DataFrames.
         - Datumsspalten in einheitliches Format bringen
@@ -755,6 +767,7 @@ class WebCrawler:
         - Spaltennamen vereinheitlichen
 
         :param df: Eingabe-DataFrame.
+        :param remove_nan: Ob Zeilen mit NaN-Werten entfernt werden sollen. (Standard: False)
         :return: DataFrame mit normalisierten Daten.
         """
         def _safe_replace(value: pd.Series, to_replace: str, replacement: str) -> pd.Series:
@@ -821,12 +834,15 @@ class WebCrawler:
         if amount_cols:
             try:
                 df[amount_cols] = df[amount_cols].pipe(self._normalize_amount)
-                # NaN-Werte behandeln
-                before_drop = len(df)
-                df = df.dropna(subset=[amount_cols])  # Zeilen mit ungültigen Beträgen entfernen
-                dropped = before_drop - len(df)
-                if dropped > 0:
-                    self._logger.debug(f"{dropped} Zeilen mit ungültigen Betragseinträgen entfernt.")
+                # NaN-Werte behandeln - entweder entfernen oder auf 0 setzen
+                if remove_nan:  # Zeilen mit NaN entfernen
+                    before_drop = len(df)
+                    df = df.dropna(subset=[amount_cols])  # Zeilen mit ungültigen Beträgen entfernen
+                    dropped = before_drop - len(df)
+                    if dropped > 0:
+                        self._logger.debug(f"{dropped} Zeilen mit ungültigen Betragseinträgen entfernt.")
+                else:  # NaN-Werte auf 0 setzen
+                    df[amount_cols] = df[amount_cols].fillna(0.0)
             except Exception:
                 self._logger.error("Fehler bei der Normalisierug der Betragsspalte", exc_info=True)
         self._logger.debug("DataFrame normalisiert")
@@ -836,11 +852,20 @@ class WebCrawler:
         known_columns = list(rename_map.values())
         unknown_cols = [col for col in df.columns if col not in known_columns]
         if unknown_cols:
-            df["Verwendungszweck 2"] = (
-                df[unknown_cols]
-                .astype(str)
-                .agg(lambda x: " | ".join(f"{col}: {' '.join(str(val).split()).strip()}" for col, val in x.items() if val and val != "nan"), axis=1)
-            )
+            if len(unknown_cols) == 1:
+                col = unknown_cols[0]
+                df["Verwendungszweck 2"] = (
+                    df[col]
+                    .astype(str)
+                    .apply(lambda v: " ".join(str(v).split()).strip() if pd.notna(v) and str(v).lower() != "nan" and str(v).strip() != "" else "")
+                )
+            else:
+
+                df["Verwendungszweck 2"] = (
+                    df[unknown_cols]
+                    .astype(str)
+                    .agg(lambda x: " | ".join(f"{col}: {' '.join(str(val).split()).strip()}" for col, val in x.items() if val and val != "nan"), axis=1)
+                )
             # unbekannte Spalten entfernen
             df = df.drop(columns=unknown_cols)
             self._logger.debug(f"Unbekannte Spalten in 'Verwendungszweck 2' zusammengefasst: {unknown_cols}")
@@ -889,7 +914,7 @@ class WebCrawler:
 
             # Zu float konvertieren
             value = pd.to_numeric(value, errors="coerce")
-            self._logger.debug("Betragsspalte vollständig normalisiert")
+            # self._logger.debug("Betragsspalte vollständig normalisiert")
         except Exception:
             pass
         return value

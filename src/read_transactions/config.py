@@ -18,9 +18,6 @@ Suchreihenfolge:
 
 """
 TODOs:
-- Passwörter verschlüsselt speichern
-- default Config-Datei über cli generieren
-- congig über cli anzeigen/löschen/bearbeiten
 """
 
 import os
@@ -31,7 +28,10 @@ from pathlib import Path
 from typing import Any, Dict
 from cryptography.fernet import Fernet
 
-from .logger import MainLogger
+try:
+    from .logger import MainLogger
+except ImportError:
+    from src.read_transactions.logger import MainLogger
 import logging
 
 class ConfigManager:
@@ -278,9 +278,9 @@ class ConfigManager:
                     user: max_mustermann
                     password: geheim123
               
-                # Trade Republic credentials
+                # Trade Republic credentials - aktuell wird nur de login unterstützt
                 trade_republic:
-                    user: max_mustermann
+                    user: max_mustermann    # ohne ländervorwahl und führende null
                     password: geheim123
               
                 # Amazon Visa login credentials
@@ -356,13 +356,8 @@ class ConfigManager:
 
 if __name__ == "__main__":
     # Kurzer Testlauf
-    logger = logging.getLogger("config_manager")
-    logger.setLevel(logging.DEBUG)
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-    formatter = logging.Formatter("[%(levelname)s] %(name)s: %(message)s")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    MainLogger.configure()
+    MainLogger.set_stream_level("DEBUG")
     try:
         config = ConfigManager.load()
         print("Konfiguration erfolgreich geladen")
