@@ -143,11 +143,10 @@ class TradeRepublicCrawler(WebCrawler):
         crawler.save_data()
     ```
     """
-    def __init__(self, details: bool = True, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(name="trade_republic",*args, **kwargs)
         self._load_config()
         self.__portfolio_balance = 0.0
-        self.with_details = details
 
     @property
     def portfolio_balance(self) -> str:
@@ -163,20 +162,6 @@ class TradeRepublicCrawler(WebCrawler):
             self._logger.warning(f"Konnte Portfolio-Gesamtwert nicht in float umwandeln: {value}")
             value = 0.0
         self.__portfolio_balance = value
-
-    @property
-    def with_details(self) -> bool:
-        """Gibt zurück, ob zusätzliche Order-Details extrahiert werden."""
-        return self.__with_details
-    @with_details.setter
-    def with_details(self, value: bool) -> None:
-        """Setzt, ob zusätzliche Order-Details extrahiert werden."""
-        if isinstance(value, str):
-            value = value.lower() in ['true', '1', 'yes', 'y']
-        if not isinstance(value, bool):
-            self._logger.warning(f"with_details muss ein bool sein, nicht {type(value)}. Setze auf True.")
-            value = True
-        self.__with_details = value
 
     # ------------------------------------------------------------------
     # Login

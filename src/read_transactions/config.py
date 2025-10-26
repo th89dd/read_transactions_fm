@@ -271,50 +271,60 @@ class ConfigManager:
         import textwrap
 
         default_content = textwrap.dedent("""\
-            # Credentials for various services (amex, amazon_visa, ariva)
+            
             credentials:
-                # American Express login credentials - uncomment if needed
+            # Credentials for various services (amex, amazon_visa, ariva)
                 amex:
+                # American Express login credentials - uncomment if needed
                     user: max_mustermann
-                    password: geheim123
-              
-                # Trade Republic credentials - aktuell wird nur de login unterstützt
+                    password: geheim123              
+                
                 trade_republic:
+                # Trade Republic credentials - aktuell wird nur de login unterstützt
                     user: max_mustermann    # ohne ländervorwahl und führende null
                     password: geheim123
               
-                # Amazon Visa login credentials
                 amazon_visa:
+                # Amazon Visa login credentials
                     user: max_mustermann
                     password: geheim123
     
-                # Ariva login credentials - for downloading historical stock prices
                 ariva:
+                # Ariva login credentials - for downloading historical stock prices
                     user: max_mustermann
-                    password: geheim123              
+                    password: geheim123
+                
+                amazon:
+                # Amazon.de login credentials - um Bestelldaten zu laden
+                    user: max_mustermann
+                    password: geheim123                               
     
-            # URL endpoints for various services
             urls:
-                # American Express URLs
+            # URL endpoints for various services
                 amex:
+                # American Express URLs
                     login: https://www.americanexpress.com/de-de/account/login
                     transactions: https://global.americanexpress.com/activity/search
-                
-                # Trade Republic URLs
+                    
                 trade_republic:
+                # Trade Republic URLs
                     login: https://app.traderepublic.com/login
                     transactions: https://app.traderepublic.com/profile/transactions  
-              
-                # Amazon Visa URLs
+                    
                 amazon_visa:
+                # Amazon Visa URLs
                     login: https://customer.amazon.zinia.de/login
                     transactions: https://customer.amazon.zinia.de/transactions
-    
-                # Ariva URLs
+                
+                amazon:
+                # Amazon.de URLs
+                    login: https://www.amazon.de/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.de%2F%3Fref_%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=deflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+                    transactions: https://www.amazon.de/gp/css/order-history?ref_=nav_AccountFlyout_orders
+                
                 ariva:
+                # Ariva URLs
                     login: https://login.ariva.de/realms/ariva/protocol/openid-connect/auth?client_id=ariva-web&redirect_uri=https%3A%2F%2Fwww.ariva.de%2F%3Fbase64_redirect%3DaHR0cHM6Ly93d3cuYXJpdmEuZGUv&response_type=code&scope=openid+profile+email&state=example
-                    # Endpoints for historical stock price data - add various entries as needed
-                    kurse:
+                    kurse: # Endpoints for historical stock price data - add various entries as needed                    
                         apple: https://www.ariva.de/aktien/apple-aktie/kurse/historische-kurse
                         msci_world: https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc/kurse/historische-kurse
                         microsoft: https://www.ariva.de/aktien/microsoft-corp-aktie/kurse/historische-kurse
@@ -333,7 +343,6 @@ class ConfigManager:
                         ftse_all_world: https://www.ariva.de/etf/vanguard-ftse-all-world-ucits-etf-usd-acc/kurse/historische-kurse
                         vanguard_lifestrategy_80_equity: https://www.ariva.de/etf/vanguard-lifestrategy-80-equity-ucits-etf-eur-acc/kurse/historische-kurse
                         ftse_global_all_cap: https://www.ariva.de/etf/vanguard-esg-global-all-cap-ucits-etf-usd-acc/kurse/historische-kurse
-                        # add more if needed
             """)
 
         if not path:

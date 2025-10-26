@@ -61,6 +61,10 @@ class AmazonVisaCrawler(WebCrawler):
 
     Parameter
     ----------
+    details : bool, optional
+        Falls `True`, werden detaillierte Umsatzinformationen zusätzlich von Amazon abgerufen.
+        Diese werden anhand von Betrag und Datum den Umsätzen zugeordnet.
+        Standard: ``True``.
     logfile : str, optional
         Pfad zu einer Logdatei. Wenn `None`, wird nur in die Konsole geloggt.
     output_path : str, optional

@@ -12,6 +12,7 @@ Aktuell unterstützt:
 - **Umsätze von Trade Republic**
 - **Umsätze von American Express**
 - **Umsätze von Amazon Visa (Zinia)**
+- **Bestellungen von Amazon.de** (mit integration in Amazon Visa)
 ***
 
 Diese Scriptsammlung dient dazu, Transaktionen via „WebCrawler“\
@@ -26,11 +27,17 @@ Zur Vereinfachung können Importvorlagen genutzt werden – eine Beispielvorlage
 
 ***
 ***
+
 ## Content
 1. [Getting-Started](#-getting-started-empfohlene-nutzung)
-2. [CLI-Interface](#use-the-main-script)
-2. [Use Ariva Crawler](#use-ariva-crawler)
-3. [Use the other Crawler](#use-the-other-crawler)
+2. [CLI-Interface](#-cli-kommandos)
+2. [Beispiele](#-beispiel-workflows)
+3. [Installation](#installation)
+4. [Für Entwicklung](#dev-section)
+   1. [TODO](#todos)
+   2. [Nützliche Kommandos](#usefull-commands)
+5. [Versionshistorie](#versionshistorie)
+6. [Lizenz](#lizenz)
 
 ***
 
@@ -202,9 +209,31 @@ You can use the following steps, or you can use the **[bat-file](setup.bat)** to
     ```bash
     deactivate
     ```
-## Entwicklung
 
-### Use Package in Editable Mode
+***
+***
+
+## Dev-Section
+
+Stuff for development
+
+### TODOs
+
+- [ ] Add more Crawler (e.g., other banks, brokers)
+- [ ] Add tests for Crawler
+- [ ] Improve error handling and logging
+- [ ] Add more examples and documentation
+- [ ] Create Docker image for easier deployment
+- [ ] Add CI/CD pipeline for automated testing and deployment
+- [ ] Improve performance of web scraping
+  - [ ] Read data from out -> update only nessesary (new) entries
+  - [ ] Check some stuff (async requests, headless browser options etc.)
+  
+- [ ] Add support for more output formats (e.g., JSON, Excel)
+- [ ] Add GUI for easier usage
+
+### Usefull Commands
+#### Use Package in Editable Mode
 Um read_transactions im "editable mode" zu installieren, sodass Änderungen am Code sofort wirksam werden,
 kann folgendes Kommando genutzt werden:
 ```bash
@@ -215,7 +244,7 @@ Das Paket kann ist dann als read_transactions in Python nutzbar aber Code-Änder
 Über das Kommando `pip uninstall read_transactions` kann die Installation wieder entfernt werden.
 
 
-### Build Package
+#### Build Package
 Folgende Pakete müssen installiert sein, um das Projekt zu bauen:
 ```bash
 pip install setuptools build
@@ -235,7 +264,7 @@ Es werden sowohl eine Wheel-Datei als auch ein Source-Distribution-Paket im Ordn
 python -m build
 ```
 
-### Build Standalone Executable (Windows)
+#### Build Standalone Executable (Windows)
 Um eine standalone ausführbare Datei (exe) für Windows zu bauen, muss folgendes paket installiert sein: 
 ```bash
 pip install pyinstaller
@@ -246,10 +275,7 @@ Es wird eine ausführbare Datei im Ordner `dist/` erstellt.
 pyinstaller --onefile src/read_transactions/cli.py -n readtx
 ```
 
-
-
-
-### Get Required Packages
+#### Get Required Packages
 Bei bestehendem venv können alle pakete mit pip ausgelesen werden:
 ```bash
 pip freeze > requirements.txt
@@ -269,94 +295,32 @@ Install required packages from `requirements.txt`:
 pip install -r requirements.txt
 ```
 
+***
 
+## Versionshistorie
+| Version | Datum      | Beschreibung                          |
+|---------|------------|---------------------------------------|
+| 2.1.0   | 2025-10-26 | add amazon.de crawler                 |
+| 2.0.0   | 2025-10-25 | Major Release mit neuem CLI-Interface |
+| 1.0.0   | 2024       | Initiale Veröffentlichung             |   
 
+### version 2.1.0 (2025-10-26)
+- Neuer Crawler: amazon - für Amazon.de Bestellungen
+- Integration von Amazon Visa Umsätzen mit Amazon.de Bestellungen
 
-## Use the Main Script
-you can use the main script to run all configured crawler at once
-1. Create all credential files for the crawler you want to use  
-see [Use Ariva Crawler](#use-ariva-crawler) and [Use the other Crawler](#use-the-other-crawler) for details
+### version 2.0.0 (2025-10-26)
+- Major Release mit neuem CLI-Interface
+- Verbesserte Konfigurationsverwaltung
+- Neue Crawler-Optionen
 
-2. Configure all crawler in the [run.py file](run.py) in the main folder
-   - you can add or remove crawler by adding or removing the following lines or comment them out with `#`:
-    ```python
-    kurse = ArivaKurse()  # Ariva Kurse - comment in or comment out (with #) if you didnt want to use
-    tr = TradeRepublic()  # Trade Republic
-    amex = Amex()  # American Express
-    amazon = AmazonVisa()  # new Amazon Visa by Zinia (2024)
-    ```
-   - example if you dont want to use AmericanExpress:
-    ```python
-    kurse = ArivaKurse()  # Ariva Kurse - comment in or comment out (with #) if you didnt want to use
-    tr = TradeRepublic()  # Trade Republic
-    # amex = Amex()  # American Express
-    amazon = AmazonVisa()  # new Amazon Visa by Zinia (2024)
-    ```
-3. Run the main script:
-   - open a terminal in the project folder and run:
-    ```bash
-    start.bat
-    ```
-   - the script will run all configured crawler and save the data in the [out](out) folder
+### version 1.0.0 (2024)
+- Initiale Veröffentlichung mit Crawlern für:
+  - Ariva Aktienkurse
+  - Trade Republic Umsätze
+  - American Express Umsätze
+  - Amazon Visa Umsätze
 
-## Use Ariva Crawler
-1. Make a ariva.de account
-   - go to [ariva.de](https://www.ariva.de/registrierung/)
-   - fill out the form and create an account
-   - save your credentials
-2. Create a file named `credentials_ariva.txt` in the root folder of the project
-   - you can use the [example_file](credentials_ariva_example.txt) as template
-   - add your ariva.de credentials to the file in the following format:
-     ```
-     username: your_username
-     password: your_password
-     ```
-   - add your desired stocks and other securities in the following format:
-   
-      ```
-      name: link to ariva.de
-      ``` 
-   
-   - the *name* can be anything you want, but the *link* must be a valid link to the security on ariva.de
-   for example:
-     ```
-     MyStockApple: https://www.ariva.de/apple-aktie
-     ```
-   
-3. Run the ariva crawler:  
-   run avira crawler with default options:
-   - start_date = today
-   - end_date = today - 6 month
-   - standard output path (./data)
-   - automatically start download & save data
-    ```python
-   from WebCrawler.ArivaCrawler import ArivaKurse
-   ariva = ArivaKurse()  # start ariva crawler with default options
-    ```
-   run avira crawler with custom options:
-   ````python
-    from WebCrawler.ArivaCrawler import ArivaKurse
-    ariva = ArivaKurse(start_date='1.11.2024', perform_download=False, output_path='../out')  # if perform_download is True, the following steps will done automatically
-    ariva.end_date = '13.10.2024'  # you can also set the date by property, not only by constructor
-    ariva.credentials_file = '../credentials_ariva.txt'  # if you want to use another credentials file or path
-    ariva._read_credentials()
-    ariva.login()
-    ariva.download_data()
-    ariva.close()
-    ariva.process_data()
-    ariva.save_data()      
-   ````
-
-## Use the other crawler
-1. Create a file named `credentials_<crawler>.txt` in the root folder of the project
-   - you can use the [example_file](credentials_example.txt) as template
-   - add your credentials to the file in the following format:
-     ```
-     username: your_username
-     password: your_password
-     ```
-2. Run the crawler:
-   - the crawler is used in the same way as the ariva crawler
-   - see [use ariva crawler](#use-ariva-crawler) for more information
-
+***
+## Lizenz
+Dieses Projekt ist unter der MIT-Lizenz lizenziert. Weitere Informationen finden Sie in der [LICENSE](LICENSE)-Datei.
 

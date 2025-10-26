@@ -66,6 +66,10 @@ class WebCrawler:
         Startdatum für den Datenabruf.
     end_date : str | pandas.Timestamp | datetime.date, optional
         Enddatum für den Datenabruf.
+    details : bool, optional
+        Ob zusätzliche Details extrahiert werden sollen?
+        Uum beispiel bei trade_republic zusätzliche Order-Details oder bei amazon_visa vgl. mit amazon käufen.
+        (Standard: ``True``).
     logging_level : str, optional
         Log-Level der Instanz (z. B. "DEBUG", "INFO", "WARNING").
         Standard: ``INFO``.
@@ -107,6 +111,7 @@ class WebCrawler:
             output_path: str = "out",
             start_date: Union[str, pd.Timestamp, datetime.date, None] = pd.to_datetime("today"),
             end_date: Union[str, pd.Timestamp, datetime.date, None] = (pd.to_datetime("today") - pd.DateOffset(months=6)),
+            details: bool = True,
             logging_level: str = "INFO",
             logfile: Optional[str | None] = None,
             *,
@@ -127,6 +132,9 @@ class WebCrawler:
         # Zeitparameter setzen
         self.start_date = start_date
         self.end_date = end_date
+
+        # Details-Flag
+        self.with_details = details
 
         # State & interne Felder
         self._state = "initialized"
@@ -268,6 +276,20 @@ class WebCrawler:
             self._logger.error(f"Ungültiger Kontostand-Wert: {value}")
             value = 0.0
         self.__account_balance = value
+
+    @property
+    def with_details(self) -> bool:
+        """Gibt zurück, ob zusätzliche Order-Details extrahiert werden."""
+        return self.__with_details
+    @with_details.setter
+    def with_details(self, value: bool) -> None:
+        """Setzt, ob zusätzliche Order-Details extrahiert werden."""
+        if isinstance(value, str):
+            value = value.lower() in ['true', '1', 'yes', 'y']
+        if not isinstance(value, bool):
+            self._logger.warning(f"with_details muss ein bool sein, nicht {type(value)}. Setze auf True.")
+            value = True
+        self.__with_details = value
 
     # ------------------------------------------------------------------
     # Lifecycle-Methoden
@@ -817,6 +839,7 @@ class WebCrawler:
         # -------------------------------------------------------------------------------------------------------------
         # Datumsspalte normalisieren
         if date_cols:
+            date_cols = rename_map[date_cols]  # aktualisierter Spaltenname
             try:
                 df[date_cols] = pd.to_datetime(df[date_cols], errors='coerce', dayfirst=True)
                 # NaT (Not a Time) behandeln
@@ -832,6 +855,7 @@ class WebCrawler:
 
         # Betragsspalte normalisieren
         if amount_cols:
+            amount_cols = rename_map[amount_cols]  # aktualisierter Spaltenname
             try:
                 df[amount_cols] = df[amount_cols].pipe(self._normalize_amount)
                 # NaN-Werte behandeln - entweder entfernen oder auf 0 setzen
