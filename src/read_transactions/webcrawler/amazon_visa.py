@@ -20,10 +20,12 @@ Verwendung:
 """
 # -------- start import block ---------
 import time
-import pandas as pd
-from selenium.common.exceptions import TimeoutException
+from xmlrpc.client import DateTime
 
-from typing import Any
+import pandas as pd
+from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
+
+from typing import Any, List, Tuple
 
 # Import der eigenen Klassen über relativen Pfad
 # oder absoluten Pfad für den direkten Test
@@ -61,6 +63,10 @@ class AmazonVisaCrawler(WebCrawler):
 
     Parameter
     ----------
+    save_amazon_order : bool, optional
+        Falls `True`, werden die detaillierten Umsatzinformationen zusätzlich von Amazon gespeichert
+        Achtung: nur, wenn details ebenfalls `True` ist.
+        Standard: ``True``.
     details : bool, optional
         Falls `True`, werden detaillierte Umsatzinformationen zusätzlich von Amazon abgerufen.
         Diese werden anhand von Betrag und Datum den Umsätzen zugeordnet.
@@ -95,10 +101,11 @@ class AmazonVisaCrawler(WebCrawler):
         data (pd.DataFrame): Aufbereitete Transaktionsdaten.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, save_amazon_order: bool = True, *args, **kwargs):
         super().__init__(name="amazon_visa", *args, **kwargs)
         self._verified = False
         self._load_config()  # lädt credentials + urls aus config.yaml
+        self._save_amazon_order = save_amazon_order
 
     # ------------------------------------------------------------------
     # Login
@@ -233,7 +240,7 @@ class AmazonVisaCrawler(WebCrawler):
             self.click_js(ratio)
             self._logger.debug("Benutzerdefinierter Zeitraum ausgewählt.")
 
-        def _enter_dates():
+        def _enter_dates(start_date: pd.Timestamp, end_date: pd.Timestamp):
             """Trägt Start- und Enddatum ein (aktiviert DatePicker bei Bedarf)."""
             from selenium.webdriver.common.keys import Keys
 
@@ -263,9 +270,9 @@ class AmazonVisaCrawler(WebCrawler):
                 self._logger.debug(f"{label_text}-Datum gesetzt: {date_obj:%d.%m.%Y}")
 
             self.driver.maximize_window()
-            fill_date("Von", self.end_date)
-            fill_date("Bis", self.start_date)
-            # time.sleep(0.5)  # kleine Pause, damit Eingaben registriert werden
+            fill_date("Von", start_date)
+            fill_date("Bis", end_date)
+            time.sleep(0.5)  # kleine Pause, damit Eingaben registriert werden
             self.driver.minimize_window()
 
         def _apply_filter():
@@ -291,43 +298,96 @@ class AmazonVisaCrawler(WebCrawler):
             )
             self._logger.debug("Excel-Download gestartet...")
 
-        def _show_old_transactions():
+        def _show_old_transactions() -> bool:
             """Zeigt ggf. ältere Umsätze an."""
+            if self._verified:
+                return False  # bereits bestätigt
+            elif (pd.Timestamp.now() - start) >= pd.Timedelta(days=90):
+                # Zeitraum > 90 Tage, ältere Umsätze anzeigen muss wahrscheinlich bestätigt werden
+                timeout = 20
+            else:
+                timeout = 5
             try:
-                self.wait_clickable_and_click(
-                    by="xpath",
-                    selector="//button[.//span[normalize-space()='Umsätze anzeigen']]",
-                    timeout=10,
-                )
-                self._logger.debug("Ältere Umsätze angezeigt.")
+                sel = "//button[.//span[normalize-space()='Umsätze anzeigen']]"
+                self.wait_clickable_and_click("xpath", sel, timeout=timeout)
+                self._logger.debug("Ältere Umsätze anzeigen geklickt.")
+                return True
+            except StaleElementReferenceException:
+                # btn war nicht mehr klickbar -> evtl. Seite neu geladen
+                time.sleep(1)  # kleine Pause, damit btn stabil ist
+                self.wait_clickable_and_click("xpath", sel, timeout=5)
+                return True
             except TimeoutException:
                 self._logger.debug("Keine älteren Umsätze vorhanden.")
+                return False
+
+        def _split_date_ranges(
+                start_date: pd.Timestamp,
+                end_date: pd.Timestamp,
+                max_months: int = 2) -> list[tuple[pd.Timestamp, pd.Timestamp]]:
+            """
+            Teilt den Zeitraum [start, end] in Intervalle zu jeweils `months` Monaten (inklusive).
+            Rückgabe: Liste von (interval_start, interval_end) als pd.Timestamp.
+            """
+            intervals: List[Tuple[pd.Timestamp, pd.Timestamp]] = []
+            start_ts = start_date
+            end_ts = end_date
+
+            current = start_ts
+            while current <= end_ts:
+                next_start = current + pd.DateOffset(months=max_months)
+                interval_end = min(end_ts, next_start - pd.Timedelta(days=1))
+                intervals.append((current, interval_end))
+                current = next_start
+
+            return intervals
 
 
         # ----------------------------------------------------------
         # Haupt-Download-Ablauf
         # ----------------------------------------------------------
-        def _download_helper():
+        def _download_helper(start, end):
             """Hilfsfunktion für den Download mit Verifizierung."""
-            driver.get(urls["transactions"])
+            driver.get(url)
             _open_filter()
             _select_custom_date_range()
-            _enter_dates()
+            _enter_dates(start, end)
             _apply_filter()
             _trigger_download()
-            _show_old_transactions()
-            self._verify_identity()
+            if _show_old_transactions():
+                self._verify_identity()
 
         super().download_data()
         driver = self.driver
-        urls = self._urls
+        url = self._urls["transactions"]
+
+        # self.__show_old_transactions_confirmed = False  # Flag, ob alte Transaktionen anzeigen bereits bestätigt wurde
+
+        # da downloads nicht immer vollstädnig sind, unterteilung in 2 monate intervalle
+        intervals = _split_date_ranges(self.end_date, self.start_date, max_months=2)
+        self._logger.info(f"Starte Download in {len(intervals)} Intervallen...")
 
         self._logger.debug("Öffne Transaktionsseite...")
-        try:
-            self._retry_func(_download_helper, max_retries=2, wait_seconds=0.5)
-            self._wait_for_new_file(include_temp=False)
-        except Exception:
-            self._logger.error("Fehler im Download-Vorgang.", exc_info=True)
+        for idx, (start, end) in enumerate(intervals):
+            self._logger.info(f"Download-Intervall: {start:%d.%m.%Y} bis {end:%d.%m.%Y}")
+            try:
+                # self._retry_func(_download_helper, max_retries=2, wait_seconds=2, args=(start, end))
+                _download_helper(start, end)
+
+                if idx < len(intervals) - 1:
+                    self._wait_for_new_file(include_temp=True)
+                else:
+                    self._wait_for_new_file(include_temp=False)
+            except Exception:
+                self._logger.error("Fehler im Download-Vorgang.", exc_info=True)
+                time.sleep(2)
+                continue
+
+        # try:
+        #     self._retry_func(_download_helper, max_retries=2, wait_seconds=0.5, args=(start, end))
+        #     self._wait_for_new_file(include_temp=False)
+        # except Exception:
+        #     self._logger.error("Fehler im Download-Vorgang.", exc_info=True)
 
 
     # ------------------------------------------------------------------
@@ -335,26 +395,64 @@ class AmazonVisaCrawler(WebCrawler):
     # ------------------------------------------------------------------
     def process_data(self) -> None:
         """Verarbeitet heruntergeladene XLS-Daten."""
+        def _change_amazon_usage(df) -> pd.DataFrame:
+            """
+            Falls Amazon | AMZN Mktp | AMAZON im Empfänger steht - Empfänger auf "Amazon.de" setzen
+            und Rest in Beschreibung übernehmen.
+
+            :param df: DataFrame mit Transaktionsdaten
+            :return: DataFrame mit angepassten Beschreibungsspalte
+            """
+            # masken definieren
+            mask_amzn = df["Empfänger"].fillna("").str.contains("Amazon|AMZN Mktp|AMAZON", case=True, na=False)
+            # mask_empty_vzweck = df["Verwendungszweck"].fillna("").str.strip().eq("")
+
+            # zeilen auswählen, wo das zutrifft
+            mask = mask_amzn # & mask_empty_vzweck
+
+            # Verwendungszweck aus Empfänger übernehmen, bereinigt
+            df.loc[mask, "id"] = (
+                df.loc[mask, "Empfänger"]
+                .str.replace(r"Amazon(\.de)?|AMZN Mktp(\sDE)?|AMAZON", "", regex=True)
+                .str.strip()
+            )
+
+            # 4️⃣ Empfänger angleichen
+            df.loc[mask_amzn, "Empfänger"] = "Amazon.de"
+            return df
+
+        def _clean_df(df: pd.DataFrame) -> pd.DataFrame:
+            """Bereinigt ein einzelnes DataFrame."""
+            # header entfernen
+            df = self._delete_header(df, header_key='Datum')
+
+            # Spalten bereinigen
+            df.drop(["Umsatzkategorie", "Unterkategorie"], axis=1, inplace=True, errors='ignore')
+            df.rename(columns={'Beschreibung': 'Empfänger'}, inplace=True)
+            # Datenbereinigung
+            df = _change_amazon_usage(df)
+            df = self._normalize_dataframe(df)
+            return df
+
         super().process_data(sep=',')
         merged_df = pd.DataFrame()
 
         try:
             if isinstance(self.data, dict):
                 for key, df in self.data.items():
-                    merged_df = pd.concat([merged_df, df], ignore_index=True)
+                    merged_df = pd.merge(
+                        left=merged_df,
+                        right=_clean_df(df), how='outer'
+                    ) if not merged_df.empty else _clean_df(df)
                 self.data = merged_df
             else:
-                merged_df = self.data
+                self.data = _clean_df(self.data)
 
-            # Kopfzeilen-Bereinigung
-            merged_df = self._delete_header(merged_df, header_key='Datum')
-            # spezifische Spalten bearbeiten
-            merged_df.drop(["Umsatzkategorie", "Unterkategorie"], axis=1, inplace=True, errors='ignore')
-            merged_df.rename(columns={'Beschreibung': 'Empfänger'}, inplace=True)
-            # Datenbereinigung
-            merged_df = self._normalize_dataframe(merged_df)
-
-            self.data = merged_df  #[["Datum", "Betrag", "Beschreibung", "Punkte", "Karte"]]
+            if len(self.data) == 0:
+                self._logger.warning("Keine Transaktionen zum Verarbeiten gefunden.")
+                return
+            # daten nach datum sortieren
+            self.data.sort_values(by="Datum", ascending=False, inplace=True)
             self._logger.info(f"{len(self.data)} Transaktionen verarbeitet.")
 
             if self.with_details:
@@ -396,29 +494,33 @@ class AmazonVisaCrawler(WebCrawler):
             except TimeoutException:
                 self._logger.debug("Kein Button 'Erneut versuchen' gefunden.")
 
-        def _enter_otp():
+        def _enter_otp() -> bool:
             """Fragt den Code ab und trägt ihn ein."""
-            otp_field = self.wait_for_element(
-                "xpath",
-                "//input[@data-testid='challenge-otp-input' and @placeholder='Bestätigungscode']",
-                10,
-            )
-            code = input("🔐 Bitte 4-stelligen Bestätigungscode eingeben (oder 'retry' für neuen Code): ").strip()
-            if code.lower() == "retry" or len(code) != 4:
-                self._logger.info("Code ungültig oder 'retry' gewählt → neuen Code anfordern.")
-                _request_new_code()
-                return False  # erneut versuchen
-            otp_field.send_keys(code)
-            self._logger.debug("Bestätigungscode eingegeben.")
-            return True
+            try:
+                otp_field = self.wait_for_element(
+                    "xpath",
+                    "//input[@data-testid='challenge-otp-input' and @placeholder='Bestätigungscode']",
+                    10,
+                )
+                code = input("🔐 Bitte 4-stelligen Bestätigungscode eingeben (oder 'retry' für neuen Code): ").strip()
+                if code.lower() == "retry" or len(code) != 4:
+                    self._logger.info("Code ungültig oder 'retry' gewählt → neuen Code anfordern.")
+                    _request_new_code()
+                    return False  # erneut versuchen
+                otp_field.send_keys(code)
+                self._logger.debug("Bestätigungscode eingegeben.")
+                return True
+            except Exception:
+                self._logger.debug("Fehler beim Eingeben des Bestätigungscodes.", exc_info=True)
+                return False
 
-        def _submit_code():
+        def _submit_code() -> bool:
             """Klickt auf 'Weiter'."""
             try:
                 self.wait_clickable_and_click(
-                    "xpath",
-                    "//button[@data-testid='challenge-sms-otp-button' and .//span[normalize-space()='Weiter']]",
-                    10,
+                "xpath",
+                "//button[@data-testid='challenge-sms-otp-button' and .//span[normalize-space()='Weiter']]",
+                5,
                 )
                 self._logger.debug("Button 'Weiter' geklickt.")
                 return True
@@ -426,7 +528,7 @@ class AmazonVisaCrawler(WebCrawler):
                 self._logger.debug("Kein 'Weiter'-Button gefunden.")
                 return False
 
-        def _confirm():
+        def _confirm() -> bool:
             """Klickt abschließend auf 'Bestätigen', falls vorhanden."""
             try:
                 # suche nach einem btn, falls code eingabe nicht erfolgreich
@@ -435,7 +537,7 @@ class AmazonVisaCrawler(WebCrawler):
                     selector=(
                         "//button[@data-testid='challenge-message-fail-button'"
                         "and .//span[normalize-space()='Erneut versuchen']]"),
-                    timeout=5)
+                    timeout=3)
                 return False
             except TimeoutException:
                 # btn war nicht da -> weiter
@@ -458,11 +560,12 @@ class AmazonVisaCrawler(WebCrawler):
             # _request_new_code()
             for attempt in range(3):  # max. 3 Versuche
                 try:
-                    if not self.wait_for_element(
+                    try:
+                        self.wait_for_element(
                             "xpath",
                             "//input[@data-testid='challenge-otp-input' and @placeholder='Bestätigungscode']",
-                            timeout=5,
-                    ):
+                            timeout=5)
+                    except TimeoutException:
                         self._logger.debug("Kein OTP-Feld sichtbar – keine Verifizierung erforderlich.")
                         break
 
@@ -474,6 +577,8 @@ class AmazonVisaCrawler(WebCrawler):
                             self._logger.info('Verifizierung fehlgeschlagen, erneut starten...')
                             continue
                         else:
+                            self._verified = True
+                            self._logger.info("OTP-Verifikation erfolgreich.")
                             break
                 except ElementNotInteractableException:
                     self._logger.debug("OTP-Feld nicht interaktiv – übersprungen.")
@@ -495,30 +600,30 @@ class AmazonVisaCrawler(WebCrawler):
             from .amazon import AmazonCrawler
         except ImportError:
             from src.read_transactions.webcrawler.amazon import AmazonCrawler
-        with AmazonCrawler(
-                logging_level=self._logging_lvl,
-                start_date=self.start_date,
-                end_date=self.end_date,
-        ) as amazon_crawler:
+        with AmazonCrawler(logging_level=self._logging_lvl, start_date=self.start_date,
+                           end_date=self.end_date) as amazon_crawler:
             amazon_crawler.login()
             amazon_crawler.download_data()
             amazon_crawler.process_data()
+            if self._save_amazon_order:
+                amazon_crawler.save_data()
 
-            amazon_data = amazon_crawler.data
-            if amazon_data is None or amazon_data.empty:
-                self._logger.warning("Keine Amazon-Daten zum Abgleich gefunden.")
-                return
+        amazon_data = amazon_crawler.data
+        if amazon_data is None or amazon_data.empty:
+            self._logger.warning("Keine Amazon-Daten zum Abgleich gefunden.")
+            return
 
-            # Merge der Daten basierend auf den Schlüsselspalten
-            merged_df = pd.merge(
-                self.data,
-                amazon_data[["Datum", "Betrag", "Verwendungszweck", "Verwendungszweck 2"]],
-                on=key_columns,
-                how="left",
-                suffixes=("", "_amazon"),
-            )
-            # weitere Verarbeitung
-            self.data = merged_df
+        # Merge der Daten basierend auf den Schlüsselspalten
+        merged_df = pd.merge(
+            self.data,
+            amazon_data[["Datum", "Betrag", "Verwendungszweck", "Verwendungszweck 2"]],
+            on=key_columns,
+            how="left",
+            suffixes=("", "_amazon"),
+        )
+        # weitere Verarbeitung
+        self.data = merged_df
+        self.data.sort_values(by="Datum", ascending=False, inplace=True)
 
 
 
@@ -529,7 +634,8 @@ class AmazonVisaCrawler(WebCrawler):
 # ------------------------------------------------------------------
 if __name__ == "__main__":
     print("Starte AmazonVisaCrawler im Direkt-Testmodus...")
-    with AmazonVisaCrawler(logging_level="DEBUG") as crawler:
+    end = pd.Timestamp.now() - pd.DateOffset(months=12)
+    with AmazonVisaCrawler(logging_level="DEBUG", end_date=end) as crawler:
         # crawler._wait_for_manual_exit()
         crawler.login()
         # crawler._wait_for_manual_exit("Login abgeschlossen - browser bleibt offen")
@@ -538,12 +644,25 @@ if __name__ == "__main__":
         crawler.process_data()
         crawler.save_data()
 
+    self = crawler
     # crawler = AmazonVisaCrawler(logging_level="DEBUG")
     # crawler.login()
     # crawler.download_data()
     # crawler.process_data()
     # crawler.save_data()
     # crawler.close()
+
+    # indexed_intervals = [(idx, (start, end)) for idx, (start, end) in enumerate(intervals)]
+    # idx, (start, end) = indexed_intervals[0]
+    #
+    # for idx, (start, end) in indexed_intervals:
+    #     print(f"Intervall {idx}: {start:%d.%m.%Y} bis {end:%d.%m.%Y}")
+    #     if (pd.Timestamp.now() - start) >= pd.Timedelta(days=90):
+    #         print(f"mehr als 90 tage: {pd.Timestamp.now() - start}")
+    #         #print(pd.Timestamp.now() - start)
+    #     else:
+    #         print("weniger als 90 tage")
+
 
 
 

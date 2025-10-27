@@ -1,6 +1,6 @@
-![version](https://img.shields.io/badge/version-2.1.0-blue.svg)
+![version](https://img.shields.io/badge/version-2.1.1-blue.svg)
 ![date](https://img.shields.io/badge/date-2025--10--27-green.svg)
-![status](https://img.shields.io/badge/status-running-green.svg)
+![status](https://img.shields.io/badge/status-dev-yellow.svg)
 ![python](https://img.shields.io/badge/python-3.12-blue.svg)
 
 
@@ -141,6 +141,21 @@ readtx run amex
 readtx run amazon_visa
 ```
 
+### Amazon Visa-Umsätze mit Bestellungen von Amazon.de abgleichen
+
+```bash
+readtx run amazon_visa
+```
+ohne orders von amazon.de zu speichern (default ist save_orders=True):
+```bash
+readtx run amazon_visa --o save_orders=False
+```
+
+ohne speichern und ohne amazon orders abzurufen (default ist details=True):
+```bash
+readtx run amazon_visa --o details=False save_orders=False
+```
+
 ### TradeRepublic-Umsätze abrufen
 
 ohne zusätzliche Details der Transaktionen mit Trades (default ist details=True) - wesentlich schneller:
@@ -219,15 +234,19 @@ Stuff for development
 
 ### TODOs
 
+- [ ] Improve performance of web scraping
+    - [ ] Read data from out -> update only nessesary (new) entries
+    - [ ] Check some stuff (async requests, headless browser options etc.)
+    - [ ] Check if start_date is before end_date -> eg swap them automatically
+
+
 - [ ] Add more Crawler (e.g., other banks, brokers)
 - [ ] Add tests for Crawler
 - [ ] Improve error handling and logging
 - [ ] Add more examples and documentation
 - [ ] Create Docker image for easier deployment
 - [ ] Add CI/CD pipeline for automated testing and deployment
-- [ ] Improve performance of web scraping
-  - [ ] Read data from out -> update only nessesary (new) entries
-  - [ ] Check some stuff (async requests, headless browser options etc.)
+
   
 - [ ] Add support for more output formats (e.g., JSON, Excel)
 - [ ] Add GUI for easier usage
@@ -306,9 +325,17 @@ pip install -r requirements.txt
 ## Versionshistorie
 | Version | Datum      | Beschreibung                          |
 |---------|------------|---------------------------------------|
+| 2.1.1   | 2025-10-27 | bugfixes (amazon_visa)                |
 | 2.1.0   | 2025-10-26 | add amazon.de crawler                 |
 | 2.0.0   | 2025-10-25 | Major Release mit neuem CLI-Interface |
 | 1.0.0   | 2024       | Initiale Veröffentlichung             |   
+
+
+
+### version 2.1.1 (2025-10-27)
+- amazon_visa wird jetzt in Intervallen runtergeladen, da die xls scheinbar nur 100-110 Einträge pro Datei zulässt
+- amazon_visa: erkennt jetzt Amazon als Empfänger und vereinheitlicht den Namen mit Amazon.de
+- Kleinere Bugfixes
 
 ### version 2.1.0 (2025-10-26)
 - Neuer Crawler: amazon - für Amazon.de Bestellungen
@@ -327,6 +354,25 @@ pip install -r requirements.txt
   - Amazon Visa Umsätze
 
 ***
+***
+
 ## Lizenz
-Dieses Projekt ist unter der MIT-Lizenz lizenziert. Weitere Informationen finden Sie in der [LICENSE](LICENSE)-Datei.
+Dieses Projekt ist unter der MIT-Lizenz lizenziert.  
+Weitere Informationen finden Sie in der [LICENSE](LICENSE)-Datei.
+
+## Nutzungs- und Compliance-Hinweis
+
+> **Nur für Test- und Privatgebrauch**  
+Dieses Projekt und die bereitgestellten Werkzeuge (z. B. Crawler, Parser, CLI) sind ausschließlich für **Testzwecke** sowie die **private, nicht-kommerzielle Nutzung** gedacht.
+
+Die Nutzung automatisierter Zugriffe auf Drittanbieter-Dienste (z. B. Banking-Portale, Kreditkarten-Webseiten, Kurs-/Finanzportale) kann gegen deren AGB, technische Nutzungsbedingungen oder geltendes Recht verstoßen. **Du bist selbst verantwortlich**, vor der Verwendung die anwendbaren Bedingungen zu prüfen und diese einzuhalten.
+
+- **Kein Umgehen von Schutzmechanismen.** Captchas, 2FA und ähnliche Sicherheitsmaßnahmen dürfen nicht umgangen werden.
+- **Offizielle Exportpfade bevorzugen.** Wenn verfügbar, nutze die vom Anbieter vorgesehenen Export-/Downloadfunktionen.
+- **Keine Weiterveröffentlichung.** Von Drittanbietern stammende Daten (z. B. Kurse, Kontoauszüge) dürfen nicht weiterverbreitet oder kommerziell genutzt werden, sofern dies nicht ausdrücklich erlaubt ist.
+- **Keine Affiliation.** Dieses Projekt steht in **keiner Verbindung** zu den genannten Anbietern und wird von diesen **weder unterstützt noch geprüft**.
+
+> **Haftungsausschluss:** Die Software wird **„as is“** ohne Gewähr bereitgestellt. Die Autor:innen übernehmen **keine Haftung** für etwaige Schäden, Kontosperren, Vertragsverletzungen oder Datenverluste, die aus der Nutzung entstehen.
+
+> **Hinweis zur Lizenz:** Die Open-Source-Lizenz dieses Repos (z. B. MIT) bleibt unberührt. Dieser Abschnitt dient der **Aufklärung/Compliance** und begründet **keine** zusätzlichen Rechte.
 

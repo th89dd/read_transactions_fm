@@ -322,17 +322,28 @@ class WebCrawler:
 
     def save_data(self) -> None:
         """Speichert geladene Daten als CSV."""
+        def _save_df_to_csv(df: pd.DataFrame, name: str) -> None:
+            # name und pfad erstellen
+            filename = f"{name}.csv"
+            file_path = os.path.join(self.__output_path, filename)
+
+            # df formatiert speicher
+            df.to_csv(file_path, sep=";", index=False, date_format="%d.%m.%Y")
+            self._logger.info(f"Data saved to: {os.path.abspath(file_path)}")
+
         try:
             os.makedirs(self.__output_path, exist_ok=True)
             if isinstance(self.__data, pd.DataFrame):
-                file_path = os.path.join(self.__output_path, f"{self.__name}.csv")
-                self.__data.to_csv(file_path, sep=";", index=False)
-                self._logger.info(f"Data saved to: {os.path.abspath(file_path)}")
+                _save_df_to_csv(self.__data, self.__name)
+                # file_path = os.path.join(self.__output_path, f"{self.__name}.csv")
+                # self.__data.to_csv(file_path, sep=";", index=False)
+                # self._logger.info(f"Data saved to: {os.path.abspath(file_path)}")
             elif isinstance(self.__data, dict):
                 for fname, df in self.__data.items():
-                    file_path = os.path.join(self.__output_path, f"{fname}.csv")
-                    df.to_csv(file_path, sep=";", index=False)
-                    self.__logger.info(f"Data saved to: {os.path.abspath(file_path)}")
+                    _save_df_to_csv(df, fname)
+                    # file_path = os.path.join(self.__output_path, f"{fname}.csv")
+                    # df.to_csv(file_path, sep=";", index=False)
+                    # self.__logger.info(f"Data saved to: {os.path.abspath(file_path)}")
         except Exception:
             self.__logger.error("Error saving data", exc_info=True)
 
@@ -693,7 +704,8 @@ class WebCrawler:
         self._logger.debug("Maximale Wiederholungen erreicht – ggf. unvollständige Downloads")
         return False
 
-    def _retry_func(self, func, max_retries: int = 3, wait_seconds: float = 1.0) -> bool:
+    def _retry_func(self, func, max_retries: int = 3, wait_seconds: float = 1.0,
+                    args: Optional[tuple] = None, kwargs:Optional[dict] = None) -> bool:
         """Versucht die Funktion mehrfach bei Fehlschlag.
 
         Args:
@@ -704,9 +716,14 @@ class WebCrawler:
             bool: True bei erfolgreicher Ausfürhung, sonst False.
         """
         from selenium.common.exceptions import TimeoutException
+
+        if args is None:
+            args = ()
+        if kwargs is None:
+            kwargs = {}
         for attempt in range(1, max_retries + 1):
             try:
-                func()
+                func(*args, **kwargs)
                 self._logger.debug(f"Funktion {func} erfolgreich nach {attempt} Versuch(en)")
                 return True
             except TimeoutException:
@@ -714,7 +731,7 @@ class WebCrawler:
                 if attempt < max_retries:
                     time.sleep(wait_seconds)
             except Exception as e:
-                self._logger.debug(f"Funktion {func} bei Versuch {attempt} fehlgeschlagen: {e}")
+                self._logger.debug(f"Funktion {func} bei Versuch {attempt}", exc_info=True)
                 if attempt < max_retries:
                     time.sleep(wait_seconds)
         self._logger.error(f"Maximale Versuche erreicht – Funktion {func} fehlgeschlagen")
@@ -788,7 +805,7 @@ class WebCrawler:
             self._logger.debug(f"⚠️ Kein Header gefunden in DataFrame")
             return df  # Header nicht gefunden, Original zurückgeben
 
-    def _normalize_dataframe(self, df: pd.DataFrame, remove_nan: bool = False) -> pd.DataFrame:
+    def _normalize_dataframe(self, df: pd.DataFrame, remove_nan: bool = False, date_as_str: bool = False) -> pd.DataFrame:
         """
         Normalisiert die Transaktionsdaten eines DataFrames.
         - Datumsspalten in einheitliches Format bringen
@@ -825,7 +842,7 @@ class WebCrawler:
         # Empfänger/Absender-Spalte
         party_cols = [col for col in df.columns if any(x in str(col).lower() for x in ['empfänger', 'absender', 'receiver', 'sender', 'name'])]
         if len(party_cols) > 1:
-            self._logger.debug(f"Mehrere Empfänger/Absender-Spalten erkannt: {party_cols}, verwende die erste.")
+            self._logger.debug(f"Mehrere Empfänger-Spalten erkannt: {party_cols}, verwende die erste.")
         party_cols = party_cols[0] if party_cols else None
         # Spalten umbenennen
         rename_map = {}
@@ -836,7 +853,7 @@ class WebCrawler:
         if purpose_cols:
             rename_map[purpose_cols] = 'Verwendungszweck'
         if party_cols:
-            rename_map[party_cols] = 'Empfänger/Absender'
+            rename_map[party_cols] = 'Empfänger'
         df = df.rename(columns=rename_map)
         self._logger.debug(f"Spalten umbenannt: {rename_map}")
         # -------------------------------------------------------------------------------------------------------------
@@ -856,7 +873,10 @@ class WebCrawler:
                 if dropped > 0:
                     self._logger.debug(f"{dropped} Zeilen mit ungültigen Datumseinträgen entfernt.")
                 # formatieren
-                df[date_cols] = df[date_cols].dt.strftime('%d.%m.%Y')
+                # -> als datetime belassen und beim speichern formatieren
+                if date_as_str:
+                    df[date_cols] = df[date_cols].dt.strftime('%d.%m.%Y')
+
             except Exception:
                 self._logger.error("Fehler bei der Normalisierung der Datumsspalte", exc_info=True)
 

@@ -155,15 +155,9 @@ class AmazonCrawler(WebCrawler):
         self._handle_2fa_if_present()
 
         # 7) Erfolg prüfen (z. B. Konto- oder Bestelllink)
-        try:
-            self.wait_for_element(
-                "xpath",
-                "//a[@id='nav-orders' or contains(@href,'your-orders') or contains(@href,'order-history')]",
-                timeout=10,
-            )
-            self._logger.info("Login erfolgreich abgeschlossen.")
-        except TimeoutException:
-            self._logger.warning("Login möglicherweise nicht bestätigt – 'Bestellungen'-Link nicht gefunden.")
+        login = self._wait_for_login(timeout=120)
+        if not login:
+            raise RuntimeError("Login nicht erfolgreich.")
 
 
     def _set_username_if_present(self, username: str) -> None:
@@ -382,6 +376,34 @@ class AmazonCrawler(WebCrawler):
                 self._logger.error("Fehler beim Eintragen des OTP-Codes.", exc_info=True)
                 raise RuntimeError("Fehler beim Eintragen des OTP-Codes.")
         self._logger.debug("2FA-Versuche erschöpft.")
+
+    def _wait_for_login(self, timeout: int = 120) -> bool:
+        """
+        Wartet, bis der Login abgeschlossen ist (Bestellübersicht geladen).
+
+        :param timeout: Maximale Wartezeit in Sekunden.
+        """
+
+        login_successful = False
+        start_time = time.time()
+        while (time.time() - start_time < timeout) and not login_successful:
+            try:
+                self.wait_for_element(
+                    "xpath",
+                    "//a[@id='nav-orders' or contains(@href,'your-orders') or contains(@href,'order-history')]",
+                    timeout=14,
+                )
+                login_successful = True
+                self._logger.info("Login erfolgreich abgeschlossen.")
+            except TimeoutException:
+                time.sleep(1)
+                self._logger.info(
+                    "Es scheint ein Fehler im Login-Prozess aufgetreten zu sein. Evtl. Browser-Fenster prüfen...")
+                self._logger.info(
+                    f"Warte auf Login-Abschluss... (timout in {round(timeout-(time.time()-start_time), 2)} Sekunden)")
+        if not login_successful:
+            return False
+        return True
 
     # ------------------------------------------------------------------
     # Download & Parsing der Bestellungen
@@ -771,18 +793,23 @@ class AmazonCrawler(WebCrawler):
 
 
 if __name__ == "__main__":
-    # with AmazonCrawler(logging_level="DEBUG", otp_method="sms") as crawler:
-    #     crawler.login()
-    #     crawler.download_data()
-    #     crawler.process_data()
-    #     crawler.save_data()
+    print("Test Funktion für AmazonCrawler")
+    end = pd.Timestamp.now() - pd.DateOffset(days=30)
+    with AmazonCrawler(logging_level="DEBUG", otp_method="sms", end_date=end) as crawler:
+        crawler.login()
+        crawler.download_data()
+        crawler.process_data()
+        crawler.save_data()
 
-    crawler = AmazonCrawler(logging_level="DEBUG", otp_method="sms", end_date='26.10.2024')
-    crawler.login()
-    crawler.download_data()
+    # crawler = AmazonCrawler(logging_level="DEBUG", otp_method="sms", end_date='26.10.2024')
+    # crawler.login()
+
+    # crawler.download_data()
 
     # crawler.process_data()
     # crawler.save_data()
     # crawler.close()
+
+    # crawler._fill_password_and_submit(crawler._credentials["password"])
 
 
