@@ -18,7 +18,7 @@ Beispiele:
     python -m read_transactions run ariva --headless
 """
 
-from .cli import main
+from read_transactions.cli import main
 
 if __name__ == "__main__":
     main()

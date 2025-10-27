@@ -12,10 +12,15 @@ import sys
 import os
 import ast  # Für sichere Auswertung von Literal-Ausdrücken
 import pandas as pd
-from .logger import MainLogger
-from .webcrawler import AVAILABLE_CRAWLERS
-from .config import ConfigManager
 
+try:
+    from read_transactions.logger import MainLogger
+    from read_transactions.webcrawler import AVAILABLE_CRAWLERS
+    from read_transactions.config import ConfigManager
+except ImportError:
+    from src.read_transactions.logger import MainLogger
+    from src.read_transactions.webcrawler import AVAILABLE_CRAWLERS
+    from src.read_transactions.config import ConfigManager
 
 # -------- /import block ---------
 """
@@ -138,12 +143,12 @@ def main() -> None:
     parser_run = subparsers.add_parser("run", help="Startet einen bestimmten Crawler")
     parser_run.add_argument("name", help="Name des Crawlers (z. B. ariva)")
     parser_run.add_argument("--start", metavar='Startdatum', type=str,
-                            help="Startdatum im Format (dd.mm.yyyy) (default: heute)",
-                            default=pd.to_datetime("today").strftime('%d.%m.%Y')
+                            help="Startdatum im Format (dd.mm.yyyy) (default: heute - 1 Tag)",
+                            default=None
                             )
     parser_run.add_argument("--end", metavar='Enddatum', type=str,
-                            help="Enddatum im Format (dd.mm.yyyy) (default: 6 Monate vor heute)",
-                            default=(pd.to_datetime("today")-pd.DateOffset(months=6)).strftime('%d.%m.%Y')
+                            help="Enddatum im Format (dd.mm.yyyy) (default: heute - 6 Monate)",
+                            default=None
                             )
     parser_run.add_argument("--l", metavar='log_level', dest='log_level', type=str,
                             help="log_level = logging Level für den Konsolenhandler (DEBUG, INFO, WARNING, ERROR)",

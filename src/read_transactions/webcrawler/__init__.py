@@ -22,8 +22,13 @@ import pkgutil
 import inspect
 import sys
 from pathlib import Path
-from .base import WebCrawler
-from ..logger import MainLogger
+
+try:
+    from read_transactions.webcrawler.base import WebCrawler
+    from read_transactions.logger import MainLogger
+except ImportError:
+    from src.read_transactions.webcrawler.base import WebCrawler
+    from src.read_transactions.logger import MainLogger
 
 
 __version__ = "2.0.0"

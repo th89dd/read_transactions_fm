@@ -29,7 +29,7 @@ from typing import Any, Dict
 from cryptography.fernet import Fernet
 
 try:
-    from .logger import MainLogger
+    from read_transactions.logger import MainLogger
 except ImportError:
     from src.read_transactions.logger import MainLogger
 import logging

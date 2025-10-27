@@ -124,6 +124,7 @@ class WebCrawler:
         self.__output_path = output_path
 
         # Logging einrichten
+        self._logging_lvl = logging_level
         if logfile:
             MainLogger.configure(level=logging_level, logfile=logfile)
         self.__logger = MainLogger.get_logger(self.__name)
@@ -182,7 +183,7 @@ class WebCrawler:
         :return: -
         """
         if value is None:
-            value = pd.to_datetime("today")
+            value = pd.to_datetime("today")- pd.DateOffset(days=1)
         if isinstance(value, str):
             value = pd.to_datetime(value, format="%d.%m.%Y", errors="raise")
         elif isinstance(value, datetime.date):
@@ -279,11 +280,17 @@ class WebCrawler:
 
     @property
     def with_details(self) -> bool:
-        """Gibt zurück, ob zusätzliche Order-Details extrahiert werden."""
+        """
+        Gibt zurück, ob zusätzliche Details extrahiert werden:
+
+        - Bei Trade Republic z. B. zusätzliche Order-Details
+        - Bei Amazon Visa z. B. Verknüpfung mit Amazon-Käufen
+
+        """
         return self.__with_details
     @with_details.setter
     def with_details(self, value: bool) -> None:
-        """Setzt, ob zusätzliche Order-Details extrahiert werden."""
+        """Setzt, ob zusätzliche Details extrahiert werden."""
         if isinstance(value, str):
             value = value.lower() in ['true', '1', 'yes', 'y']
         if not isinstance(value, bool):

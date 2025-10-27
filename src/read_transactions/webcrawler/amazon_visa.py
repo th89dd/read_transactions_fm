@@ -265,6 +265,7 @@ class AmazonVisaCrawler(WebCrawler):
             self.driver.maximize_window()
             fill_date("Von", self.end_date)
             fill_date("Bis", self.start_date)
+            # time.sleep(0.5)  # kleine Pause, damit Eingaben registriert werden
             self.driver.minimize_window()
 
         def _apply_filter():
@@ -349,11 +350,18 @@ class AmazonVisaCrawler(WebCrawler):
             merged_df = self._delete_header(merged_df, header_key='Datum')
             # spezifische Spalten bearbeiten
             merged_df.drop(["Umsatzkategorie", "Unterkategorie"], axis=1, inplace=True, errors='ignore')
+            merged_df.rename(columns={'Beschreibung': 'Empfänger'}, inplace=True)
             # Datenbereinigung
             merged_df = self._normalize_dataframe(merged_df)
 
             self.data = merged_df  #[["Datum", "Betrag", "Beschreibung", "Punkte", "Karte"]]
             self._logger.info(f"{len(self.data)} Transaktionen verarbeitet.")
+
+            if self.with_details:
+                self._logger.info("Starte Abruf detaillierter Umsatzinformationen...")
+                self._fetch_transaction_details(key_columns=["Betrag", "Datum"])
+                self._logger.info("Detaillierte Umsatzinformationen abgerufen.")
+
         except Exception:
             self._logger.error("Fehler bei der Datenverarbeitung", exc_info=True)
 
@@ -474,6 +482,43 @@ class AmazonVisaCrawler(WebCrawler):
                 self._logger.warning("OTP-Verifikation nach 3 Versuchen abgebrochen.")
         except Exception as e:
             self._logger.error(f"Fehler bei der OTP-Verifizierung: {e}", exc_info=True)
+
+    def _fetch_transaction_details(self, key_columns=["Betrag", "Datum"]) -> pd.DataFrame:
+        """
+        Detaillierte Umsatzinformationen über amazon.de abrufen
+        - load orders from amazon.de with amazon crowler
+        - match transactions by amount + date
+        - for each match, get details (verwendungszweck, verwendungszweck2) from amazon data
+        - merge details into self.data verwendungszweck as verwendungszweck, verwendungszweck 2 as verwendungszweck 3
+        """
+        try:
+            from .amazon import AmazonCrawler
+        except ImportError:
+            from src.read_transactions.webcrawler.amazon import AmazonCrawler
+        with AmazonCrawler(
+                logging_level=self._logging_lvl,
+                start_date=self.start_date,
+                end_date=self.end_date,
+        ) as amazon_crawler:
+            amazon_crawler.login()
+            amazon_crawler.download_data()
+            amazon_crawler.process_data()
+
+            amazon_data = amazon_crawler.data
+            if amazon_data is None or amazon_data.empty:
+                self._logger.warning("Keine Amazon-Daten zum Abgleich gefunden.")
+                return
+
+            # Merge der Daten basierend auf den Schlüsselspalten
+            merged_df = pd.merge(
+                self.data,
+                amazon_data[["Datum", "Betrag", "Verwendungszweck", "Verwendungszweck 2"]],
+                on=key_columns,
+                how="left",
+                suffixes=("", "_amazon"),
+            )
+            # weitere Verarbeitung
+            self.data = merged_df
 
 
 

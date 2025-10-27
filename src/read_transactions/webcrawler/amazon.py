@@ -438,6 +438,7 @@ class AmazonCrawler(WebCrawler):
             return
 
         self.data = self._normalize_dataframe(self.data, remove_nan=True)
+        self.data['Betrag'] = self.data['Betrag']*-1  # Amazon-Bestellungen sind Ausgaben
         self._logger.info(f"{len(self.data)} Amazon-Bestellungen verarbeitet.")
 
     # ------------------------------------------------------------------

@@ -1,5 +1,5 @@
-![version](https://img.shields.io/badge/version-2.0.0-blue.svg)
-![date](https://img.shields.io/badge/date-2025--10--26-green.svg)
+![version](https://img.shields.io/badge/version-2.1.0-blue.svg)
+![date](https://img.shields.io/badge/date-2025--10--27-green.svg)
 ![status](https://img.shields.io/badge/status-running-green.svg)
 ![python](https://img.shields.io/badge/python-3.12-blue.svg)
 
@@ -274,6 +274,12 @@ Es wird eine ausführbare Datei im Ordner `dist/` erstellt.
 ```bash
 pyinstaller --onefile src/read_transactions/cli.py -n readtx
 ```
+dabei funktionieren aber keine relativen Pfade mehr, die vom paket ausgehen (from .base import webcrawler etc)
+
+im Projektroot ausführen (da wo "src/" liegt):
+````bash
+pyinstaller --onefile --name readtx --paths src src/read_transactions/__main__.py --collect-submodules read_transactions
+````
 
 #### Get Required Packages
 Bei bestehendem venv können alle pakete mit pip ausgelesen werden:

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "read-transactions"
-version = "2.0.0"
+version = "2.1.0"
 description = "Automatisiertes Crawling und Analyse von Finanztransaktionen (z. B. Ariva, Amex, Trade Republic)."
 readme = "README.md"
 authors = [
