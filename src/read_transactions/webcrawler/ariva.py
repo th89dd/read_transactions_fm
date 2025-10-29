@@ -29,8 +29,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.webdriver import ActionChains
 
-from .base import WebCrawler
+try:
+    from src.read_transactions.webcrawler.base import WebCrawler
+except ImportError:
+    from read_transactions.webcrawler.base import WebCrawler
 
 # -------- /import block ---------
 
@@ -110,6 +114,71 @@ class ArivaCrawler(WebCrawler):
         sendet das Formular ab und schließt anschließend eventuelle
         Werbe-Overlays (über handle_ad_banner).
         """
+        # zuverlässige Login-Erkennung über Profilmenü
+        def _is_logged_in() -> bool:
+            try:
+                profile = self.wait_for_element("id", "navigation__profile", timeout=15)
+
+                # 2) Logged-In Marker ohne Hover (stabil & schnell)
+                try:
+                    driver.find_element(By.CSS_SELECTOR, ".navigation__profile__item__user--loggedIn")
+                    self._logger.debug("Logged-In Marker gefunden (ohne Hover).")
+                    return True
+                except NoSuchElementException:
+                    pass
+
+                # 3) Menü per Hover öffnen und nach „Abmelden“ oder Profil-Link schauen
+                try:
+                    ActionChains(driver).move_to_element(profile).perform()
+                    # kleines Fokus-Div fokussieren, damit onfocus ausgelöst wird (toggleUserPreferences())
+                    try:
+                        focus_div = profile.find_element(By.CSS_SELECTOR, "div[tabindex='0']")
+                        focus_div.click()
+                    except Exception:
+                        pass
+
+                    # a) „Abmelden“-Button sichtbar?
+                    sel = "//ul[@id='preferences']//button[normalize-space()='Abmelden' or contains(., 'Abmelden')]"
+                    self.wait_for_element("xpath", sel, 5)
+                    self._logger.debug("Abmelden-Button im Profilmenü gefunden – eingeloggt.")
+                    return True
+                except TimeoutException:
+                    # b) Alternativ: Profil-Link mit Benutzername sichtbar?
+                    try:
+                        driver.find_element(
+                            By.XPATH,
+                            "//ul[@id='preferences']//a[contains(@href, '/profil/')]"
+                        )
+                        self._logger.debug("Profil-Link im Menü gefunden – eingeloggt.")
+                        return True
+                    except NoSuchElementException:
+                        return False
+            except TimeoutException:
+                return False
+            except Exception:
+                self._logger.debug("Fehler bei _is_logged_in()", exc_info=True)
+                return False
+
+        def _wait_for_login(timeout: int = 120) -> bool:
+            """
+            Wartet bis zum erfolgreichen Login oder Timeout.
+
+            Args:
+                timeout (int): Maximale Wartezeit in Sekunden.
+
+            Returns:
+                bool: True, wenn Login erfolgreich, sonst False.
+            """
+            start_time = time.time()
+            while time.time() - start_time < timeout:
+                self._logger.info("Autologin ist fehlgeschlagen. Bitte den Browser öffnen und einloggen.")
+                if _is_logged_in():
+                    return True
+                self._logger.info(
+                    f"Warte auf manuellen Login... (timeout in {round(timeout - (time.time() - start_time), 2)} s)")
+                time.sleep(1)
+            return False
+
         def _single_login() -> None:
             """
             Führt den Login-Vorgang auf ariva.de durch.
@@ -118,10 +187,13 @@ class ArivaCrawler(WebCrawler):
             sendet das Formular ab und schließt anschließend eventuelle
             Werbe-Overlays (über handle_ad_banner).
             """
-
-            driver = self.driver
-            creds = self._credentials
             # time.sleep(0.5)  # kurze Pause für Initialisierung
+            # Ad-Banner / Werbe-Overlay nach Login schließen
+            self._handle_ad_banner()
+            # Login anklicken
+            sel = "//span[contains(@class,'prgLink') and normalize-space()='Login']"
+            # btn = self.wait_for_element("xpath", sel)
+            self.wait_clickable_and_click("xpath", sel, 10)
 
             # Warte, bis Eingabefelder erscheinen
             self.wait_for_element(by='id', selector="username", timeout=10)
@@ -137,12 +209,15 @@ class ArivaCrawler(WebCrawler):
             self._logger.debug("Anmeldedaten eingegeben, Formular abgeschickt.")
 
             # prüfen, ob login erfolgreich war
-            self.wait_for_element("id", "navigation__profile", 5)
+            if not _is_logged_in():
+                if not _wait_for_login():
+                    raise RuntimeError("Login bei ariva.de fehlgeschlagen (manueller Login Timeout).")
+            self._logger.info("Erfolgreich bei ariva.de eingeloggt.")
 
-            # Ad-Banner / Werbe-Overlay nach Login schließen
-            self._handle_ad_banner()
+
 
         super().login()
+        driver = self.driver
         creds = self._credentials
         if not creds or "user" not in creds or "password" not in creds:
             self._logger.info("Keine Login-Daten konfiguriert – Login wird übersprungen.")
@@ -218,12 +293,6 @@ class ArivaCrawler(WebCrawler):
                 exc_info=True
             )
             self._logger.error(f"Fehler beim Download von ariva", exc_info=True)
-            # sicherstellen, dass Driver bei kritischem Fehler sauber beendet wird
-            try:
-                self.close()
-            except Exception:
-                self._logger.warning("Fehler beim Schließen nach Login-Exception.", exc_info=True)
-            raise RuntimeError("Download-Vorgang bei ariva.de fehlgeschlagen.")
 
 
     # ----------------------------------------------------------
@@ -388,11 +457,12 @@ class ArivaCrawler(WebCrawler):
 
 
 if __name__ == "__main__":
-    with ArivaCrawler(logging_level="DEBUG") as crawler:
-        crawler.login()
-        crawler.download_data()
-        crawler.process_data()
-        crawler.save_data()
+    print("Starte ArivaCrawler im Debug-Modus...")
+    # with ArivaCrawler(logging_level="DEBUG") as crawler:
+    #     crawler.login()
+    #     crawler.download_data()
+    #     crawler.process_data()
+    #     crawler.save_data()
     # crawler = ArivaCrawler(logging_level='DEBUG')
     # crawler.login()
     # crawler.download_data()
