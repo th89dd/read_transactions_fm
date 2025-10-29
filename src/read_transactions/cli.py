@@ -12,6 +12,7 @@ import sys
 import os
 import ast  # Für sichere Auswertung von Literal-Ausdrücken
 import pandas as pd
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 try:
     from read_transactions.logger import MainLogger
@@ -57,10 +58,6 @@ def list_crawlers() -> None:
         print(f"  - {key}")
     print()
 
-def run_crawler(name: str, start: str, end: str, log_level: str, options: dict | None = None) -> None:
-    crawler_cls = AVAILABLE_CRAWLERS[name]
-    with crawler_cls(start_date=start, end_date=end, logging_level=log_level, **(options or {})) as crawler:
-        ...
 def run_crawler(name: str, start: str, end: str, log_level:str, options: dict | None = None) -> None:
     """Startet den angegebenen Crawler."""
     if name not in AVAILABLE_CRAWLERS:
@@ -73,7 +70,10 @@ def run_crawler(name: str, start: str, end: str, log_level:str, options: dict | 
     crawler_cls = AVAILABLE_CRAWLERS[name]
 
     print(f"🚀 Starte {name}-Crawler ...")
-    with crawler_cls(start_date=start, end_date=end, logging_level=log_level, **(options or {})) as crawler:
+    MainLogger.attach_file_for(name=name, level="DEBUG")  # extra Log-Datei für diesen Crawler
+    with crawler_cls(start_date=start, end_date=end,
+                     logging_level=log_level,
+                     **(options or {})) as crawler:
         try:
             crawler.login()
             crawler.download_data()
@@ -84,6 +84,98 @@ def run_crawler(name: str, start: str, end: str, log_level:str, options: dict | 
             sys.exit(1)
 
     print(f"✅ {name}-Crawler abgeschlossen.\n")
+
+def run_all_crawlers(start: str | None, end: str | None, log_level: str, options: dict | None = None,
+                     include: list[str] | None = None, exclude: list[str] | None = None, dry_run: bool = False,
+                     parallel: int = 0
+                     ) -> None:
+    """
+    Startet mehrere Crawler gem. config.yaml: run_all.<crawler>: true/false.
+    Per --include/--exclude kann die Auswahl überschrieben werden.
+    """
+    cfg_flags = ConfigManager.get_run_all()  # dict[str,bool]
+    available = set(AVAILABLE_CRAWLERS.keys())
+    # Auswahl aus Config
+    selected = {name for name, enabled in (cfg_flags or {}).items() if enabled} & available
+    # Fallback: Wenn in der Config nichts gesetzt ist, nimm alle bekannten:
+    if not selected:
+        selected = set(available)
+
+    # Include/Exclude anwenden
+    if include:
+        selected &= {n.lower() for n in include}
+    if exclude:
+        selected -= {n.lower() for n in exclude}
+
+    if not selected:
+        print("⚠️  Keine Crawler ausgewählt (nach Filtern).")
+        return
+
+    print("📋 Ausführungsliste:", ", ".join(sorted(selected)))
+    print("parallele Prozesse:", parallel)
+    if dry_run:
+        print("Dry-Run aktiv – keine Crawler werden gestartet.")
+        return
+
+    if parallel and parallel > 1:
+        run_all_crawlers_parallel(sorted(selected), start, end, log_level, options, parallel)
+    else:
+        # Ausführen – sequenziell
+        for name in sorted(selected):
+            try:
+                run_crawler(name, start, end, log_level, options=options)
+            except SystemExit:
+                # run_crawler beendet mit sys.exit(1) bei Fehler → weiter zum nächsten
+                continue
+            except Exception as e:
+                print(f"❌ Fehler bei {name}: {e}")
+                continue
+
+def _worker_run(name: str, start: str|None, end: str|None, log_level: str, options: dict|None):
+    # Tatsächlicher Run
+    try:
+        run_crawler(name, start, end, log_level, options=options)
+        return (name, True, None)
+    except Exception as e:
+        return (name, False, str(e))
+
+def run_all_crawlers_parallel(selected: list[str], start, end, log_level, options, max_workers: int):
+    # not implemented yet - fallback auf sequenziell
+    print("⚠️  Parallele Ausführung noch nicht implementiert – Fallback auf sequenziell.")
+    for name in selected:
+        try:
+            run_crawler(name, start, end, log_level, options=options)
+        except SystemExit:
+            continue
+
+    return
+    # if max_workers < 2:
+    #     # sequenzielle variante
+    #     for name in selected:
+    #         try:
+    #             run_crawler(name, start, end, log_level, options=options)
+    #         except SystemExit:
+    #             continue
+    #     return
+    #
+    # print(f"🧵 Parallelstart mit {max_workers} Prozessen: {', '.join(selected)}")
+    # results = []
+    # with ProcessPoolExecutor(max_workers=max_workers) as pool:
+    #     futures = {pool.submit(_worker_run, name, start, end, log_level, options): name for name in selected}
+    #     for fut in as_completed(futures):
+    #         name = futures[fut]
+    #         ok, err = None, None
+    #         try:
+    #             n, ok, err = fut.result()
+    #         except Exception as e:
+    #             ok, err = False, str(e)
+    #         status = "✅" if ok else "❌"
+    #         print(f"{status} {name}{'' if ok else f' – {err}'}")
+    #         results.append((name, ok, err))
+    # # Optional: aggregierte Auswertung/Exitcode
+    # failures = [n for n, ok, _ in results if not ok]
+    # if failures:
+    #     print("⚠️ Fehlgeschlagen:", ", ".join(failures))
 
 # -------------------------------------------------------------------
 # Hilfsfunktionen
@@ -113,7 +205,7 @@ def main() -> None:
     # ------------------------------------------------------------------------------------------
     # Logger konfigurieren
     # ------------------------------------------------------------------------------------------
-    logfile = os.path.expanduser("~") + "/.config/read_transactions/readtx.log"
+    logfile = "~/.config/read_transactions/readtx.log"
     MainLogger.configure(logfile=logfile)
       # Log-Datei immer auf DEBUG setzen
     # MainLogger.set_file_level("INFO")
@@ -136,29 +228,41 @@ def main() -> None:
     )
     subparsers = parser.add_subparsers(dest="command", help="Verfügbare Befehle")
 
-    # --- list command ---
+    # --- list command -----------------------------------------------------------------------------------------------
     subparsers.add_parser("list", help="Listet alle verfügbaren Crawler auf")
 
-    # --- run command ---
-    parser_run = subparsers.add_parser("run", help="Startet einen bestimmten Crawler")
-    parser_run.add_argument("name", help="Name des Crawlers (z. B. ariva)")
+    # --- run command ------------------------------------------------------------------------------------------------
+    parser_run = subparsers.add_parser("run", help="Startet einen bestimmten Crawler oder all")
+    parser_run.add_argument("crawler", nargs='?',
+                            help="Name des Crawlers, z. B. amazon_visa, amex (weglassen bei --all).",
+                            )
     parser_run.add_argument("--start", metavar='Startdatum', type=str,
                             help="Startdatum im Format (dd.mm.yyyy) (default: heute - 1 Tag)",
-                            default=None
                             )
     parser_run.add_argument("--end", metavar='Enddatum', type=str,
                             help="Enddatum im Format (dd.mm.yyyy) (default: heute - 6 Monate)",
-                            default=None
                             )
-    parser_run.add_argument("--l", metavar='log_level', dest='log_level', type=str,
-                            help="log_level = logging Level für den Konsolenhandler (DEBUG, INFO, WARNING, ERROR)",
-                            default="INFO")
-    parser_run.add_argument('--o', metavar='options', dest='options', type=str, nargs='*',
-                            help="zusätzliche Parameter für den Crawler im Format key=value key2=value2 ...",
-                            default=None)
+    parser_run.add_argument("-l", "--log-level", dest='log_level',
+                            type=lambda s: s.upper(),
+                            help="logging Level für den Konsolenhandler",
+                            choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+                            default="INFO"
+                            )
+    parser_run.add_argument('-o', '--options', metavar='key=value', dest='options', type=str, nargs='*',
+                            help="Zusatzparameter, siehe Klassen-Dokumentation des jeweiligen Crawlers",
+                            )
+    parser_run.add_argument("-a", "--all", action="store_true",
+                            help="Startet alle in run_all konfigurierten Crawler",
+                            )
+    parser_run.add_argument("--include", nargs="*", help="Nur diese Crawler (mit -a/--all)")
+    parser_run.add_argument("--exclude", nargs="*", help="Diese Crawler ausschließen (mit -a/--all)")
+    parser_run.add_argument("--dry-run", action="store_true", help="Nur anzeigen, was laufen würde")
+    parser_run.add_argument("-p", "--parallel", type=int, default=0,
+                                help="Anzahl paralleler Prozesse (0/1 = sequentiell) - *experimentell*")
 
 
-    # --- config command  ---
+
+    # --- config command  ---------------------------------------------------------------------------------------------
     parser_config = subparsers.add_parser("config", help="Verwaltet die Konfiguration")
     config_subparsers = parser_config.add_subparsers(dest="action", help="Verfügbare Aktionen")
     # show
@@ -189,6 +293,34 @@ def main() -> None:
     parser_set.add_argument("--user", help="Benutzername")
     parser_set.add_argument("--pwd", help="Passwort (wird verschlüsselt gespeichert)")
 
+    # run-all
+    parser_cfg_ra = config_subparsers.add_parser(
+        "run-all", help="Konfiguriert, welche Crawler bei 'run -a/--all' berücksichtigt werden"
+        )
+    ra_sub = parser_cfg_ra.add_subparsers(dest="ra_action", help="Aktionen")
+
+    # show
+    ra_show = ra_sub.add_parser("show", help="Zeigt die run_all-Einstellungen")
+    ra_show.add_argument("-e", "--effective", action="store_true",
+                         help="Zeigt zusätzlich die tatsächlich aktivierten & verfügbaren Crawler")
+
+    # enable
+    ra_enable = ra_sub.add_parser("enable", help="Aktiviert einen/mehrere Crawler für --all")
+    ra_enable.add_argument("crawler", nargs="+", help="z. B. amex ariva trade_republic")
+
+    # disable
+    ra_disable = ra_sub.add_parser("disable", help="Deaktiviert einen/mehrere Crawler für --all")
+    ra_disable.add_argument("crawler", nargs="+", help="z. B. amex ariva trade_republic")
+
+    # set <crawler> on|off
+    ra_set = ra_sub.add_parser("set", help="Setzt einen Crawler explizit auf on/off")
+    ra_set.add_argument("crawler", help="Crawler-Name")
+    ra_set.add_argument("--off", help="auf aus setzen, sonst an", action="store_true")
+
+
+    # ------------------------------------------------------------------------------------------
+    # Argumente parsen und Befehle ausführen
+    # ------------------------------------------------------------------------------------------
 
     args = parser.parse_args()
 
@@ -196,8 +328,18 @@ def main() -> None:
         list_crawlers()
     elif args.command == "run":
         options = parse_kv_list(args.options)
-        run_crawler(args.name, args.start, args.end, args.log_level, options=options)
-        # run_crawler(args.name, args.start, args.end, args.log_level)
+        if args.all:
+            if args.crawler:
+                parser_run.error("Mit --all bitte keinen einzelnen Crawler angeben.")
+            run_all_crawlers(
+                start=args.start, end=args.end, log_level=args.log_level, options=options,
+                include=args.include, exclude=args.exclude, dry_run=args.dry_run,
+                parallel=args.parallel
+            )
+        else:
+            if not args.crawler:
+                parser_run.error("Bitte einen Crawler-Namen angeben oder --all nutzen.")
+            run_crawler(args.crawler, args.start, args.end, args.log_level, options=options)
     elif args.command == "config":
         config_mgr = ConfigManager
         if args.action == "show":
@@ -219,6 +361,34 @@ def main() -> None:
             config_mgr.create_default(overwrite=args.overwrite, path=args.path)
         elif args.action == "set":
             config_mgr.set_credentials(args.crawler, user=args.user, pwd=args.pwd)
+        elif args.action == "run-all":
+            flags = ConfigManager.get_run_all()
+            if args.ra_action == "show":
+                print(f"🔧 run_all ({ConfigManager.config_path}):")
+                if not flags:
+                    print("  (kein Abschnitt 'run_all' gefunden – Standard: alle bekannten Crawler)")
+                else:
+                    for k, v in sorted(flags.items()):
+                        print(f"  - {k}: {'on' if v else 'off'}")
+
+                if getattr(args, "effective", False):
+                    enabled = {k for k, v in (flags or {}).items() if v}
+                    available = set(AVAILABLE_CRAWLERS.keys())
+                    effective = sorted(enabled & available) if enabled else sorted(available)
+                    print("\n✅ Effektiv berücksichtigt bei 'run --all':", ", ".join(effective) or "—")
+                    print("📦 Verfügbar:", ", ".join(sorted(AVAILABLE_CRAWLERS.keys())))
+            elif args.ra_action in ("enable", "disable"):
+                val = (args.ra_action == "enable")
+                for c in args.crawler:
+                    ConfigManager.set_run_all(c, val)
+            elif args.ra_action == "set":
+                if args.off:
+                    val = False
+                else:
+                    val = True
+                ConfigManager.set_run_all(args.crawler, val)
+            else:
+                parser_cfg_ra.print_help()
         else:
             parser_config.print_help()
     else:

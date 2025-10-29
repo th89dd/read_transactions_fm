@@ -19,6 +19,7 @@ class MainLogger:
 
     __default_level = logging.DEBUG
     __logfile_path: Optional[str] = None
+    _per_logger_targets: set[str] = set()  # z.B. {"read_transactions.amex", ...}
     _root_logger: Optional[logging.Logger] = None
 
     # ----------------------------------------------------------------------
@@ -64,10 +65,11 @@ class MainLogger:
                 logfile = os.path.abspath(os.path.expanduser(logfile))
                 os.makedirs(os.path.dirname(logfile), exist_ok=True)
                 file_handler = RotatingFileHandler(
-                    logfile, maxBytes=5 * 1024 * 1024, backupCount=1, encoding="utf-8"
+                    logfile, maxBytes=1 * 1024 * 1024, backupCount=1, encoding="utf-8"
                 )
                 file_handler.setFormatter(logging.Formatter(log_format, datefmt))
                 file_handler.setLevel(logging.DEBUG)
+                file_handler._rt_target = "central"  # nur interne Markierung
                 cls._root_logger.addHandler(file_handler)
                 cls._root_logger.debug(f"📁 Logging in Datei: {logfile}")
                 cls.__logfile_path = logfile
@@ -159,6 +161,93 @@ class MainLogger:
             debug_overview+=(f"- {htype:<22} → Level: {hlevel:<8}{desc}")
 
         return debug_overview
+
+    @classmethod
+    def attach_file_for(cls, name: str, logfile: str | None = None,
+                        level: str | None = None,
+                        max_bytes: int = 1 * 1024 * 1024, backup_count: int = 1) -> None:
+        """
+        Hängt einen FileHandler an den *Hauptlogger*, der nur Logs des
+        Unterloggers 'read_transactions.<logger_name>' durchlässt.
+        """
+        if cls._root_logger is None:
+            cls.configure()
+
+        full_prefix = f"read_transactions.{name}"
+
+        # Zielpfad bestimmen (Default: ~/.config/read_transactions/<name>-<pid>.log)
+        if not logfile:
+            base_dir = os.path.expanduser("~/.config/read_transactions")
+            os.makedirs(base_dir, exist_ok=True)
+            logfile = os.path.join(base_dir, f"{full_prefix}.log")
+
+        else:
+            logfile = os.path.abspath(os.path.expanduser(logfile))
+            os.makedirs(os.path.dirname(logfile), exist_ok=True)
+
+        # Formatter wie in configure()
+        log_format = "[%(asctime)s] [%(levelname)s] %(name)s: %(message)s"
+        datefmt = "%Y-%m-%d %H:%M:%S"
+        handler = RotatingFileHandler(logfile, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8")
+        handler.setFormatter(logging.Formatter(log_format, datefmt))
+        # Level: falls nicht gesetzt, nimm aktuellen File-Level (typisch DEBUG)
+        handler.setLevel(getattr(logging, (level or "DEBUG").upper(), logging.DEBUG))
+
+        # 🔒 Filter: nur Events vom gewünschten Kind-Logger
+        handler.addFilter(logging.Filter(full_prefix))  # matcht "beginnt mit" → inkl. tieferer Namen
+
+        # kleine Markierung (nützlich fürs Entfernen)
+        handler._rt_target = full_prefix  # nur interne Markierung
+
+        cls._per_logger_targets.add(full_prefix)
+        cls._root_logger.addHandler(handler)
+        cls._rebuild_central_filter()
+        cls._root_logger.debug(f"🧩 FileHandler für {full_prefix} angehängt: {logfile}")
+
+    @classmethod
+    def detach_file_for(cls, name: str) -> int:
+        """
+        Entfernt alle per-Logger FileHandler für 'read_transactions.<name>'.
+        Gibt die Anzahl entfernter Handler zurück.
+        """
+        if cls._root_logger is None:
+            return 0
+        full_prefix = f"read_transactions.{name}"
+        removed = 0
+        for h in list(cls._root_logger.handlers):
+            if isinstance(h, logging.FileHandler) and getattr(h, "_rt_target", None) == full_prefix:
+                cls._root_logger.removeHandler(h)
+                removed += 1
+        if removed:
+            cls._root_logger.debug(f"🗑️ {removed} FileHandler für {full_prefix} entfernt.")
+            cls._per_logger_targets.discard(full_prefix)
+            cls._rebuild_central_filter()
+        return removed
+
+    @classmethod
+    def _rebuild_central_filter(cls) -> None:
+        if cls._root_logger is None:
+            return
+        # zentralen File-Handler finden
+        central = None
+        for h in cls._root_logger.handlers:
+            if isinstance(h, logging.FileHandler) and getattr(h, "_rt_role", "") == "central":
+                central = h
+                break
+        if central is None:
+            return
+
+        # Neuen Filter, der alle bekannten Per-Logger-Ziele aussperrt
+        prefixes = tuple(sorted(cls._per_logger_targets))
+        class _DropChildren(logging.Filter):
+            def filter(self, record: logging.LogRecord) -> bool:
+                # False = nicht zum zentralen File schreiben
+                return not record.name.startswith(prefixes)
+
+        # Alte Filter entfernen, neuen setzen
+        central.filters.clear()
+        if prefixes:
+            central.addFilter(_DropChildren())
 
 
     # ----------------------------------------------------------------------

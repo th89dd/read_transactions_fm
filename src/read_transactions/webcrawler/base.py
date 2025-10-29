@@ -126,7 +126,7 @@ class WebCrawler:
         # Logging einrichten
         self._logging_lvl = logging_level
         if logfile:
-            MainLogger.configure(level=logging_level, logfile=logfile)
+            MainLogger.attach_file_for(self.__name, logfile, logging_level)
         self.__logger = MainLogger.get_logger(self.__name)
         MainLogger.set_stream_level(logging_level)
 

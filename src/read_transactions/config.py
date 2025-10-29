@@ -32,17 +32,35 @@ try:
     from read_transactions.logger import MainLogger
 except ImportError:
     from src.read_transactions.logger import MainLogger
-import logging
+
+# Helpfer für classproperty
+class classproperty:
+    def __init__(self, f):
+        self.f = f
+    def __get__(self, obj, owner):
+        return self.f(owner)
+
 
 class ConfigManager:
     """Zentrale Verwaltung der Projektkonfiguration."""
 
     _config_cache: Dict[str, Any] | None = None
+    _config_path: Path | None = None
     _yaml = YAML()
     _yaml.preserve_quotes = True
     _logger = MainLogger.get_logger('config_manager')
     _key_path = Path.home() / ".config" / "read_transactions" / "secret.key"
     _fernet_cache: Fernet | None = None
+
+    @classproperty
+    def config_path(cls) -> str:
+        """Gibt den Pfad der aktuell geladenen Konfigurationsdatei zurück."""
+        try:
+            path = cls._find_config_file()
+            return str(path)
+        except FileNotFoundError:
+            return "Keine Konfigurationsdatei gefunden."
+
 
     @classmethod
     def load(cls) -> Dict[str, Any]:
@@ -89,6 +107,8 @@ class ConfigManager:
     # ------------------------------------------------------------------
     @classmethod
     def _find_config_file(cls) -> Path:
+        if cls._config_path is not None:
+            return cls._config_path
         """Sucht config.yaml in mehreren typischen Pfaden."""
         search_paths = [
             Path.home() / ".config" / "read_transactions" / "config.yaml",  # Benutzerverzeichnis
@@ -102,6 +122,7 @@ class ConfigManager:
 
         for path in search_paths:
             if path.exists():
+                cls._config_path = path
                 return path
 
         # keine Datei gefunden → Fehlermeldung
@@ -117,8 +138,8 @@ class ConfigManager:
     @classmethod
     def get_credentials(cls, crawler_name: str) -> Dict[str, str]:
         """Gibt die Credentials für einen Crawler zurück."""
-        config = cls.load()
-        creds = config.get("credentials", {}).get(crawler_name.lower())
+        cfg = cls.load()
+        creds = cfg.get("credentials", {}).get(crawler_name.lower())
         cls._logger.debug(f"Credentials für '{crawler_name}' geladen.")
         if not creds:
             raise KeyError(f"Keine Credentials für '{crawler_name}' in config.yaml gefunden.")
@@ -140,12 +161,55 @@ class ConfigManager:
     @classmethod
     def get_urls(cls, crawler_name: str) -> Dict[str, str]:
         """Gibt URL-Mappings für einen Crawler zurück."""
-        config = cls.load()
-        urls = config.get("urls", {}).get(crawler_name.lower())
+        cfg = cls.load()
+        urls = cfg.get("urls", {}).get(crawler_name.lower())
         cls._logger.debug(f"URLs für '{crawler_name}' geladen.")
         if not urls:
             raise KeyError(f"Keine URLs für '{crawler_name}' in config.yaml gefunden.")
         return urls
+
+    @classmethod
+    def get_run_all(cls) -> Dict[str, bool]:
+        """Gibt die Run-All-Einstellungen zurück."""
+        cfg = cls.load()
+        run_all = cfg.get("run_all", {})
+        cls._logger.debug("Run-All Einstellungen geladen.")
+        return run_all
+
+    @classmethod
+    def set_run_all(cls, crawler_name: str, value: bool) -> None:
+        """
+        Setzt die Run-All Einstellung für einen Crawler.
+
+        Args:
+            crawler_name: Name des Crawlers (z. B. 'amex')
+            value: True oder False
+        """
+        if crawler_name is None or value is None:
+            raise ValueError("crawler_name und value dürfen nicht None sein.")
+        if not isinstance(crawler_name, str):
+            raise TypeError("crawler_name muss ein String sein.")
+        if not isinstance(value, bool):
+            raise TypeError("value muss ein Boolean sein.")
+        try:
+            cfg = cls.load()
+            run_all = cfg.setdefault("run_all", {})
+            run_all[crawler_name.lower()] = value
+
+            path = cls._find_config_file()
+            with open(path, "w", encoding="utf-8") as f:
+                cls._yaml.dump(cfg, f)
+            cls._config_cache = cfg
+            if value:
+                print(f"✅ Crawler {crawler_name} in run_all gesetzt.")
+            else:
+                print(f"❌ Crawler {crawler_name} in run_all gelöscht.")
+            cls._logger.debug(f"Config-Eintrag 'run_all.{crawler_name}' auf '{value}' in {path} gesetzt.")
+        except FileNotFoundError:
+            print("❌ Keine config.yaml gefunden.")
+        except Exception as e:
+            print(f"⚠️ Fehler beim Bearbeiten der Config: {e}")
+            cls._logger.error(f"Fehler beim Bearbeiten der Config: {e}")
 
     # ------------------------------------------------------------------
     # Benutzerdaten setzen (verschlüsselt)
@@ -272,6 +336,14 @@ class ConfigManager:
 
         default_content = textwrap.dedent("""\
             
+            run_all:
+            # Services to excecute with 'run_all  --configured' - set to True or False
+                amex: True              # American Express
+                trade_republic: True    # Trade Republic
+                amazon_visa: True       # Amazon Visa by Zinia
+                amazon: False           # Amazon.de Order History
+                ariva: True             # Ariva historical stock prices
+            
             credentials:
             # Credentials for various services (amex, amazon_visa, ariva)
                 amex:
@@ -323,7 +395,7 @@ class ConfigManager:
                 
                 ariva:
                 # Ariva URLs
-                    login: https://login.ariva.de/realms/ariva/protocol/openid-connect/auth?client_id=ariva-web&redirect_uri=https%3A%2F%2Fwww.ariva.de%2F%3Fbase64_redirect%3DaHR0cHM6Ly93d3cuYXJpdmEuZGUv&response_type=code&scope=openid+profile+email&state=example
+                    login: https://www.ariva.de/
                     kurse: # Endpoints for historical stock price data - add various entries as needed                    
                         apple: https://www.ariva.de/aktien/apple-aktie/kurse/historische-kurse
                         msci_world: https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc/kurse/historische-kurse
