@@ -471,7 +471,7 @@ class TradeRepublicCrawler(WebCrawler):
         month = pd.to_datetime('today').strftime('%B')
         year = pd.to_datetime('today').year
         stop_parsing = False
-        self._logger.info(f"Verarbeite Rohdaten der Transaktionen... (Detailmodus: {self.__with_details})")
+        self._logger.info(f"Verarbeite Rohdaten der Transaktionen... (Detailmodus: {self.with_details})")
 
         start_time = time.time()
         last_log_time = start_time
@@ -503,7 +503,7 @@ class TradeRepublicCrawler(WebCrawler):
 
             # self.driver.maximize_window()
             # Zusätzliche Details bei Kauf-/Verkaufsorders
-            if self.__with_details:
+            if self.with_details:
                 order_detail_keys = ['Kauforder', 'Verkaufsorder', 'Sparplan ausgeführt', 'Saveback']
                 if any(key in verwendungszweck for key in order_detail_keys):
                     details = self._get_order_details_from_entry(idx)
