@@ -293,10 +293,10 @@ class AmazonVisaCrawler(WebCrawler):
 
             self.wait_clickable_and_click(
                 by="xpath",
-                selector="//button[contains(.,'Excel') or contains(.,'XLS')]",
+                selector="//button[contains(.,'XLS herunterladen')]",
                 timeout=5,
             )
-            self._logger.debug("Excel-Download gestartet...")
+            self._logger.debug("Excel-Download-Buttn gedrückt...")
 
         def _show_old_transactions() -> bool:
             """Zeigt ggf. ältere Umsätze an."""
@@ -500,7 +500,7 @@ class AmazonVisaCrawler(WebCrawler):
                 otp_field = self.wait_for_element(
                     "xpath",
                     "//input[@data-testid='challenge-otp-input' and @placeholder='Bestätigungscode']",
-                    10,
+                    5,
                 )
                 code = input("🔐 Bitte 4-stelligen Bestätigungscode eingeben (oder 'retry' für neuen Code): ").strip()
                 if code.lower() == "retry" or len(code) != 4:
@@ -528,63 +528,114 @@ class AmazonVisaCrawler(WebCrawler):
                 self._logger.debug("Kein 'Weiter'-Button gefunden.")
                 return False
 
-        def _confirm() -> bool:
-            """Klickt abschließend auf 'Bestätigen', falls vorhanden."""
+        def _try_again() -> bool:
+            """Klickt auf 'Erneut versuchen', falls vorhanden."""
             try:
-                # suche nach einem btn, falls code eingabe nicht erfolgreich
                 self.wait_clickable_and_click(
                     by="xpath",
                     selector=(
-                        "//button[@data-testid='challenge-message-fail-button'"
-                        "and .//span[normalize-space()='Erneut versuchen']]"),
+                        "//button["
+                        "(@data-testid='challenge-wrapper-message-fail-button'"
+                        "or @data-testid='challenge-message-fail-button')"
+                        "and .//span[normalize-space()='Erneut versuchen']"
+                        "]"),
                     timeout=3)
-                return False
+                self._logger.debug("'Erneut versuchen' geklickt.")
+                return True
             except TimeoutException:
-                # btn war nicht da -> weiter
-                pass
+                self._logger.debug("Kein 'Erneut versuchen'-Button gefunden.")
+                return False
+
+        def _confirm() -> bool:
+            """Klickt abschließend auf 'Bestätigen', falls vorhanden."""
             try:
                 self.wait_clickable_and_click(
                     "xpath",
                     "//button[.//span[normalize-space()='Bestätigen']]",
-                    10,
+                    5,
                 )
                 self._logger.info("Identitätsverifizierung abgeschlossen ('Bestätigen' geklickt).")
                 return True
             except TimeoutException:
                 self._logger.debug("Kein 'Bestätigen'-Button gefunden – Verifizierung evtl. bereits erledigt.")
+            except ElementNotInteractableException:
+                self._logger.debug("'Bestätigen'-Button nicht interaktiv")
+            return False
+
+        def _wait_for_xls_btn() -> bool:
+            """Wartet auf das Vorhandensein des XLS-Download-Buttons als Indikator für erfolgreiche Verifizierung."""
+            try:
+                xls_btn = self.wait_for_element(
+                    by="xpath",
+                    selector="//button[contains(.,'XLS herunterladen')]",
+                    timeout=5,
+                )
+                return True
+            except TimeoutException:
                 return False
+
+        def _manual_wait(timeout: int = 120) -> None:
+            """Wartet manuell auf Benutzereingabe im Terminal."""
+            start_time = time.time()
+            self._logger.info("Bitte führen Sie die OTP-Verifikation manuell im Browser durch...")
+            while (time.time() - start_time) < timeout:
+                self._logger.info(
+                    f"Warte auf manuelle OTP-Verifikation... timeout in: "
+                    f"{round(timeout-(time.time() - start_time), 2)}s")
+                if _wait_for_xls_btn():
+                    self._verified = True
+                    self._logger.info("OTP-Verifikation erfolgreich (manuell).")
+                    return
+                time.sleep(2)
+            self._logger.warning("Timeout beim Warten auf manuelle OTP-Verifikation.")
+            raise RuntimeError("Timeout bei der OTP-Verifikation.")
+
         # ------------------------------------------------------------
         # Hauptschleife
         # ------------------------------------------------------------
+        max_runs = 2
+        attempt = 0
         try:
-            # _request_new_code()
-            for attempt in range(3):  # max. 3 Versuche
+            _request_new_code()     # inital gleich 2. versuch anfordern, da 1. immer fehlschlägt
+            for attempt in range(max_runs):  # max. 3 Versuche
                 try:
-                    try:
-                        self.wait_for_element(
-                            "xpath",
-                            "//input[@data-testid='challenge-otp-input' and @placeholder='Bestätigungscode']",
-                            timeout=5)
-                    except TimeoutException:
-                        self._logger.debug("Kein OTP-Feld sichtbar – keine Verifizierung erforderlich.")
-                        break
-
-                    self._logger.info(f"Starte OTP-Verifikation (Versuch {attempt + 1}/3)...")
-                    if not _enter_otp():
-                        continue  # ungültiger Code oder 'retry' gedrückt → nächste Runde
-                    if _submit_code():
-                        if not _confirm():
-                            self._logger.info('Verifizierung fehlgeschlagen, erneut starten...')
+                    otp_field = self.wait_for_element(
+                        "xpath",
+                        "//input[@data-testid='challenge-otp-input' and @placeholder='Bestätigungscode']",
+                        timeout=5)
+                    if not (otp_field.is_displayed() and otp_field.is_enabled()):
+                        self._logger.debug("OTP-Feld nicht sichtbar oder nicht interaktiv.")
+                        if not _try_again():
                             continue
-                        else:
+                except TimeoutException:
+                    self._logger.debug("Kein OTP-Feld sichtbar – keine Verifizierung möglich.")
+                    break
+
+                self._logger.info(f"Starte OTP-Verifikation (Versuch {attempt + 1}/{max_runs})...")
+                if not _enter_otp():
+                    continue  # ungültiger Code oder 'retry' gedrückt → nächste Runde
+                if _submit_code():
+                    if _try_again():
+                        continue  # Fehler beim Absenden → erneut versuchen
+                    if not _confirm():
+                        # schauen, ob erneut versuchen nötig ist
+                        continue
+                    else:
+                        if _try_again():
+                            continue
+                            self._logger.info('Verifizierung fehlgeschlagen, erneut starten...')
+                        if _wait_for_xls_btn():
                             self._verified = True
                             self._logger.info("OTP-Verifikation erfolgreich.")
                             break
-                except ElementNotInteractableException:
-                    self._logger.debug("OTP-Feld nicht interaktiv – übersprungen.")
-                    break
+                        else:
+                            continue
             else:
-                self._logger.warning("OTP-Verifikation nach 3 Versuchen abgebrochen.")
+                self._logger.warning(
+                    f"OTP-Verifikation nach {(attempt+1) if attempt >0 else 0} Versuchen abgebrochen.")
+                _manual_wait()
+        except ElementNotInteractableException:
+            self._logger.debug("OTP-Feld nicht interaktiv – übersprungen.")
         except Exception as e:
             self._logger.error(f"Fehler bei der OTP-Verifizierung: {e}", exc_info=True)
 
@@ -635,23 +686,23 @@ class AmazonVisaCrawler(WebCrawler):
 if __name__ == "__main__":
     print("Starte AmazonVisaCrawler im Direkt-Testmodus...")
     end = pd.Timestamp.now() - pd.DateOffset(months=12)
-    with AmazonVisaCrawler(logging_level="DEBUG", end_date=end) as crawler:
-        # crawler._wait_for_manual_exit()
-        crawler.login()
-        # crawler._wait_for_manual_exit("Login abgeschlossen - browser bleibt offen")
-        crawler.download_data()
-        # crawler._wait_for_manual_exit("Daten-Download abgeschlossen - browser bleibt offen")
-        crawler.process_data()
-        crawler.save_data()
+    # with AmazonVisaCrawler(logging_level="DEBUG", end_date=end) as crawler:
+    #     # crawler._wait_for_manual_exit()
+    #     crawler.login()
+    #     # crawler._wait_for_manual_exit("Login abgeschlossen - browser bleibt offen")
+    #     crawler.download_data()
+    #     # crawler._wait_for_manual_exit("Daten-Download abgeschlossen - browser bleibt offen")
+    #     crawler.process_data()
+    #     crawler.save_data()
 
-    self = crawler
-    # crawler = AmazonVisaCrawler(logging_level="DEBUG")
-    # crawler.login()
-    # crawler.download_data()
+
+    crawler = AmazonVisaCrawler(logging_level="DEBUG", details=False)
+    crawler.login()
+    crawler.download_data()
     # crawler.process_data()
     # crawler.save_data()
     # crawler.close()
-
+    self = crawler
     # indexed_intervals = [(idx, (start, end)) for idx, (start, end) in enumerate(intervals)]
     # idx, (start, end) = indexed_intervals[0]
     #
