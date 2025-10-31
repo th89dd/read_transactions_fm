@@ -470,6 +470,7 @@ class TradeRepublicCrawler(WebCrawler):
         # ---- Hauptverarbeitungslogik ----
         daten = []
         daten_idx: dict[int, int] = {}     # Index-Mapping für Details (daten index -> timeline entry index)
+        divider_count = 0
         month = pd.to_datetime('today').strftime('%B')
         year = pd.to_datetime('today').year
         stop_parsing = False
@@ -487,6 +488,7 @@ class TradeRepublicCrawler(WebCrawler):
             classes = e.get('class', '')
             if '-isMonthDivider' in classes or '-isNewSection' in classes:
                 month, year = update_month_context_from_text(e.get('text', ''), month, year)
+                divider_count += 1
                 continue
 
             empfaenger = e.get('title', '').strip() or 'N/A'
@@ -497,8 +499,8 @@ class TradeRepublicCrawler(WebCrawler):
             # 🔥 Enddatum-Abbruch
             if datum and datum < self.end_date:
                 self._logger.info(
-                    f"Enddatum bei Eintrag {idx} mit dem Datum {datum.strftime('%d.%m.%Y')} erreicht"
-                    f" – Parsing beendet.")
+                    f"Enddatum bei Eintrag {idx} mit dem Datum {datum.strftime('%d.%m.%Y')} erreicht")
+                self._logger.info(f"{divider_count} Monats-Header übersprungen -> {len(daten)} Einträge verarbeitet.")
                 stop_parsing = True
             else:
                 entry_dict ={
@@ -668,18 +670,17 @@ class TradeRepublicCrawler(WebCrawler):
 # ----------------------------------------------------------------------
 if __name__ == "__main__":
     print("TradeRepublicCrawler Debug-Modus")
-    # from src.read_transactions.logger import MainLogger
-    # MainLogger.configure()
-    # MainLogger.set_stream_level("DEBUG")
+    output_path = "../../../out"
     end_date = pd.to_datetime("today") - pd.DateOffset(months=1)
-    # with TradeRepublicCrawler(logging_level="DEBUG", end_date=end_date) as crawler:
-    #     crawler.login()
-    #     crawler.download_data()
-    #     crawler.process_data()
-    #     crawler.save_data()
+    with TradeRepublicCrawler(logging_level="DEBUG", end_date=end_date, output_path=output_path) as crawler:
+        crawler.login()
+        crawler.download_data()
+        crawler.process_data()
+        crawler.save_data()
+    pass
 
-    crawler = TradeRepublicCrawler(logging_level="DEBUG", end_date=end_date)
-    crawler.login()
+    # crawler = TradeRepublicCrawler(logging_level="DEBUG", end_date=end_date, output_path=output_path)
+    # crawler.login()
     # crawler.download_data()
     # crawler.process_data()
     # crawler.close()
