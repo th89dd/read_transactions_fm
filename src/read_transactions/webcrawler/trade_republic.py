@@ -30,7 +30,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 
 from typing import Any
 
@@ -147,6 +147,7 @@ class TradeRepublicCrawler(WebCrawler):
         super().__init__(name="trade_republic",*args, **kwargs)
         self._load_config()
         self.__portfolio_balance = 0.0
+        self._raw_data = []
 
     @property
     def portfolio_balance(self) -> str:
@@ -200,10 +201,10 @@ class TradeRepublicCrawler(WebCrawler):
             self._scroll_to_bottom()
 
             raw_entries = self._get_raw_entries()
-            df = self._process_raw_entries(raw_entries)
+            df, data_idx = self._process_raw_entries(raw_entries)
             self.data = df
 
-            self._logger.info(f"{len(df)} Transaktionen erfolgreich eingelesen.")
+            self._logger.info(f"{len(self.data)} Transaktionen erfolgreich eingelesen.")
         except Exception:
             self._logger.error("Fehler beim Download der Transaktionsdaten.", exc_info=True)
 
@@ -360,7 +361,7 @@ class TradeRepublicCrawler(WebCrawler):
     # ------------------------------------------------------------------
     # Scrollen
     # ------------------------------------------------------------------
-    def _scroll_to_bottom(self, pause: float = 0.25, stable_rounds: int = 3) -> None:
+    def _scroll_to_bottom(self, pause: float = 0.0, stable_rounds: int = 5) -> None:
         """Scrollt die Seite vollständig, bis keine neuen Einträge mehr erscheinen."""
         self._logger.info("Scrolle bis zum Seitenende, um alle Transaktionen zu laden...")
         self.driver.maximize_window()
@@ -468,6 +469,7 @@ class TradeRepublicCrawler(WebCrawler):
         # ----------------------------------------------------------------
         # ---- Hauptverarbeitungslogik ----
         daten = []
+        daten_idx: dict[int, int] = {}     # Index-Mapping für Details (daten index -> timeline entry index)
         month = pd.to_datetime('today').strftime('%B')
         year = pd.to_datetime('today').year
         stop_parsing = False
@@ -475,6 +477,9 @@ class TradeRepublicCrawler(WebCrawler):
 
         start_time = time.time()
         last_log_time = start_time
+
+        # erstmal alle einträge durchgehen und parsen, danach erneut durchgehen für details
+        # 1. run: grunddaten parsen
         for idx, e in enumerate(raw_entries):
             if stop_parsing:
                 break
@@ -491,34 +496,48 @@ class TradeRepublicCrawler(WebCrawler):
 
             # 🔥 Enddatum-Abbruch
             if datum and datum < self.end_date:
-                self._logger.info(f"Enddatum erreicht bei {datum.strftime('%d.%m.%Y')} – Parsing beendet.")
+                self._logger.info(
+                    f"Enddatum bei Eintrag {idx} mit dem Datum {datum.strftime('%d.%m.%Y')} erreicht"
+                    f" – Parsing beendet.")
                 stop_parsing = True
-                break
+            else:
+                entry_dict ={
+                    'Datum': datum.strftime('%d.%m.%Y') if pd.notna(datum) else 'N/A',
+                    'Empfänger': empfaenger,
+                    'Verwendungszweck': verwendungszweck,
+                    'Betrag': preis,}
+                daten.append(entry_dict)
+                daten_idx[len(daten)-1] = idx  # mapping für details daten_idx → raw_entries idx (timeline entry)
 
-            entry_dict ={
-                'Datum': datum.strftime('%d.%m.%Y') if pd.notna(datum) else 'N/A',
-                'Empfänger': empfaenger,
-                'Verwendungszweck': verwendungszweck,
-                'Betrag': preis,}
+        # restliche raw entries löschen und neu durchgehen für details - viel aufwendiger, da geklickt werden muss
+        if self.with_details:
+            self._logger.info(
+                "Lese zusätzliche Details für Kauf-/Verkaufsorders... (kann mehr Zeit in Anspruch nehmen)"
+            )
+            last_idx = len(daten)  # nur bis zu diesem Index bearbeiten
+            # raw_entries = raw_entries[:last_idx]
+            self._logger.debug(f"Verarbeite {len(daten)} Einträge für Detail-Extraktion.")
 
-            # self.driver.maximize_window()
-            # Zusätzliche Details bei Kauf-/Verkaufsorders
-            if self.with_details:
+            for idx, e in enumerate(daten):
+
+                entry_dict = daten[idx]
+                timeline_entry_idx = daten_idx[idx]
+                verwendungszweck = entry_dict.get('Verwendungszweck', '')
+
+                # Zusätzliche Details bei Kauf-/Verkaufsorders
                 order_detail_keys = ['Kauforder', 'Verkaufsorder', 'Sparplan ausgeführt', 'Saveback']
                 if any(key in verwendungszweck for key in order_detail_keys):
-                    details = self._get_order_details_from_entry(idx)
-                    if 'overlay_close_error' in details:
-                        break
-                    entry_dict['details'] = str(details)
+                    details = self._get_order_details_from_entry(timeline_entry_idx)
+                    if not 'overlay_close_error' in details:
+                        entry_dict['details'] = str(details)
+                    else:
+                        entry_dict['details'] = 'Fehler beim Schließen des Overlays'
 
-            daten.append(entry_dict)
+                if time.time() - last_log_time > 5:
+                    self._logger.info(f"Verarbeite Eintrag {idx+1}/{len(daten)}...")
+                    last_log_time = time.time()
 
-            if time.time() - last_log_time > 5:
-                self._logger.info(f"Verarbeite Eintrag {idx+1}/{len(raw_entries)}...")
-                self._logger.debug(f"{len(daten)} Einträge bisher verarbeitet.")
-                last_log_time = time.time()
-
-        return pd.DataFrame(daten)
+        return pd.DataFrame(daten), daten_idx
 
     def _get_order_details_from_entry(self, index: int) -> dict:
         """
@@ -578,7 +597,7 @@ class TradeRepublicCrawler(WebCrawler):
                 ele = self.driver.switch_to.active_element
                 if ele.text.lower() == 'schließen':
                     ele.send_keys(Keys.SPACE)
-                    time.sleep(0.5)
+                    time.sleep(0.01)
                     # self._logger.debug("Overlay geschlossen.")
                     return True
                 # check if closed
@@ -612,10 +631,17 @@ class TradeRepublicCrawler(WebCrawler):
                 const y = arguments[0].getBoundingClientRect().top + window.scrollY - h - 20;
                 window.scrollTo({top: y});
             """, entry)
-            time.sleep(0.3)
 
-            # Klick auf Entry
-            entry.click()
+            # Klicken mit Retry bei InterceptedException
+            start_time = time.time()
+            timeout = 10
+            while time.time() - start_time < timeout:
+                try:
+                    entry.click()
+                    break
+                except ElementClickInterceptedException:
+                    time.sleep(0.01)
+                    continue
 
             # Warte bis Overlay sichtbar und Tabelle da ist
             self.wait_for_element('css selector', ".timelineDetailModal", 10)
@@ -641,28 +667,147 @@ class TradeRepublicCrawler(WebCrawler):
 # Direktstart (Debug)
 # ----------------------------------------------------------------------
 if __name__ == "__main__":
+    print("TradeRepublicCrawler Debug-Modus")
     # from src.read_transactions.logger import MainLogger
     # MainLogger.configure()
     # MainLogger.set_stream_level("DEBUG")
     end_date = pd.to_datetime("today") - pd.DateOffset(months=1)
-    with TradeRepublicCrawler(logging_level="DEBUG", end_date=end_date) as crawler:
-        crawler.login()
-        crawler.download_data()
-        crawler.process_data()
-        crawler.save_data()
+    # with TradeRepublicCrawler(logging_level="DEBUG", end_date=end_date) as crawler:
+    #     crawler.login()
+    #     crawler.download_data()
+    #     crawler.process_data()
+    #     crawler.save_data()
 
-    # crawler = TradeRepublicCrawler(logging_level="DEBUG", end_date=end_date)
-    # crawler.login()
+    crawler = TradeRepublicCrawler(logging_level="DEBUG", end_date=end_date)
+    crawler.login()
     # crawler.download_data()
     # crawler.process_data()
     # crawler.close()
+
+    # _get_raw_entries = TradeRepublicCrawler._get_raw_entries
+    # _process_raw_entries = TradeRepublicCrawler._process_raw_entries
+    # _get_order_details_from_entry = TradeRepublicCrawler._get_order_details_from_entry
+    #
     # self = crawler
+    # raw = _get_raw_entries(self)
+    # df, data_idx = _process_raw_entries(self, raw)
+    # detail = _get_order_details_from_entry(self, data_idx[2])
 
-    tr1 = pd.read_csv("../../../out/trade_republic.csv", sep=";")
-    tr2 = pd.read_csv("../../../out/trade_republic2.csv", sep=";")
+    # daten, daten_idx = test2()
+    #
+    # def test(daten, daten_idx):
+    #     for idx, e in enumerate(daten):
+    #         entry_dict = daten[idx]
+    #         timeline_entry_idx = daten_idx[idx]
+    #         verwendungszweck = entry_dict.get('Verwendungszweck', '')
+    #
+    #         # Zusätzliche Details bei Kauf-/Verkaufsorders
+    #         order_detail_keys = ['Kauforder', 'Verkaufsorder', 'Sparplan ausgeführt', 'Saveback']
+    #         if any(key in verwendungszweck for key in order_detail_keys):
+    #             details = _get_order_details_from_entry(self, timeline_entry_idx)
+    #             if not 'overlay_close_error' in details:
+    #                 entry_dict['details'] = str(details)
+    #
+    # def test2():
+    #     daten = []
+    #     daten_idx: dict[int, int] = {}
+    #     stop_parsing = False
+    #     month = pd.to_datetime('today').strftime('%B')
+    #     year = pd.to_datetime('today').year
+    #     for idx, e in enumerate(raw):
+    #         if stop_parsing:
+    #             break
+    #
+    #         classes = e.get('class', '')
+    #         if '-isMonthDivider' in classes or '-isNewSection' in classes:
+    #             month, year = update_month_context_from_text(e.get('text', ''), month, year)
+    #             continue
+    #
+    #         empfaenger = e.get('title', '').strip() or 'N/A'
+    #         preis = normalize_price(e.get('price', '').strip())
+    #         subtitle = e.get('subtitle', '').strip()
+    #         datum, verwendungszweck = extract_date_and_purpose(subtitle, empfaenger, year)
+    #
+    #         # 🔥 Enddatum-Abbruch
+    #         if datum and datum < self.end_date:
+    #             self._logger.info(
+    #                 f"Enddatum bei Eintrag {idx} mit dem Datum {datum.strftime('%d.%m.%Y')} erreicht"
+    #                 f" – Parsing beendet.")
+    #             stop_parsing = True
+    #         else:
+    #             entry_dict ={
+    #                 'Datum': datum.strftime('%d.%m.%Y') if pd.notna(datum) else 'N/A',
+    #                 'Empfänger': empfaenger,
+    #                 'Verwendungszweck': verwendungszweck,
+    #                 'Betrag': preis,}
+    #             daten.append(entry_dict)
+    #             daten_idx[len(daten)-1] = idx  # mapping für details daten_idx → raw_entries idx (timeline entry)
+    #     return daten, daten_idx
+    #
+    #
+    # def extract_date_and_purpose(subtitle, title, year):
+    #     """Zerlegt das Datumsfeld und bildet den Verwendungszweck."""
+    #     try:
+    #         if not subtitle or not isinstance(subtitle, str):
+    #             raise ValueError("Kein gültiger subtitle-Text")
+    #
+    #         match = re.match(r"^(\d{2}\.\d{2}\.)(?:\s*-\s*(.*))?$", subtitle.strip())
+    #         if match:
+    #             datum_str = f"{match.group(1)}{year}"
+    #             verwendungszweck = f"{title} {match.group(2)}" if match.group(2) else title
+    #         else:
+    #             datum_str = f"{subtitle.strip()}{year}"
+    #             verwendungszweck = title
+    #
+    #         datum = pd.to_datetime(datum_str, format='%d.%m.%Y', errors='coerce')
+    #         return datum, verwendungszweck
+    #
+    #     except Exception as e:
+    #         # Fehlerprotokoll für Debug
+    #         self._logger.debug(f"Fehler beim Parsen von subtitle='{subtitle}': {e}")
+    #         # Fallback
+    #         return pd.NaT, title
+    #
+    # def normalize_price(price_str):
+    #     """Bereinigt und formatiert Preisangaben."""
+    #     if not price_str:
+    #         return 'N/A'
+    #     if price_str.startswith('+'):
+    #         preis = price_str.replace('+', '')
+    #     else:
+    #         preis = f"-{price_str}"
+    #     return preis
+    #
+    # def update_month_context_from_text(text, month, year):
+    #     """Aktualisiert Monat/Jahr basierend auf Monatsüberschrift."""
+    #     text = text.strip()
+    #
+    #     if text == "Dieser Monat":
+    #         month = pd.to_datetime('today').strftime('%B')
+    #         self._logger.debug(f"Wechsel zu Monat: {month} {year}")
+    #         return month, year
+    #
+    #     # 🧠 Regex:
+    #     # ^([A-Za-zäöüÄÖÜß]+)         → fängt den Monatsnamen ein (auch mit Umlauten)
+    #     # (?:\s+(\d{4}))?$            → optional: Leerzeichen + vierstellige Jahreszahl
+    #     match = re.match(r"^([A-Za-zäöüÄÖÜß]+)(?:\s+(\d{4}))?$", text)
+    #
+    #     if match:
+    #         month = match.group(1)
+    #         if match.group(2):
+    #             year = int(match.group(2))
+    #         self._logger.debug(f"Wechsel zu Monat: {month} {year}")
+    #     else:
+    #         self._logger.debug(f"Unbekannte Monatszeile: '{text}' in {year}/{month}")
+    #
+    #     return month, year
 
-    # only in tr1 not in tr2
-    df_diff1 = tr1.merge(tr2, indicator=True, how='outer').query('_merge == "left_only"').drop('_merge', axis=1)
+
+    # tr1 = pd.read_csv("../../../out/trade_republic.csv", sep=";")
+    # tr2 = pd.read_csv("../../../out/trade_republic2.csv", sep=";")
+    #
+    # # only in tr1 not in tr2
+    # df_diff1 = tr1.merge(tr2, indicator=True, how='outer').query('_merge == "left_only"').drop('_merge', axis=1)
 
 
 
