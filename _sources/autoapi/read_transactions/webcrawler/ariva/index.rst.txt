@@ -1,0 +1,148 @@
+read_transactions.webcrawler.ariva
+==================================
+
+.. py:module:: read_transactions.webcrawler.ariva
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 2.0
+   :date: 21.10.2025
+   :organisation: TU Dresden, FZM
+
+   ArivaCrawler
+   ------------
+   Crawler für Kursdaten von ariva.de.
+
+   Verwendung:
+       from read_transactions.webcrawler.ariva import ArivaCrawler
+
+       with ArivaCrawler() as crawler:
+           crawler.login()
+           crawler.download_data()
+           crawler.process_data()
+           crawler.save_data()
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.ariva.ArivaCrawler
+
+
+Module Contents
+---------------
+
+.. py:class:: ArivaCrawler(*args, **kwargs)
+
+   Bases: :py:obj:`src.read_transactions.webcrawler.base.WebCrawler`
+
+
+   Crawler für Kursdaten von ariva.de.
+
+   Der Crawler automatisiert den Login auf ariva.de, öffnet für alle in der
+   Konfiguration hinterlegten Wertpapiere die Kursseiten, lädt CSV-Dateien
+   herunter und führt sie zu einem einheitlichen Datensatz zusammen.
+
+   Ablauf:
+       1. Optionaler Login (sofern Zugangsdaten vorhanden)
+       2. Aufruf aller in der Konfiguration definierten URLs
+       3. Auswahl von Währung, Zeitraum und Trenner
+       4. Start des CSV-Downloads
+       5. Zusammenführung und Bereinigung der Daten
+
+   Voraussetzungen:
+       - gültige Zugangsdaten und URL-Mappings in `config.yaml`
+       - funktionierender Selenium-WebDriver (Edge, Chrome oder Firefox)
+
+   CLI-Beispiel:
+       ```bash
+       readtx run ariva --start 01.01.2024 --end 31.03.2024 --log_level DEBUG
+       ```
+
+   Parameter
+   ----------
+   logfile : str, optional
+       Pfad zu einer Logdatei. Wenn `None`, wird nur in die Konsole geloggt.
+   output_path : str, optional
+       Verzeichnis, in dem die verarbeiteten Daten gespeichert werden.
+       Standard: ``out``.
+   start_date : str | pandas.Timestamp | datetime.date, optional
+       Startdatum für den Download (Format: ``dd.mm.yyyy``).
+       Standard: heutiges Datum.
+   end_date : str | pandas.Timestamp | datetime.date, optional
+       Enddatum für den Download (Format: ``dd.mm.yyyy``).
+       Standard: sechs Monate vor `start_date`.
+   logging_level : str, optional
+       Log-Level der Crawler-Instanz (z. B. "DEBUG", "INFO", "WARNING").
+       Standard: ``INFO``.
+   global_log_level : str, optional
+       Globales Log-Level für das gesamte Paket (Standard: ``INFO``).
+   browser : str, optional
+       Zu verwendender Browser-Treiber (``edge``, ``chrome`` oder ``firefox``).
+       Standard: ``edge``.
+   headless : bool, optional
+       Falls `True`, wird der Browser im Hintergrundmodus gestartet.
+       Standard: ``False``.
+   user_agent : str, optional
+       Optionaler User-Agent-String für den Browser.
+
+   Attribute
+   ----------
+   data : pandas.DataFrame
+       Zusammengeführte Kursdaten aller Wertpapiere.
+   _urls : dict
+       Enthält alle Kurs-URLs aus der Konfiguration.
+   _logger : logging.Logger
+       Instanzspezifischer Logger.
+
+
+   .. py:method:: login() -> None
+
+      Meldet sich auf ariva.de an, falls Zugangsdaten vorhanden sind.
+
+      Öffnet die Login-Seite, füllt Benutzername und Passwort aus,
+      sendet das Formular ab und schließt anschließend eventuelle
+      Werbe-Overlays (über handle_ad_banner).
+
+
+
+   .. py:method:: download_data() -> None
+
+      Lädt Kursdaten (CSV) von allen in der Konfiguration definierten URLs.
+
+      Für jede URL:
+        - öffnet die Seite,
+        - setzt optional die Währung auf EUR,
+        - trägt Start- und Enddatum ein,
+        - wählt Trenner ';',
+        - startet den Download und wartet auf Abschluss.
+
+
+
+   .. py:method:: process_data() -> None
+
+      Führt alle eingelesenen CSV-Dateien zu einem einheitlichen DataFrame zusammen.
+
+      Für jede Datei:
+        - Daten vorverarbeiten (Datumsformat, Zahlenkonvertierung)
+        - WKN aus dem Dateinamen extrahieren
+      Anschließend werden alle Daten zusammengeführt und in self.data gespeichert.
+
+
+
+   .. py:method:: _handle_ad_banner() -> bool
+
+      Schließt das Werbe-iFrame auf ariva.de, falls es sichtbar ist.
+
+      Durchsucht alle iFrames nach dem 'Akzeptieren und weiter'-Button
+      und klickt ihn. Schaltet dabei automatisch den Frame-Kontext um.
+
+      :returns: True, wenn ein Banner gefunden und geschlossen wurde, sonst False.
+      :rtype: bool
+
+
+

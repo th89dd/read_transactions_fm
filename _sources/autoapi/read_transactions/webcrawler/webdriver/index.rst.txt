@@ -1,0 +1,68 @@
+read_transactions.webcrawler.webdriver
+======================================
+
+.. py:module:: read_transactions.webcrawler.webdriver
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 1.0
+   :date: 21.10.2025
+   :organisation: TU Dresden, FZM
+
+   WebDriverFactory
+   ----------------
+   Kapselt die Erstellung und Konfiguration von Selenium WebDriver-Instanzen.
+
+   Unterstützte Browser:
+   - Edge
+   - Chrome
+   - Firefox
+
+   Verwendung:
+       from read_transactions.webcrawler.webdriver import WebDriverFactory
+
+       driver = WebDriverFactory.create(
+           browser="chrome",
+           headless=True,
+           download_dir="/tmp",
+           user_agent="MyCustomAgent/1.0"
+       )
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.webdriver.WebDriverFactory
+
+
+Module Contents
+---------------
+
+.. py:class:: WebDriverFactory
+
+   Erzeugt und konfiguriert Selenium WebDriver-Instanzen.
+
+
+   .. py:method:: create(browser: str = 'edge', headless: bool = False, download_dir: str = os.getcwd(), user_agent: str | None = None, extra_args: list[str] | None = None) -> selenium.webdriver.Remote
+      :staticmethod:
+
+
+      Erzeugt eine WebDriver-Instanz für den gewünschten Browser.
+
+      :param browser: Name des Browsers ("edge", "chrome", "firefox").
+      :param headless: Aktiviert Headless-Modus (falls unterstützt).
+      :param download_dir: Zielverzeichnis für Downloads.
+      :param user_agent: Optionaler User-Agent-String.
+      :param extra_args: Liste zusätzlicher Argumente für den Browser.
+
+      :returns: Eine konfigurierte Selenium-WebDriver-Instanz.
+      :rtype: webdriver.Remote
+
+      :raises ValueError: Wenn ein nicht unterstützter Browsername übergeben wird.
+
+
+

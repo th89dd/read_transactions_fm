@@ -1,0 +1,27 @@
+read_transactions
+=================
+
+.. py:module:: read_transactions
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 1.0
+   :date: 06.10.2024
+   :organisation: TU Dresden, FZM
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/read_transactions/__main__/index
+   /autoapi/read_transactions/cli/index
+   /autoapi/read_transactions/config/index
+   /autoapi/read_transactions/logger/index
+   /autoapi/read_transactions/webcrawler/index
+
+

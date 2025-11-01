@@ -1,0 +1,218 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="de" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sphinx-Dokumentation &mdash; read_transactions</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=245627df"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/translations.js?v=9bf55d28"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Stichwortverzeichnis" href="genindex.html" />
+    <link rel="search" title="Suche" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            read_transactions
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Dokumentation durchsuchen" aria-label="Dokumentation durchsuchen" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Inhalt</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">read_transactions</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Sphinx-Dokumentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Readme.md.txt" rel="nofollow"> Quelltext anzeigen</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><img alt="version" src="https://img.shields.io/badge/version-0.1-blue.svg" />
+<img alt="date" src="https://img.shields.io/badge/date-01.11.2025-green.svg" />
+<img alt="status" src="https://img.shields.io/badge/status-development-yellow.svg" />
+<img alt="license" src="https://img.shields.io/badge/license-MIT-lightgrey.svg" /></p>
+<section id="sphinx-dokumentation">
+<h1>Sphinx-Dokumentation<a class="headerlink" href="#sphinx-dokumentation" title="Link to this heading"></a></h1>
+<p>Erklärung der bereitgestellten Sphinx-Dokumentation für das Projekt <code class="docutils literal notranslate"><span class="pre">read_transactions_fm</span></code>.</p>
+<hr class="docutils" />
+<section id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading"></a></h2>
+</section>
+<section id="entwicklung">
+<h2>Entwicklung<a class="headerlink" href="#entwicklung" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p><strong>Annahmen</strong></p>
+<ul class="simple">
+<li><p>Paketpfad: <code class="docutils literal notranslate"><span class="pre">src/read_transactions</span></code></p></li>
+<li><p>CLI-Modul: <code class="docutils literal notranslate"><span class="pre">read_transactions/cli.py</span></code></p></li>
+<li><p>Es existiert eine Funktion <code class="docutils literal notranslate"><span class="pre">build_parser()</span></code> in <code class="docutils literal notranslate"><span class="pre">cli.py</span></code>, die einen <code class="docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code> zurückgibt.</p></li>
+</ul>
+</div></blockquote>
+<hr class="docutils" />
+<section id="verzeichnisstruktur">
+<h3>Verzeichnisstruktur<a class="headerlink" href="#verzeichnisstruktur" title="Link to this heading"></a></h3>
+<p>Konfigurationsdateien</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">read_transactions_fm</span><span class="o">/</span>
+  <span class="n">docs</span><span class="o">/</span>
+    <span class="n">conf</span><span class="o">.</span><span class="n">py</span>             <span class="c1"># -&gt; allgemeine Konfiguration </span>
+    <span class="n">index</span><span class="o">.</span><span class="n">md</span>            <span class="c1"># -&gt; Haupteinstieg für die Doku</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">md</span>              <span class="c1"># -&gt; CLI aus parser</span>
+  <span class="o">.</span><span class="n">github</span><span class="o">/</span>
+    <span class="n">workflows</span><span class="o">/</span>
+      <span class="n">sphinx</span><span class="o">.</span><span class="n">yml</span>        <span class="c1"># -&gt; Konfiguration zur autom. Erzeugung bei Github</span>
+</pre></div>
+</div>
+<p>Zur Installation der erforderlichen Pakete (optional für Lokale Dooku):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">requirements</span><span class="o">-</span><span class="n">docs</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h3>
+<p>read_transactions lokal installieren, inkl. neues venv</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">  </span><span class="c1"># Windows: .venv\\Scripts\\activate</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="doku-lokal-bauen">
+<h3>Doku lokal bauen<a class="headerlink" href="#doku-lokal-bauen" title="Link to this heading"></a></h3>
+<p>requirements aus txt installoeren</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements-docs.txt
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span>-b<span class="w"> </span>html<span class="w"> </span>docs<span class="w"> </span>docs/_build/html
+</pre></div>
+</div>
+<p>Vorschau: öffne docs/_build/html/index.html</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="github-einrichten">
+<h2>GitHub einrichten<a class="headerlink" href="#github-einrichten" title="Link to this heading"></a></h2>
+<p>Aktion unter:<br />
+<code class="docutils literal notranslate"><span class="pre">/.github/workflows/sphinx.yml</span></code></p>
+<section id="github-pages-aktivieren">
+<h3>GitHub Pages aktivieren<a class="headerlink" href="#github-pages-aktivieren" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Repo → <strong>Settings</strong> → <strong>Pages</strong></p></li>
+<li><p><strong>Source</strong>: <em>Deploy from a branch</em></p></li>
+<li><p><strong>Branch</strong>: <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> (root) → <strong>Save</strong></p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="tipps-troubleshooting">
+<h2>7) Tipps &amp; Troubleshooting<a class="headerlink" href="#tipps-troubleshooting" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Importfehler bei AutoAPI</strong>: Stelle sicher, dass <code class="docutils literal notranslate"><span class="pre">sys.path.append(os.path.abspath(&quot;../src&quot;))</span></code> in <code class="docutils literal notranslate"><span class="pre">conf.py</span></code> gesetzt ist und dein Paket unter <code class="docutils literal notranslate"><span class="pre">src/read_transactions</span></code> liegt.</p></li>
+<li><p><strong>CLI-Seite leer</strong>: Prüfe, ob <code class="docutils literal notranslate"><span class="pre">build_parser()</span></code> existiert und ohne Seiteneffekte importierbar ist. Externe Logik nicht im Import ausführen (nur in <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>).</p></li>
+<li><p><strong>Mehrsprachigkeit/Theme</strong>: Du kannst jederzeit ein anderes Theme nutzen, z. B. <code class="docutils literal notranslate"><span class="pre">furo</span></code>. Für PDF-Ausgabe LaTeX-Toolchain installieren und <code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">latex</span></code> bauen.</p></li>
+<li><p><strong>Automatischere API-Navigation</strong>: <code class="docutils literal notranslate"><span class="pre">autoapi_keep_files</span> <span class="pre">=</span> <span class="pre">True</span></code> hilft beim Debuggen der generierten Seitenstruktur unter <code class="docutils literal notranslate"><span class="pre">docs/_autoapi/</span></code>.</p></li>
+</ul>
+<p>Fertig! Sobald du die Dateien committest und pushst, baut die Action die HTML-Doku und veröffentlicht sie auf <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code>. Öffne danach deine Projekt-URL <code class="docutils literal notranslate"><span class="pre">https://&lt;dein-username&gt;.github.io/&lt;repo&gt;/</span></code>.</p>
+</section>
+<hr class="docutils" />
+<section id="versionshistorie">
+<h2>Versionshistorie<a class="headerlink" href="#versionshistorie" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Datum / Version</p></th>
+<th class="head"><p>Autor</p></th>
+<th class="head"><p>Bemerkung</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>01.11.2025 / v0.1</p></td>
+<td><p>Tim Häberlein</p></td>
+<td><p>Grundlegende Erstellung</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Häberlein.</p>
+  </div>
+
+  Erstellt mit <a href="https://www.sphinx-doc.org/">Sphinx</a> mit einem
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    bereitgestellt von <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

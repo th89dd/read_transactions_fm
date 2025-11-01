@@ -1,0 +1,470 @@
+read_transactions.webcrawler.base
+=================================
+
+.. py:module:: read_transactions.webcrawler.base
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 2.2
+   :date: 21.10.2025
+   :organisation: TU Dresden, FZM
+
+   WebCrawler
+   -----------
+   Zentrale Basisklasse für alle Crawler im Projekt `read_transactions_fm`.
+   - Einheitliches Logging über MainLogger
+   - Nutzung einer externen WebDriverFactory
+   - Robuste Typprüfung & flexible Datumsübergabe
+   - Standardmethoden für Login, Download, Verarbeitung und Speicherung
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.base.WebCrawler
+
+
+Module Contents
+---------------
+
+.. py:class:: WebCrawler(name: str = 'WebCrawler', output_path: str = 'out', start_date: Union[str, pandas.Timestamp, datetime.date, None] = pd.to_datetime('today'), end_date: Union[str, pandas.Timestamp, datetime.date, None] = pd.to_datetime('today') - pd.DateOffset(months=6), details: bool = True, logging_level: str = 'INFO', logfile: Optional[str | None] = None, *, browser: str = 'edge', headless: bool = False, user_agent: Optional[str] = None)
+
+   Abstrakte Basisklasse für alle Crawler im Paket `read_transactions`.
+
+   Diese Klasse kapselt den gesamten gemeinsamen Funktionsumfang:
+   - zentrale Logging-Initialisierung über `MainLogger`
+   - automatisches Laden von Konfiguration und Zugangsdaten aus `config.yaml`
+   - standardisierte Selenium-WebDriver-Erzeugung über `WebDriverFactory`
+   - konsistente Handhabung von Downloads, Datenverarbeitung und Speicherung
+
+   Subklassen (z. B. `ArivaCrawler`, `AmazonCrawler`) müssen mindestens
+   die Methoden `login()` und `download_data()` überschreiben.
+
+   Typischer Ablauf:
+       ```python
+       with MyCrawler(start_date="01.01.2024", end_date="31.03.2024") as crawler:
+           crawler.login()
+           crawler.download_data()
+           crawler.process_data()
+           crawler.save_data()
+       ```
+
+   Parameter
+   ----------
+   name : str, optional
+       Logisch eindeutiger Name der Crawler-Instanz (z. B. ``"ariva"``).
+   output_path : str, optional
+       Verzeichnis, in dem Ausgabedateien gespeichert werden (Standard: ``out``).
+   start_date : str | pandas.Timestamp | datetime.date, optional
+       Startdatum für den Datenabruf.
+   end_date : str | pandas.Timestamp | datetime.date, optional
+       Enddatum für den Datenabruf.
+   details : bool, optional
+       Ob zusätzliche Details extrahiert werden sollen?
+       Uum beispiel bei trade_republic zusätzliche Order-Details oder bei amazon_visa vgl. mit amazon käufen.
+       (Standard: ``True``).
+   logging_level : str, optional
+       Log-Level der Instanz (z. B. "DEBUG", "INFO", "WARNING").
+       Standard: ``INFO``.
+   global_log_level : str, optional
+       Globales Log-Level für das gesamte Paket (Standard: ``INFO``).
+   logfile : str, optional
+       Pfad zu einer zentralen Logdatei (Standard: ``logs/read_transactions.log``).
+   browser : str, optional
+       Verwendeter Browser-Treiber (``edge``, ``chrome`` oder ``firefox``).
+       Standard: ``edge``.
+   headless : bool, optional
+       Aktiviert Headless-Modus (sofern vom Browser unterstützt).
+       Standard: ``False``.
+   user_agent : str, optional
+       Optionaler benutzerdefinierter User-Agent.
+
+   Attribute
+   ----------
+   driver : selenium.webdriver.Remote
+       Aktiver Selenium-WebDriver.
+   data : pandas.DataFrame | dict[str, pandas.DataFrame]
+       Heruntergeladene bzw. verarbeitete Daten.
+   _credentials : dict
+       Login-Daten des Crawlers (aus `config.yaml`).
+   _urls : dict
+       URL-Mappings des Crawlers (aus `config.yaml`).
+   _logger : logging.Logger
+       Instanzspezifischer Logger.
+   _download_directory : str
+       Temporäres Verzeichnis für heruntergeladene Dateien.
+
+
+   .. py:attribute:: __name
+      :value: 'WebCrawler'
+
+
+
+   .. py:attribute:: __output_path
+      :value: 'out'
+
+
+
+   .. py:attribute:: _logging_lvl
+      :value: 'INFO'
+
+
+
+   .. py:attribute:: __logger
+
+
+   .. py:property:: start_date
+      :type: pandas.Timestamp
+
+
+      Startdatum (immer als pandas.Timestamp gespeichert).
+
+
+   .. py:property:: end_date
+      :type: pandas.Timestamp
+
+
+      Enddatum (immer als pandas.Timestamp gespeichert).
+
+
+   .. py:property:: with_details
+      :type: bool
+
+
+      Gibt zurück, ob zusätzliche Details extrahiert werden:
+
+      - Bei Trade Republic z. B. zusätzliche Order-Details
+      - Bei Amazon Visa z. B. Verknüpfung mit Amazon-Käufen
+
+
+   .. py:attribute:: _state
+      :value: 'initialized'
+
+
+
+   .. py:attribute:: _download_directory
+
+
+   .. py:attribute:: _initial_file_count
+      :value: 0
+
+
+
+   .. py:attribute:: __credentials
+      :type:  Dict[str, str]
+
+
+   .. py:attribute:: __urls
+      :type:  Dict[str, str]
+
+
+   .. py:attribute:: __data
+      :type:  pandas.DataFrame | Dict[str, pandas.DataFrame]
+
+
+   .. py:attribute:: __account_balance
+      :value: 0.0
+
+
+
+   .. py:attribute:: driver
+
+
+   .. py:property:: name
+      :type: str
+
+
+      Name der Crawler-Instanz.
+
+
+   .. py:property:: data
+      :type: Union[pandas.DataFrame, Dict[str, pandas.DataFrame]]
+
+
+      Heruntergeladene und ggf. verarbeitete Daten.
+
+
+   .. py:property:: _credentials
+      :type: Dict[str, str]
+
+
+      Login-Daten für den Crawler. Beinhaltet z. B. Benutzername und Passwort.
+      - user: str, Benutzername
+      - password: str, Passwort
+
+
+   .. py:property:: _urls
+      :type: Dict[str, str]
+
+
+      URLs für den Crawler. Beinhaltet z. B. Login- und Download-Links.
+      - login: str, Login-URL
+      - transactions: str, Transaktions-URL
+      - kurse: Dict[str, str]: Kurs-URLs
+
+
+   .. py:property:: _logger
+      :type: logging.Logger
+
+
+      Interner Logger (für Subklassen).
+
+
+   .. py:property:: account_balance
+      :type: str
+
+
+      Gibt den aktuellen Kontostand zurück.
+
+
+   .. py:method:: login() -> None
+
+      Wird von Subklassen überschrieben – führt Login auf der Webseite aus.
+
+
+
+   .. py:method:: download_data() -> None
+
+      Wird von Subklassen überschrieben – startet Download-Vorgang.
+
+
+
+   .. py:method:: process_data(sep: str = ';') -> None
+
+      Optional von Subklassen überschreiben – verarbeitet geladene Daten.
+
+
+
+   .. py:method:: save_data() -> None
+
+      Speichert geladene Daten als CSV.
+
+
+
+   .. py:method:: close() -> None
+
+      Schließt WebDriver und löscht temporäre Ordner.
+
+
+
+   .. py:method:: _load_config() -> None
+
+      Lädt Crawler-spezifische Konfiguration aus der zentralen config.yaml.
+
+      Diese Methode liest:
+        - Zugangsdaten (user, password, token, ...)
+        - URLs (für den jeweiligen Crawler)
+
+      :raises FileNotFoundError: Wenn keine gültige config.yaml gefunden wurde.
+      :raises KeyError: Wenn keine passenden Einträge für diesen Crawler vorhanden sind.
+
+
+
+   .. py:method:: __enter__() -> WebCrawler
+
+      Context-Manager-Einstiegspunkt.
+
+      Wird automatisch aufgerufen, wenn der Crawler in einem
+      `with`-Block verwendet wird. Gibt die aktuelle Instanz zurück,
+      sodass alle Methoden wie gewohnt verfügbar sind.
+
+      Beispiel:
+          >>> with WebCrawler(browser="edge", headless=True) as crawler:
+          ...     crawler.login()
+          ...     crawler.download_data()
+          ...     crawler.process_data()
+          ...     crawler.save_data()
+          # Nach Ende des Blocks wird automatisch close() ausgeführt.
+
+
+
+   .. py:method:: __exit__(exc_type, exc_value, traceback) -> bool
+
+      Context-Manager-Ausstiegspunkt.
+
+      Wird automatisch aufgerufen, wenn der `with`-Block endet,
+      unabhängig davon, ob ein Fehler aufgetreten ist.
+      Führt `close()` aus, um den WebDriver zu schließen und temporäre
+      Dateien zu löschen.
+
+      :param exc_type: Typ der Exception (falls eine aufgetreten ist)
+      :param exc_value: Exception-Instanz
+      :param traceback: Traceback-Objekt der Exception
+
+      :returns: False, damit Exceptions im `with`-Block *nicht*
+                unterdrückt werden. (Python wirft sie weiter.)
+      :rtype: bool
+
+
+
+   .. py:method:: wait_for_element(by: str, selector: str, timeout: int = 15)
+
+      Wartet auf das Vorhandensein eines Elements und gibt es zurück.
+
+      :param by: Selenium-By-Strategie, z. B. "css selector"/By.CSS_SELECTOR.
+      :param selector: Selektor-String.
+      :param timeout: Max. Wartezeit in Sekunden.
+
+      by_map = {
+          - "id": _By.ID,
+          - "name": _By.NAME,
+          - "css": _By.CSS_SELECTOR,
+          - "css selector": _By.CSS_SELECTOR,
+          - "xpath": _By.XPATH,
+          - "link text": _By.LINK_TEXT,
+          - "partial link text": _By.PARTIAL_LINK_TEXT,
+          - "tag": _By.TAG_NAME,
+          - "class": _By.CLASS_NAME,
+      }
+
+      :returns: Gefundenes Element.
+      :rtype: WebElement
+
+      :raises TimeoutException: Wenn das Element nicht rechtzeitig erscheint.
+
+
+
+   .. py:method:: wait_clickable_and_click(by: str, selector: str, timeout: int = 15) -> None
+
+      Wartet, bis ein Element klickbar ist, und klickt es dann an.
+      by_map = {
+          "id": _By.ID,
+          "name": _By.NAME,
+          "css": _By.CSS_SELECTOR,
+          "css selector": _By.CSS_SELECTOR,
+          "xpath": _By.XPATH,
+          "link text": _By.LINK_TEXT,
+          "partial link text": _By.PARTIAL_LINK_TEXT,
+          "tag": _By.TAG_NAME,
+          "class": _By.CLASS_NAME,
+          }
+
+      :param by: by je nach by_map
+      :type by: str
+      :param selector: selector
+      :type selector: str
+      :param timeout: Timeout in sekunden
+      :type timeout: int
+
+
+
+   .. py:method:: scroll_into_view(element) -> None
+
+      Scrollt ein Element ins Viewport.
+
+
+
+   .. py:method:: click_js(element) -> None
+
+      Klickt ein Element via JavaScript (Fallback bei Overlay o.Ä.).
+
+
+
+   .. py:method:: accept_cookies_if_present(selectors: tuple[str, Ellipsis] = ('button#onetrust-accept-btn-handler', "button[aria-label='Akzeptieren']", 'button.cookie-accept'), timeout_each: int = 3) -> bool
+
+      Versucht gängige Cookie-Banner wegzuklicken.
+
+      :param selectors: Liste möglicher CSS-Selektoren für Zustimmungs-Buttons.
+      :param timeout_each: Zeitfenster pro Selektor.
+
+      :returns: True, wenn ein Banner geschlossen wurde.
+      :rtype: bool
+
+
+
+   .. py:method:: _wait_for_new_file(timeout: float = 30, check_interval: float = 0.5, include_temp: bool = True) -> Optional[str]
+
+      Wartet auf eine neue Datei im Download-Ordner und gibt deren Dateinamen zurück.
+
+      :param timeout: Maximale Wartezeit in Sekunden.
+      :param check_interval: Prüfintervall in Sekunden.
+      :param include_temp: Ob temporäre Dateien (.crdownload/.tmp) berücksichtigt werden.
+
+      :returns: Der Dateiname der neu erkannten Datei oder None bei Timeout.
+
+
+
+   .. py:method:: _read_temp_files(sep: str = ';', max_retries: int = 10, retry_wait: float = 1.0, check_interval: float = 0.1, download_timeout: float = 10.0) -> bool
+
+      Liest Dateien aus dem Download-Ordner in `self.data`.
+
+      Unterstützt CSV, XLS, XLSX. Wartet optional, bis temporäre
+      Download-Dateien (.crdownload/.tmp) verschwunden sind.
+
+      :returns: True bei Erfolg, sonst False.
+
+
+
+   .. py:method:: _retry_func(func, max_retries: int = 3, wait_seconds: float = 1.0, args: Optional[tuple] = None, kwargs: Optional[dict] = None) -> bool
+
+      Versucht die Funktion mehrfach bei Fehlschlag.
+
+      :param func: Funktion, die ausgeführt werden soll.
+      :param max_retries: Maximale Anzahl an Versuchen.
+      :param wait_seconds: Wartezeit zwischen den Versuchen.
+
+      :returns: True bei erfolgreicher Ausfürhung, sonst False.
+      :rtype: bool
+
+
+
+   .. py:method:: _wait_for_manual_exit(msg: str = None)
+
+      Wartet auf manuelles Schließen des Browsers durch den Nutzer.
+
+      :param msg: Nachricht, die angezeigt werden soll. (Optional)
+      :return: -
+
+
+
+   .. py:method:: _wait_for_condition(condition_func, timeout: float = 30.0, check_interval: float = 0.5) -> bool
+
+      Wartet, bis eine Bedingungsfunktion True zurückgibt.
+
+      :param condition_func: Funktion, die eine boolesche Bedingung prüft.
+      :param timeout: Maximale Wartezeit in Sekunden.
+      :param check_interval: Prüfintervall in Sekunden.
+
+      :returns: True, wenn die Bedingung erfüllt wurde, sonst False.
+      :rtype: bool
+
+
+
+   .. py:method:: _delete_header(df: pandas.DataFrame, header_key: str = 'datum') -> pandas.DataFrame
+
+      Löscht die Header-Zeile bis zum header_key aus einem DataFrame und setzt die Spaltennamen.
+
+      :param df: Eingabe-DataFrame.
+      :param header_key: Key der Spalte, die im Header enthalten sein muss. (Standard: 'datum')
+      :return: DataFrame ohne Header-Zeile.
+
+
+
+   .. py:method:: _normalize_dataframe(df: pandas.DataFrame, remove_nan: bool = False, date_as_str: bool = False) -> pandas.DataFrame
+
+      Normalisiert die Transaktionsdaten eines DataFrames.
+      - Datumsspalten in einheitliches Format bringen
+      - Betragsspalten bereinigen
+      - Spaltennamen vereinheitlichen
+
+      :param df: Eingabe-DataFrame.
+      :param remove_nan: Ob Zeilen mit NaN-Werten entfernt werden sollen. (Standard: False)
+      :return: DataFrame mit normalisierten Daten.
+
+
+
+   .. py:method:: _normalize_amount(value: Any) -> Any
+
+      Bereinigt Währungs-Strings und konvertiert sie in float.
+      Unterstützt pandas Series, DataFrames und einzelne Strings.
+
+      :param value: Eingabewert (Series, DataFrame oder String).
+      :return: Bereinigter Wert als float, Series oder DataFrame.
+
+
+
+

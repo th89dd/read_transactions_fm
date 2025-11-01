@@ -1,0 +1,163 @@
+read_transactions.webcrawler.amex
+=================================
+
+.. py:module:: read_transactions.webcrawler.amex
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 2.0
+   :date: 22.10.2025
+   :organisation: TU Dresden, FZM
+
+   AmexCrawler
+   -----------
+   Crawler für American Express – lädt Transaktionen (CSV) im gewählten Zeitraum herunter
+   und führt sie in ein einheitliches Format über.
+
+   Der Crawler orientiert sich an der Architektur der `ArivaCrawler`- und `AmazonVisaCrawler`-Klassen.
+   Er nutzt Selenium zur Browsersteuerung, greift auf Anmeldedaten aus der zentralen `config.yaml` zu
+   und setzt auf die generische Basisklasse `WebCrawler`, die Standardfunktionen wie Logging,
+   Fehlerbehandlung, Warte- und Retry-Mechanismen, Datendownload und Dateiverarbeitung bereitstellt.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.amex.crawler
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.amex.AmexCrawler
+
+
+Module Contents
+---------------
+
+.. py:class:: AmexCrawler(*args, **kwargs)
+
+   Bases: :py:obj:`read_transactions.webcrawler.base.WebCrawler`
+
+
+   American Express TransaktionsCrawler
+
+   Diese Klasse automatisiert den Login, Download und die Aufbereitung von
+   Transaktionsdaten der American Express Webseite (https://www.americanexpress.com).
+
+   Sie erbt von der generischen Basisklasse `WebCrawler`, welche die Standardmechanismen
+   für Selenium-gestützte Webautomatisierung kapselt.
+
+   Hauptfunktionen:
+       - **Login:**
+           Führt den vollständigen Loginprozess aus (Cookies → Benutzername/Passwort → OTP-Verifikation).
+           Erkennt Zwei-Faktor-Authentifizierungen automatisch und fordert ggf. einen Bestätigungscode an.
+
+       - **Download:**
+           Öffnet die Transaktionsübersicht, setzt den gewünschten Datumsbereich,
+           lädt alle sichtbaren Datensätze (über „Mehr anzeigen“) und startet den CSV-Export.
+
+       - **Processing:**
+           Vereinheitlicht und bereinigt heruntergeladene CSV-Dateien:
+           - Zusammenführen mehrerer Dateien zu einem DataFrame.
+           - Konvertiert Datum „dd/mm/yyyy“ → „dd.mm.yyyy“.
+           - Ersetzt Komma in Beträgen (z. B. „1,23“ → „1.23“).
+           - Vereinheitlicht Spaltennamen zu `Datum`, `Betrag`, `Beschreibung`.
+
+       - **OTP/2FA:**
+           Bietet interaktive Eingabe des 4-stelligen Sicherheitscodes, mit Optionen
+           zum erneuten Anfordern oder Wiederholen bei Falscheingabe.
+
+   Erwartete Konfigurationseinträge in `config.yaml`:
+       ```yaml
+       credentials:
+         amex:
+           user: <AMEX Benutzername>
+           password: <AMEX Passwort>
+
+       urls:
+         amex:
+           login: https://www.americanexpress.com/de-de/account/login
+           transactions: https://global.americanexpress.com/activity/search
+           transactions_recent: https://global.americanexpress.com/activity/recent
+       ```
+
+   Rückgabewerte und Attribute:
+       - **self.data:** Enthält den verarbeiteten pandas.DataFrame nach `process_data()`.
+       - **self._credentials:** Enthält die aus der config geladenen Zugangsdaten.
+       - **self._urls:** Beinhaltet alle relevanten Ziel-URLs.
+
+   Abhängigkeiten:
+       - Selenium (WebDriver, By, Keys)
+       - pandas
+       - yaml (über Konfigurationslade-Mechanismus)
+       - logging (über `logger.py`)
+
+   Beispiel:
+       ```python
+       from read_transactions.webcrawler.amex import AmexCrawler
+
+       with AmexCrawler(logging_level="DEBUG") as crawler:
+           crawler.login()
+           crawler.download_data()
+           crawler.process_data()
+           crawler.save_data()
+       ```
+
+
+   .. py:attribute:: _verified
+      :type:  bool
+      :value: False
+
+
+
+   .. py:method:: login() -> None
+
+      Führt den Login bei American Express aus (User + Passwort + ggf. OTP).
+
+
+
+   .. py:method:: download_data() -> None
+
+      Öffnet die Transaktionsseite, setzt den Datumsbereich und startet den CSV-Download.
+
+
+
+   .. py:method:: process_data() -> None
+
+      Führt die geladenen CSV-Dateien zusammen und harmonisiert die Spalten.
+
+
+
+   .. py:method:: _enter_username_password() -> None
+
+
+   .. py:method:: _handle_cookie_banner() -> None
+
+
+   .. py:method:: _wait_for_account_balance() -> None
+
+
+   .. py:method:: _fill_dates_and_search() -> None
+
+      Befüllt die AMEX-Datumsfelder (Start/End date) kompakt mit Tag, Monat, Jahr.
+
+
+
+   .. py:method:: _load_all_transactions() -> None
+
+
+   .. py:method:: _select_all_and_download() -> None
+
+
+   .. py:method:: _verify_identity() -> None
+
+
+.. py:data:: crawler
+

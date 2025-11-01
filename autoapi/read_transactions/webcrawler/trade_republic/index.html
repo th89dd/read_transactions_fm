@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="de" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>read_transactions.webcrawler.trade_republic &mdash; read_transactions</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=245627df"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/translations.js?v=9bf55d28"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Stichwortverzeichnis" href="../../../../genindex.html" />
+    <link rel="search" title="Suche" href="../../../../search.html" />
+    <link rel="next" title="read_transactions.webcrawler.webdriver" href="../webdriver/index.html" />
+    <link rel="prev" title="read_transactions.webcrawler.base" href="../base/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            read_transactions
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Dokumentation durchsuchen" aria-label="Dokumentation durchsuchen" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Inhalt</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">read_transactions</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">read_transactions</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">read_transactions</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">read_transactions.webcrawler</a></li>
+      <li class="breadcrumb-item active">read_transactions.webcrawler.trade_republic</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/read_transactions/webcrawler/trade_republic/index.rst.txt" rel="nofollow"> Quelltext anzeigen</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-read_transactions.webcrawler.trade_republic">
+<span id="read-transactions-webcrawler-trade-republic"></span><h1>read_transactions.webcrawler.trade_republic<a class="headerlink" href="#module-read_transactions.webcrawler.trade_republic" title="Link to this heading"></a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tim Häberlein</p>
+</dd>
+<dt class="field-even">version<span class="colon">:</span></dt>
+<dd class="field-even"><p>2.0</p>
+</dd>
+<dt class="field-odd">date<span class="colon">:</span></dt>
+<dd class="field-odd"><p>25.10.2025</p>
+</dd>
+<dt class="field-even">organisation<span class="colon">:</span></dt>
+<dd class="field-even"><p>TU Dresden, FZM</p>
+</dd>
+</dl>
+<section id="traderepubliccrawler">
+<h2>TradeRepublicCrawler<a class="headerlink" href="#traderepubliccrawler" title="Link to this heading"></a></h2>
+<p>Crawler für TradeRepublic – lädt Transaktionen im gewählten Zeitraum herunter
+und führt sie in ein einheitliches Format über.</p>
+<p>Der Crawler orientiert sich an der Architektur der <cite>ArivaCrawler</cite>- und <cite>AmazonVisaCrawler</cite>-Klassen.
+Er nutzt Selenium zur Browsersteuerung, greift auf Anmeldedaten aus der zentralen <cite>config.yaml</cite> zu
+und setzt auf die generische Basisklasse <cite>WebCrawler</cite>, die Standardfunktionen wie Logging,
+Fehlerbehandlung, Warte- und Retry-Mechanismen, Datendownload und Dateiverarbeitung bereitstellt.</p>
+</section>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#read_transactions.webcrawler.trade_republic.output_path" title="read_transactions.webcrawler.trade_republic.output_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_path</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler" title="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TradeRepublicCrawler</span></code></a></p></td>
+<td><p>TradeRepublicCrawler</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">read_transactions.webcrawler.trade_republic.</span></span><span class="sig-name descname"><span class="pre">TradeRepublicCrawler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../base/index.html#read_transactions.webcrawler.base.WebCrawler" title="read_transactions.webcrawler.base.WebCrawler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_transactions.webcrawler.base.WebCrawler</span></code></a></p>
+<section id="id1">
+<h3>TradeRepublicCrawler<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>Crawler für Transaktionsdaten von <strong>Trade Republic</strong>.</p>
+<p>Der Crawler automatisiert den Login im Webinterface von
+[<a class="reference external" href="https://app.traderepublic.com](https://app.traderepublic.com">https://app.traderepublic.com](https://app.traderepublic.com</a>),
+lädt alle Transaktionen im gewählten Zeitraum, verarbeitet
+die Daten zu einem strukturierten pandas-DataFrame und
+speichert sie optional als CSV.</p>
+<dl>
+<dt>Ablauf:</dt><dd><ol class="arabic simple">
+<li><p>Login mit Telefonnummer und PIN.</p></li>
+<li><p>Zwei-Faktor-Authentifizierung (SMS- oder App-Code).</p></li>
+<li><p>Scrollen und Laden aller Transaktionen.</p></li>
+<li><p>Extraktion und Verarbeitung der Transaktionsdaten.</p></li>
+<li><p>Optionale Speicherung der Daten im Ausgabeverzeichnis.</p></li>
+</ol>
+</dd>
+<dt>Voraussetzung:</dt><dd><ul>
+<li><dl>
+<dt>Gültige Zugangsdaten in <cite>config.yaml</cite> unter:</dt><dd><p><a href="#id2"><span class="problematic" id="id3">``</span></a><a href="#id4"><span class="problematic" id="id5">`</span></a>yaml
+credentials:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>trade_republic:</dt><dd><p># ohne +49 Ländervorwahl
+user: 1701234567
+password: 1234</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>urls:</dt><dd><dl class="simple">
+<dt>traderepublic:</dt><dd><p>login: <a class="reference external" href="https://app.traderepublic.com/login">https://app.traderepublic.com/login</a>
+transactions: <a class="reference external" href="https://app.traderepublic.com/profile/transactions">https://app.traderepublic.com/profile/transactions</a></p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p><a href="#id6"><span class="problematic" id="id7">``</span></a><a href="#id8"><span class="problematic" id="id9">`</span></a></p>
+</dd>
+</dl>
+</li>
+<li><p>Installierter Selenium-WebDriver (Edge, Chrome oder Firefox)</p></li>
+<li><p>Python ≥ 3.10</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="parameter">
+<h3>Parameter<a class="headerlink" href="#parameter" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>details<span class="classifier">bool, optional</span></dt><dd><p>Falls <cite>True</cite>, werden bei Kauf-/Verkaufsorders zusätzliche
+Details (Stückzahl, Stückpreis, Gebühren, etc.) extrahiert.
+Standard: <cite>True</cite>.</p>
+</dd>
+<dt>output_path<span class="classifier">str, optional</span></dt><dd><p>Zielverzeichnis, in dem heruntergeladene oder verarbeitete
+Dateien gespeichert werden. Standard: <code class="docutils literal notranslate"><span class="pre">out</span></code>.</p>
+</dd>
+<dt>start_date<span class="classifier">str | pandas.Timestamp | datetime.date, optional</span></dt><dd><p>Startdatum für den Transaktionsabruf. Format: <code class="docutils literal notranslate"><span class="pre">&quot;dd.mm.yyyy&quot;</span></code>.
+Standard: heutiges Datum.</p>
+</dd>
+<dt>end_date<span class="classifier">str | pandas.Timestamp | datetime.date, optional</span></dt><dd><p>Enddatum für den Transaktionsabruf. Format: <code class="docutils literal notranslate"><span class="pre">&quot;dd.mm.yyyy&quot;</span></code>.
+Standard: sechs Monate vor <cite>start_date</cite>.</p>
+</dd>
+<dt>logging_level<span class="classifier">str, optional</span></dt><dd><p>Log-Level der Crawler-Instanz (z. B. <code class="docutils literal notranslate"><span class="pre">&quot;DEBUG&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;INFO&quot;</span></code>).
+Standard: <code class="docutils literal notranslate"><span class="pre">&quot;INFO&quot;</span></code>.</p>
+</dd>
+<dt>global_log_level<span class="classifier">str, optional</span></dt><dd><p>Globales Log-Level für das gesamte Paket.
+Standard: <code class="docutils literal notranslate"><span class="pre">&quot;INFO&quot;</span></code>.</p>
+</dd>
+<dt>logfile<span class="classifier">str, optional</span></dt><dd><p>Pfad zu einer Logdatei. Wenn <cite>None</cite>, wird nur in die Konsole geloggt.</p>
+</dd>
+<dt>browser<span class="classifier">str, optional</span></dt><dd><p>Zu verwendender WebDriver (<code class="docutils literal notranslate"><span class="pre">&quot;edge&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;chrome&quot;</span></code> oder <code class="docutils literal notranslate"><span class="pre">&quot;firefox&quot;</span></code>).
+Standard: <code class="docutils literal notranslate"><span class="pre">&quot;edge&quot;</span></code>.</p>
+</dd>
+<dt>headless<span class="classifier">bool, optional</span></dt><dd><p>Falls <cite>True</cite>, wird der Browser im Hintergrundmodus gestartet.
+Standard: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt>user_agent<span class="classifier">str, optional</span></dt><dd><p>Optionaler benutzerdefinierter User-Agent für den WebDriver.</p>
+</dd>
+</dl>
+</section>
+<section id="attribute">
+<h3>Attribute<a class="headerlink" href="#attribute" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>data<span class="classifier">pandas.DataFrame</span></dt><dd><p>Enthält die verarbeiteten Transaktionsdaten nach <cite>process_data()</cite>.</p>
+</dd>
+<dt>_credentials<span class="classifier">dict</span></dt><dd><p>Zugriff auf die aus der Konfiguration geladenen Zugangsdaten.</p>
+</dd>
+<dt>_urls<span class="classifier">dict</span></dt><dd><p>Zugriff auf die aus der Konfiguration geladenen URLs.</p>
+</dd>
+<dt>_logger<span class="classifier">logging.Logger</span></dt><dd><p>Instanzspezifischer Logger mit konsistenter Formatierung.</p>
+</dd>
+</dl>
+</section>
+<section id="beispiel">
+<h3>Beispiel<a class="headerlink" href="#beispiel" title="Link to this heading"></a></h3>
+<p><a href="#id10"><span class="problematic" id="id11">``</span></a><a href="#id12"><span class="problematic" id="id13">`</span></a>python
+from read_transactions.webcrawler import TradeRepublicCrawler</p>
+<dl class="simple">
+<dt>with TradeRepublicCrawler(logging_level=“DEBUG“) as crawler:</dt><dd><p>crawler.login()
+crawler.download_data()
+crawler.process_data()
+crawler.save_data()</p>
+</dd>
+</dl>
+<p><a href="#id14"><span class="problematic" id="id15">``</span></a><a href="#id16"><span class="problematic" id="id17">`</span></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.__portfolio_balance">
+<span class="sig-name descname"><span class="pre">__portfolio_balance</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.__portfolio_balance" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._raw_data">
+<span class="sig-name descname"><span class="pre">_raw_data</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._raw_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.portfolio_balance">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">portfolio_balance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.portfolio_balance" title="Link to this definition"></a></dt>
+<dd><p>Gibt den aktuellen Portfolio-Gesamtwert als formatierten String zurück.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.login">
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.login" title="Link to this definition"></a></dt>
+<dd><p>Führt Login bei Trade Republic aus (User, PIN, 2FA).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.download_data">
+<span class="sig-name descname"><span class="pre">download_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.download_data" title="Link to this definition"></a></dt>
+<dd><p>Lädt Transaktionsdaten von Trade Republic.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.process_data">
+<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.process_data" title="Link to this definition"></a></dt>
+<dd><p>Führt die Rohdaten in ein bereinigtes DataFrame-Format über.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._handle_cookie_banner">
+<span class="sig-name descname"><span class="pre">_handle_cookie_banner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._handle_cookie_banner" title="Link to this definition"></a></dt>
+<dd><p>Schließt ggf. das Cookie-Banner über bekannte Buttons.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._enter_phone">
+<span class="sig-name descname"><span class="pre">_enter_phone</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._enter_phone" title="Link to this definition"></a></dt>
+<dd><p>Gibt die Telefonnummer im Login-Formular ein.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._enter_pin">
+<span class="sig-name descname"><span class="pre">_enter_pin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._enter_pin" title="Link to this definition"></a></dt>
+<dd><p>Gibt die PIN im Login-Formular ein.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._wait_for_login_completed">
+<span class="sig-name descname"><span class="pre">_wait_for_login_completed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._wait_for_login_completed" title="Link to this definition"></a></dt>
+<dd><p>Wartet, bis der Login-Prozess abgeschlossen ist.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._wait_for_account_balance">
+<span class="sig-name descname"><span class="pre">_wait_for_account_balance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._wait_for_account_balance" title="Link to this definition"></a></dt>
+<dd><p>Wartet, bis das Konto-Dashboard mit dem Kontostand geladen ist.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._verify_identity">
+<span class="sig-name descname"><span class="pre">_verify_identity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._verify_identity" title="Link to this definition"></a></dt>
+<dd><p>Führt Zwei-Faktor-Authentifizierung (SMS oder App) aus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._scroll_to_bottom">
+<span class="sig-name descname"><span class="pre">_scroll_to_bottom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pause</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stable_rounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._scroll_to_bottom" title="Link to this definition"></a></dt>
+<dd><p>Scrollt die Seite vollständig, bis keine neuen Einträge mehr erscheinen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._get_raw_entries">
+<span class="sig-name descname"><span class="pre">_get_raw_entries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._get_raw_entries" title="Link to this definition"></a></dt>
+<dd><p>Liest Timeline-Elemente direkt per JavaScript aus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._process_raw_entries">
+<span class="sig-name descname"><span class="pre">_process_raw_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_entries</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._process_raw_entries" title="Link to this definition"></a></dt>
+<dd><p>Verarbeitet die JavaScript-Rohdaten in DataFrame-kompatible Form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._get_order_details_from_entry">
+<span class="sig-name descname"><span class="pre">_get_order_details_from_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._get_order_details_from_entry" title="Link to this definition"></a></dt>
+<dd><p>Klickt auf einen timeline__entry, öffnet die Detailansicht,
+liest Label–Wert-Paare (Transaktion, Summe, Gebühr, …) aus
+und schließt das Overlay zuverlässig wieder.
+Gibt ein Dictionary der gefundenen Details zurück.</p>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.output_path">
+<span class="sig-prename descclassname"><span class="pre">read_transactions.webcrawler.trade_republic.</span></span><span class="sig-name descname"><span class="pre">output_path</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../../../out'</span></em><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.output_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../base/index.html" class="btn btn-neutral float-left" title="read_transactions.webcrawler.base" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Zurück</a>
+        <a href="../webdriver/index.html" class="btn btn-neutral float-right" title="read_transactions.webcrawler.webdriver" accesskey="n" rel="next">Weiter <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Häberlein.</p>
+  </div>
+
+  Erstellt mit <a href="https://www.sphinx-doc.org/">Sphinx</a> mit einem
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    bereitgestellt von <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

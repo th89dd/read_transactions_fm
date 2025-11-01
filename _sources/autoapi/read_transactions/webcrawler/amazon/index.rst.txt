@@ -1,0 +1,209 @@
+read_transactions.webcrawler.amazon
+===================================
+
+.. py:module:: read_transactions.webcrawler.amazon
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 2.1
+   :date: 26.10.2025
+   :organisation: TU Dresden, FZM
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.amazon.end
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.amazon.AmazonCrawler
+
+
+Module Contents
+---------------
+
+.. py:class:: AmazonCrawler(otp_method: Optional[str] = None, max_items_per_order: int = 5, title_max_chars: int = 40, *args, **kwargs)
+
+   Bases: :py:obj:`read_transactions.webcrawler.base.WebCrawler`
+
+
+   Crawler für Umsätze aus dem Zahlungsbereich von **amazon.de**.
+
+   Dieser Crawler automatisiert den Login-Flow (inkl. **Passkey/WebAuthn-Abbruch**
+   und Umgang mit einem **verdeckt eingeblendeten Passwortfeld**), navigiert zur
+   Zahlungs-/Transaktionsübersicht und extrahiert dort die sichtbaren
+   Umsatz-Einträge (Datum, Beschreibung, Betrag). Die rohen Einträge werden im
+   Anschluss mit den Standard-Helfern der Basisklasse normalisiert.
+
+   **Wichtige Merkmale**
+   - Bricht ggf. angezeigte *Passkey/WebAuthn*-Dialoge zuverlässig ab und wechselt
+   in die Passwort-Anmeldung.
+   - Erkennt und bedient ein verdecktes Passwortfeld (setzt notfalls den Wert via JS).
+   - Optionales 2FA-/OTP-Handling über :meth:`_verify_identity` mit mehreren
+   Eingabe-/Bezugsvarianten ("prompt", "env", "file", "totp", "external", "none").
+   - Scrollt die Zahlungsübersicht und liest alle sichtbaren Transaktionen in den
+   Zeitraum ein.
+
+   **Konfiguration (config.yaml)**
+   ``credentials.amazon.user``
+   Amazon-Login (E‑Mail).
+   ``credentials.amazon.password``
+   Amazon-Passwort.
+   ``urls.amazon.login``
+   Login-URL (robuster Fallback ist die längere OpenID-URL von Amazon).
+   ``urls.amazon.transactions``
+   URL der Zahlungs-/Transaktionsübersicht.
+
+
+   Parameters (übernommen von :class:`WebCrawler`)
+   ----------------------------------------------
+   output_path : str, optional
+   Verzeichnis, in dem Ausgabedateien gespeichert werden (Standard: ``"out"``).
+   start_date : str | pandas.Timestamp | datetime.date | None, optional
+   Startdatum (Format bei ``str``: ``"DD.MM.YYYY"``). Standard: ``heute``.
+   end_date : str | pandas.Timestamp | datetime.date | None, optional
+   Enddatum (Format bei ``str``: ``"DD.MM.YYYY"``).
+   Standard: heute minus **6 Monate**.
+   logging_level : str, optional
+   Log-Level (z. B. ``"DEBUG"``, ``"INFO"``). Standard: ``"INFO"``.
+   logfile : str | None, optional
+   Pfad zu einer Logdatei. Wenn gesetzt, wird File-Logging aktiviert.
+   browser : str, optional
+   Zu verwendender Browser (z. B. ``"edge"`` oder ``"chrome"``). Standard: ``"edge"``.
+   headless : bool, optional
+   Headless-Modus aktivieren/deaktivieren. Standard: ``False``.
+   user_agent : str | None, optional
+   Benutzerdefinierter User-Agent für den WebDriver.
+
+   opt_method : str | None, optional
+   Bevorzugtes 2FA-Verfahren (``"authenticator"``, ``"sms"``, ``"whatsapp"``, ``"call"``).
+   Standard: ``None`` (kein Wechsel, Standardverfahren verwenden).
+   max_items_per_order : int, optional
+   Maximale Anzahl Artikel-Titel pro Bestellung (Standard: ``5``).
+   title_max_chars : int, optional
+   Maximale Zeichenanzahl für den Verwendungszweck (Standard: ``120``).
+
+
+   .. attribute:: driver
+
+
+
+      :type: selenium.webdriver.Remote
+
+
+   .. py:attribute:: otp_method
+      :value: None
+
+
+
+   .. py:attribute:: max_items_per_order
+
+
+   .. py:attribute:: title_max_chars
+
+
+   .. py:method:: login() -> None
+
+      Login inkl. Passkey-Abbruch, verdecktem Passwortfeld & 2FA-Verfahrenswechsel
+
+
+
+   .. py:method:: _set_username_if_present(username: str) -> None
+
+      Setzt den Benutzernamen, falls das Feld sichtbar ist.
+
+
+
+   .. py:method:: _abort_windows_passkey(tries: int = 10, timeout: int = 10) -> bool
+
+      Versucht, einen nativen Windows-Passkey/Hello/WebAuthn-Dialog zu schließen.
+      Priorität: pywinauto -> ctypes SendInput -> pyautogui/keyboard -> ESC an Browser.
+      Gibt True zurück, wenn mind. ein Abbruchversuch gesendet wurde.
+
+
+
+   .. py:method:: _fill_password_and_submit(password: str) -> None
+
+      Füllt das Passwortfeld und sendet das Formular ab.
+
+
+
+   .. py:method:: _handle_2fa_if_present() -> None
+
+      Stellt OTP-Verfahren (optional) um & bestätigt Code (gem. amazon.md).
+
+
+
+   .. py:method:: _wait_for_login(timeout: int = 120) -> bool
+
+      Wartet, bis der Login abgeschlossen ist (Bestellübersicht geladen).
+
+      :param timeout: Maximale Wartezeit in Sekunden.
+
+
+
+   .. py:method:: download_data() -> None
+
+      Wird von Subklassen überschrieben – startet Download-Vorgang.
+
+
+
+   .. py:method:: process_data() -> None
+
+      Optional von Subklassen überschreiben – verarbeitet geladene Daten.
+
+
+
+   .. py:method:: _select_year(year: int) -> bool
+
+      Wählt das Jahr im Dropdown (select#time-filter).
+
+
+
+   .. py:method:: _go_next_page() -> bool
+
+
+   .. py:method:: _parse_orders_on_page(max_items: int = 10, max_item_chars: int = 30, order_year: int = 2025) -> List[Dict[str, Any]]
+
+      Parst alle Bestellungen auf der aktuellen Seite.
+
+
+
+   .. py:method:: _parse_orders_on_page_by_dom(max_items: int = 10, max_item_chars: int = 30, order_year: int = 2025) -> List[Dict[str, Any]]
+
+      Parsed ausschließlich über den DOM alle Bestell-Karten der **aktuellen Seite**.
+      Keine Nutzung von `card.text` oder Regex – nur gezielte DOM-Selektoren.
+
+      Erfasst je Karte:
+        - Bestelldatum (Label → erstes folgendes Element)
+        - Betrag/Summe (Label → erstes folgendes Element)
+        - Bestellnummer (Label → erstes folgendes Element)
+        - Lieferinfo (Knoten, der mit 'Zugestellt'/'Geliefert' beginnt oder 'Lieferung am' enthält)
+        - Versandadresse (Label → folgender Block)
+        - Items/Verwendungszweck (Produktlinks zu /dp/ oder /gp/product/, dedupliziert, limitiert)
+
+      :returns: Eine Liste von Datensätzen (je Karte ein Dict).
+      :rtype: list[dict]
+
+
+
+   .. py:method:: _coerce_date_string_de(s: str, default_year: int | None = None) -> str
+      :staticmethod:
+
+
+      Turns '24. Oktober 2025' or '25. Oktober' into '24.10.2025'.
+      If year is missing, uses default_year or current year.
+
+
+
+.. py:data:: end
+

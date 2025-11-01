@@ -1,0 +1,160 @@
+read_transactions.webcrawler.amazon_visa
+========================================
+
+.. py:module:: read_transactions.webcrawler.amazon_visa
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 2.0
+   :date: 22.10.2025
+   :organisation: TU Dresden, FZM
+
+   AmazonCrawler
+   -------------
+   Crawler für Amazon Visa (Zinia) – lädt Transaktionen im XLS-Format herunter.
+
+   Verwendung:
+       from read_transactions.webcrawler.amazon import AmazonCrawler
+
+       with AmazonCrawler(logging_level="DEBUG") as crawler:
+           crawler.login()
+           crawler.download_data()
+           crawler.process_data()
+           crawler.save_data()
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.amazon_visa.end
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.amazon_visa.AmazonVisaCrawler
+
+
+Module Contents
+---------------
+
+.. py:class:: AmazonVisaCrawler(save_amazon_order: bool = True, *args, **kwargs)
+
+   Bases: :py:obj:`read_transactions.webcrawler.base.WebCrawler`
+
+
+   Crawler für Amazon Visa (Zinia).
+
+   Der Crawler automatisiert den Login auf `customer.amazon.zinia.de`,
+   lädt alle Transaktionen im gewählten Datumsbereich herunter
+   (XLS-Format) und konvertiert sie in ein einheitliches CSV-Format.
+
+   Ablauf:
+       1. Login mit Benutzername + 4-stelliger PIN
+       2. Öffnen der Transaktionsseite
+       3. Setzen des gewünschten Zeitraums
+       4. Herunterladen der Excel-Datei
+       5. Zusammenführen / Bereinigen der Daten
+
+   Erfordert:
+       - gültige Zugangsdaten in `config.yaml`
+       - hinterlegte URLs für `login` und `transactions`
+       - funktionierenden Selenium-WebDriver (Edge / Chrome / Firefox)
+
+   Beispiel:
+       ```bash
+       readtx run amazon --start 01.01.2024 --end 31.03.2024 --log_level DEBUG
+       ```
+
+   Parameter
+   ----------
+   save_amazon_order : bool, optional
+       Falls `True`, werden die detaillierten Umsatzinformationen zusätzlich von Amazon gespeichert
+       Achtung: nur, wenn details ebenfalls `True` ist.
+       Standard: ``True``.
+   details : bool, optional
+       Falls `True`, werden detaillierte Umsatzinformationen zusätzlich von Amazon abgerufen.
+       Diese werden anhand von Betrag und Datum den Umsätzen zugeordnet.
+       Standard: ``True``.
+   logfile : str, optional
+       Pfad zu einer Logdatei. Wenn `None`, wird nur in die Konsole geloggt.
+   output_path : str, optional
+       Verzeichnis, in dem die verarbeiteten Daten gespeichert werden.
+       Standard: ``out``.
+   start_date : str | pandas.Timestamp | datetime.date, optional
+       Startdatum für den Download (Format: ``dd.mm.yyyy``).
+       Standard: heutiges Datum.
+   end_date : str | pandas.Timestamp | datetime.date, optional
+       Enddatum für den Download (Format: ``dd.mm.yyyy``).
+       Standard: sechs Monate vor `start_date`.
+   logging_level : str, optional
+       Log-Level der Crawler-Instanz (z. B. "DEBUG", "INFO", "WARNING").
+       Standard: ``INFO``.
+   global_log_level : str, optional
+       Globales Log-Level für das gesamte Paket (Standard: ``INFO``).
+   browser : str, optional
+       Zu verwendender Browser-Treiber (``edge``, ``chrome`` oder ``firefox``).
+       Standard: ``edge``.
+   headless : bool, optional
+       Falls `True`, wird der Browser im Hintergrundmodus gestartet.
+       Standard: ``False``.
+   user_agent : str, optional
+       Optionaler User-Agent-String für den Browser.
+
+   Attribute:
+       account_balance (str): Aktueller Kontostand nach erfolgreichem Login.
+       data (pd.DataFrame): Aufbereitete Transaktionsdaten.
+
+
+   .. py:attribute:: _verified
+      :value: False
+
+
+
+   .. py:attribute:: _save_amazon_order
+      :value: True
+
+
+
+   .. py:method:: login() -> None
+
+      Führt Login bei Amazon Visa (Zinia) aus.
+
+
+
+   .. py:method:: download_data() -> None
+
+      Navigiert zur Transaktionsseite und lädt XLS-Datei herunter.
+
+
+
+   .. py:method:: process_data() -> None
+
+      Verarbeitet heruntergeladene XLS-Daten.
+
+
+
+   .. py:method:: _verify_identity() -> None
+
+      Führt den gesamten OTP-/2FA-Verifizierungsprozess durch (ohne Rekursion).
+
+
+
+   .. py:method:: _fetch_transaction_details(key_columns=['Betrag', 'Datum']) -> pandas.DataFrame
+
+      Detaillierte Umsatzinformationen über amazon.de abrufen
+      - load orders from amazon.de with amazon crowler
+      - match transactions by amount + date
+      - for each match, get details (verwendungszweck, verwendungszweck2) from amazon data
+      - merge details into self.data verwendungszweck as verwendungszweck, verwendungszweck 2 as verwendungszweck 3
+
+
+
+.. py:data:: end
+

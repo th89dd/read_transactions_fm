@@ -1,0 +1,29 @@
+read_transactions.webcrawler
+============================
+
+.. py:module:: read_transactions.webcrawler
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 1.0
+   :date: 06.10.2024
+   :organisation: TU Dresden, FZM
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/read_transactions/webcrawler/amazon/index
+   /autoapi/read_transactions/webcrawler/amazon_visa/index
+   /autoapi/read_transactions/webcrawler/amex/index
+   /autoapi/read_transactions/webcrawler/ariva/index
+   /autoapi/read_transactions/webcrawler/base/index
+   /autoapi/read_transactions/webcrawler/trade_republic/index
+   /autoapi/read_transactions/webcrawler/webdriver/index
+
+

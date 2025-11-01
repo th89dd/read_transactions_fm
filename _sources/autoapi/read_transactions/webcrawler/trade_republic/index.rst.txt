@@ -1,0 +1,252 @@
+read_transactions.webcrawler.trade_republic
+===========================================
+
+.. py:module:: read_transactions.webcrawler.trade_republic
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 2.0
+   :date: 25.10.2025
+   :organisation: TU Dresden, FZM
+
+   TradeRepublicCrawler
+   -----------
+   Crawler für TradeRepublic – lädt Transaktionen im gewählten Zeitraum herunter
+   und führt sie in ein einheitliches Format über.
+
+   Der Crawler orientiert sich an der Architektur der `ArivaCrawler`- und `AmazonVisaCrawler`-Klassen.
+   Er nutzt Selenium zur Browsersteuerung, greift auf Anmeldedaten aus der zentralen `config.yaml` zu
+   und setzt auf die generische Basisklasse `WebCrawler`, die Standardfunktionen wie Logging,
+   Fehlerbehandlung, Warte- und Retry-Mechanismen, Datendownload und Dateiverarbeitung bereitstellt.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.trade_republic.output_path
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.trade_republic.TradeRepublicCrawler
+
+
+Module Contents
+---------------
+
+.. py:class:: TradeRepublicCrawler(*args, **kwargs)
+
+   Bases: :py:obj:`read_transactions.webcrawler.base.WebCrawler`
+
+
+   TradeRepublicCrawler
+   --------------------
+   Crawler für Transaktionsdaten von **Trade Republic**.
+
+   Der Crawler automatisiert den Login im Webinterface von
+   [https://app.traderepublic.com](https://app.traderepublic.com),
+   lädt alle Transaktionen im gewählten Zeitraum, verarbeitet
+   die Daten zu einem strukturierten pandas-DataFrame und
+   speichert sie optional als CSV.
+
+   Ablauf:
+       1. Login mit Telefonnummer und PIN.
+       2. Zwei-Faktor-Authentifizierung (SMS- oder App-Code).
+       3. Scrollen und Laden aller Transaktionen.
+       4. Extraktion und Verarbeitung der Transaktionsdaten.
+       5. Optionale Speicherung der Daten im Ausgabeverzeichnis.
+
+   Voraussetzung:
+       - Gültige Zugangsdaten in `config.yaml` unter:
+           ```yaml
+           credentials:
+               trade_republic:
+                   # ohne +49 Ländervorwahl
+                   user: 1701234567
+                   password: 1234
+
+           urls:
+               traderepublic:
+                   login: https://app.traderepublic.com/login
+                   transactions: https://app.traderepublic.com/profile/transactions
+           ```
+       - Installierter Selenium-WebDriver (Edge, Chrome oder Firefox)
+       - Python ≥ 3.10
+
+   Parameter
+   ----------
+   details : bool, optional
+       Falls `True`, werden bei Kauf-/Verkaufsorders zusätzliche
+       Details (Stückzahl, Stückpreis, Gebühren, etc.) extrahiert.
+       Standard: `True`.
+
+   output_path : str, optional
+       Zielverzeichnis, in dem heruntergeladene oder verarbeitete
+       Dateien gespeichert werden. Standard: ``out``.
+
+   start_date : str | pandas.Timestamp | datetime.date, optional
+       Startdatum für den Transaktionsabruf. Format: ``"dd.mm.yyyy"``.
+       Standard: heutiges Datum.
+
+   end_date : str | pandas.Timestamp | datetime.date, optional
+       Enddatum für den Transaktionsabruf. Format: ``"dd.mm.yyyy"``.
+       Standard: sechs Monate vor `start_date`.
+
+   logging_level : str, optional
+       Log-Level der Crawler-Instanz (z. B. ``"DEBUG"``, ``"INFO"``).
+       Standard: ``"INFO"``.
+
+   global_log_level : str, optional
+       Globales Log-Level für das gesamte Paket.
+       Standard: ``"INFO"``.
+
+   logfile : str, optional
+       Pfad zu einer Logdatei. Wenn `None`, wird nur in die Konsole geloggt.
+
+   browser : str, optional
+       Zu verwendender WebDriver (``"edge"``, ``"chrome"`` oder ``"firefox"``).
+       Standard: ``"edge"``.
+
+   headless : bool, optional
+       Falls `True`, wird der Browser im Hintergrundmodus gestartet.
+       Standard: ``False``.
+
+   user_agent : str, optional
+       Optionaler benutzerdefinierter User-Agent für den WebDriver.
+
+   Attribute
+   ----------
+   data : pandas.DataFrame
+       Enthält die verarbeiteten Transaktionsdaten nach `process_data()`.
+
+   _credentials : dict
+       Zugriff auf die aus der Konfiguration geladenen Zugangsdaten.
+
+   _urls : dict
+       Zugriff auf die aus der Konfiguration geladenen URLs.
+
+   _logger : logging.Logger
+       Instanzspezifischer Logger mit konsistenter Formatierung.
+
+   Beispiel
+   --------
+   ```python
+   from read_transactions.webcrawler import TradeRepublicCrawler
+
+   with TradeRepublicCrawler(logging_level="DEBUG") as crawler:
+       crawler.login()
+       crawler.download_data()
+       crawler.process_data()
+       crawler.save_data()
+   ```
+
+
+   .. py:attribute:: __portfolio_balance
+      :value: 0.0
+
+
+
+   .. py:attribute:: _raw_data
+      :value: []
+
+
+
+   .. py:property:: portfolio_balance
+      :type: str
+
+
+      Gibt den aktuellen Portfolio-Gesamtwert als formatierten String zurück.
+
+
+   .. py:method:: login() -> None
+
+      Führt Login bei Trade Republic aus (User, PIN, 2FA).
+
+
+
+   .. py:method:: download_data() -> None
+
+      Lädt Transaktionsdaten von Trade Republic.
+
+
+
+   .. py:method:: process_data() -> None
+
+      Führt die Rohdaten in ein bereinigtes DataFrame-Format über.
+
+
+
+   .. py:method:: _handle_cookie_banner() -> None
+
+      Schließt ggf. das Cookie-Banner über bekannte Buttons.
+
+
+
+   .. py:method:: _enter_phone() -> None
+
+      Gibt die Telefonnummer im Login-Formular ein.
+
+
+
+   .. py:method:: _enter_pin() -> None
+
+      Gibt die PIN im Login-Formular ein.
+
+
+
+   .. py:method:: _wait_for_login_completed() -> None
+
+      Wartet, bis der Login-Prozess abgeschlossen ist.
+
+
+
+   .. py:method:: _wait_for_account_balance() -> None
+
+      Wartet, bis das Konto-Dashboard mit dem Kontostand geladen ist.
+
+
+
+   .. py:method:: _verify_identity() -> None
+
+      Führt Zwei-Faktor-Authentifizierung (SMS oder App) aus.
+
+
+
+   .. py:method:: _scroll_to_bottom(pause: float = 0.0, stable_rounds: int = 5) -> None
+
+      Scrollt die Seite vollständig, bis keine neuen Einträge mehr erscheinen.
+
+
+
+   .. py:method:: _get_raw_entries() -> list[dict]
+
+      Liest Timeline-Elemente direkt per JavaScript aus.
+
+
+
+   .. py:method:: _process_raw_entries(raw_entries)
+
+      Verarbeitet die JavaScript-Rohdaten in DataFrame-kompatible Form.
+
+
+
+   .. py:method:: _get_order_details_from_entry(index: int) -> dict
+
+      Klickt auf einen timeline__entry, öffnet die Detailansicht,
+      liest Label–Wert-Paare (Transaktion, Summe, Gebühr, …) aus
+      und schließt das Overlay zuverlässig wieder.
+      Gibt ein Dictionary der gefundenen Details zurück.
+
+
+
+.. py:data:: output_path
+   :value: '../../../out'
+
+

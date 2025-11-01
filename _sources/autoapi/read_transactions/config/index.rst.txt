@@ -1,0 +1,206 @@
+read_transactions.config
+========================
+
+.. py:module:: read_transactions.config
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 1.2
+   :date: 21.10.2025
+   :organisation: TU Dresden, FZM
+
+   ConfigManager
+   -------------
+   Lädt die zentrale Konfigurationsdatei (config.yaml) für das Projekt.
+   Suchreihenfolge:
+     1. ./config.yaml (aktuelles Arbeitsverzeichnis)
+     2. ../config.yaml (eine Ebene höher)
+     3. ./config/config.yaml
+     4. ../config/config.yaml
+     5. ~/.config/read_transactions/config.yaml
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   read_transactions.config.config
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   read_transactions.config.classproperty
+   read_transactions.config.ConfigManager
+
+
+Module Contents
+---------------
+
+.. py:class:: classproperty(f)
+
+   .. py:attribute:: f
+
+
+   .. py:method:: __get__(obj, owner)
+
+
+.. py:class:: ConfigManager
+
+   Zentrale Verwaltung der Projektkonfiguration.
+
+
+   .. py:attribute:: _config_cache
+      :type:  Dict[str, Any] | None
+      :value: None
+
+
+
+   .. py:attribute:: _config_path
+      :type:  pathlib.Path | None
+      :value: None
+
+
+
+   .. py:attribute:: _yaml
+
+
+   .. py:attribute:: _logger
+
+
+   .. py:attribute:: _key_path
+
+
+   .. py:attribute:: _fernet_cache
+      :type:  cryptography.fernet.Fernet | None
+      :value: None
+
+
+
+   .. py:method:: config_path() -> str
+
+      Gibt den Pfad der aktuell geladenen Konfigurationsdatei zurück.
+
+
+
+   .. py:method:: load() -> Dict[str, Any]
+      :classmethod:
+
+
+      Lädt und cached die YAML-Konfiguration.
+
+
+
+   .. py:method:: _get_cipher() -> cryptography.fernet.Fernet
+      :classmethod:
+
+
+      Lädt oder erzeugt den Verschlüsselungsschlüssel.
+
+
+
+   .. py:method:: _find_config_file() -> pathlib.Path
+      :classmethod:
+
+
+
+   .. py:method:: get_credentials(crawler_name: str) -> Dict[str, str]
+      :classmethod:
+
+
+      Gibt die Credentials für einen Crawler zurück.
+
+
+
+   .. py:method:: get_urls(crawler_name: str) -> Dict[str, str]
+      :classmethod:
+
+
+      Gibt URL-Mappings für einen Crawler zurück.
+
+
+
+   .. py:method:: get_run_all() -> Dict[str, bool]
+      :classmethod:
+
+
+      Gibt die Run-All-Einstellungen zurück.
+
+
+
+   .. py:method:: set_run_all(crawler_name: str, value: bool) -> None
+      :classmethod:
+
+
+      Setzt die Run-All Einstellung für einen Crawler.
+
+      :param crawler_name: Name des Crawlers (z. B. 'amex')
+      :param value: True oder False
+
+
+
+   .. py:method:: set_credentials(crawler_name: str, user: str | None = None, pwd: str | None = None) -> None
+      :classmethod:
+
+
+      Setzt die Credentials für einen Crawler und speichert sie verschlüsselt.
+      :param crawler_name: Name des Crawlers (z. B. 'amex')
+      :param user: Neuer Benutzername
+      :param pwd: Neues Passwort
+
+
+
+   .. py:method:: show() -> None
+      :classmethod:
+
+
+      Zeigt den aktuell geladenen Config-Inhalt als YAML an.
+
+
+
+   .. py:method:: clear(delete_file: bool = False) -> None
+      :classmethod:
+
+
+      Löscht den internen Config-Cache oder optional die Config-Datei selbst.
+
+      :param delete_file: Wenn True, wird die gefundene config.yaml gelöscht.
+      :type delete_file: bool
+
+
+
+   .. py:method:: edit(key_path: str, value: Any) -> None
+      :classmethod:
+
+
+      Ändert oder fügt einen Eintrag in der Config-Datei hinzu.
+
+      :param key_path: Punkt-getrennter Pfad, z. B. 'credentials.amex.user'
+      :type key_path: str
+      :param value: Neuer Wert (automatisch als String gespeichert)
+      :type value: Any
+
+
+
+   .. py:method:: create_default(path: str | None = None, overwrite: bool = False) -> pathlib.Path
+      :classmethod:
+
+
+      Erstellt eine Standard-config.yaml mit Beispielinhalten und Kommentaren.
+
+      :param path: Optionaler Pfad, an dem die Datei erstellt werden soll.
+                   (Standard: ~/.config/read_transactions/config.yaml)
+      :param overwrite: Wenn True, überschreibt eine bestehende Datei.
+
+      :returns: Pfad zur erstellten Konfigurationsdatei.
+      :rtype: Path
+
+
+
+.. py:data:: config
+

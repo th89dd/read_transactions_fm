@@ -1,0 +1,164 @@
+read_transactions.logger
+========================
+
+.. py:module:: read_transactions.logger
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 1.2
+   :date: 24.10.2025
+   :organisation: TU Dresden, FZM
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   read_transactions.logger.logfile
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   read_transactions.logger.MainLogger
+   read_transactions.logger.JsonFormatter
+
+
+Module Contents
+---------------
+
+.. py:class:: MainLogger
+
+   Globale, rekonfigurierbare Logging-Klasse für das gesamte Paket.
+
+
+   .. py:attribute:: __default_level
+      :value: 10
+
+
+
+   .. py:attribute:: __logfile_path
+      :type:  Optional[str]
+      :value: None
+
+
+
+   .. py:attribute:: _per_logger_targets
+      :type:  set[str]
+
+
+   .. py:attribute:: _root_logger
+      :type:  Optional[logging.Logger]
+      :value: None
+
+
+
+   .. py:method:: configure(level: str = 'DEBUG', logfile: Optional[str] = None, fmt: Optional[str] = None) -> None
+      :classmethod:
+
+
+      (Re)Initialisiert das globale Logging-System.
+      Kann beliebig oft aufgerufen werden, alte Handler werden ersetzt.
+
+      :param level: Basis-Log-Level für den Logger (Default: DEBUG)
+      :param logfile: Pfad zur Logdatei (optional)
+      :param fmt: Optional benutzerdefiniertes Logformat
+
+
+
+   .. py:method:: get_logger(name: Optional[str] = None) -> logging.Logger
+      :classmethod:
+
+
+      Gibt einen Unterlogger zurück, der an den MainLogger angehängt ist.
+
+
+
+   .. py:method:: set_level(level: str) -> None
+      :classmethod:
+
+
+      Ändert den globalen Logger-Level (wirkt auf alle Handler).
+
+
+
+   .. py:method:: set_stream_level(level: str) -> None
+      :classmethod:
+
+
+      Ändert nur den Level des StreamHandlers (Konsole).
+
+
+
+   .. py:method:: set_file_level(level: str) -> None
+      :classmethod:
+
+
+      Ändert nur den Level des FileHandlers.
+
+
+
+   .. py:method:: debug_overview() -> str
+      :classmethod:
+
+
+      Gibt eine Übersicht der aktuellen Logging-Konfiguration als string zurück:
+      - Logger-Level
+      - Handler-Levels (Stream/File)
+      - Pfad zur Logdatei
+
+
+
+   .. py:method:: attach_file_for(name: str, logfile: str | None = None, level: str | None = None, max_bytes: int = 1 * 1024 * 1024, backup_count: int = 1) -> None
+      :classmethod:
+
+
+      Hängt einen FileHandler an den *Hauptlogger*, der nur Logs des
+      Unterloggers 'read_transactions.<logger_name>' durchlässt.
+
+
+
+   .. py:method:: detach_file_for(name: str) -> int
+      :classmethod:
+
+
+      Entfernt alle per-Logger FileHandler für 'read_transactions.<name>'.
+      Gibt die Anzahl entfernter Handler zurück.
+
+
+
+   .. py:method:: _rebuild_central_filter() -> None
+      :classmethod:
+
+
+
+.. py:class:: JsonFormatter(fmt=None, datefmt=None, style='%', validate=True, *, defaults=None)
+
+   Bases: :py:obj:`logging.Formatter`
+
+
+   Formatter, der Logeinträge als JSON ausgibt.
+
+
+   .. py:method:: format(record)
+
+      Format the specified record as text.
+
+      The record's attribute dictionary is used as the operand to a
+      string formatting operation which yields the returned string.
+      Before formatting the dictionary, a couple of preparatory steps
+      are carried out. The message attribute of the record is computed
+      using LogRecord.getMessage(). If the formatting string uses the
+      time (as determined by a call to usesTime(), formatTime() is
+      called to format the event time. If there is exception information,
+      it is formatted using formatException() and appended to the message.
+
+
+
+.. py:data:: logfile
+

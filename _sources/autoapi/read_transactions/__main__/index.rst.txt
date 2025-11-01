@@ -1,0 +1,14 @@
+read_transactions.__main__
+==========================
+
+.. py:module:: read_transactions.__main__
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 1.0
+   :date: 21.10.2025
+   :organisation: TU Dresden, FZM
+
+
+
