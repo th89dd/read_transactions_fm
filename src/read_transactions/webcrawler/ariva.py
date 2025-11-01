@@ -270,26 +270,33 @@ class ArivaCrawler(WebCrawler):
                 delimiter_field.clear()
                 delimiter_field.send_keys(";")
 
-                # Download starten
-                self.wait_clickable_and_click("xpath", "//input[@type='submit' and @value='Download']")
-                # download_button = self.driver.find_element(
-                #     By.XPATH, "//input[@type='submit' and @value='Download']"
-                # )
-                # download_button.click()
-                self._logger.debug("Download-Button geklickt, CSV wird heruntergeladen.")
 
-                # warten, bis die Datei heruntergeladen ist (maximal 30 Sekunden)
-                new_file = self._wait_for_new_file(timeout=30)
-                if new_file:
+                try:
+                    # Download starten
+                    xpath_sel =  "//input[@type='submit' and @value='Download']"
+                    btn = self.wait_for_element("xpath", xpath_sel, timeout=15)
+                    self.scroll_into_view(btn)
+                    btn.click()
+                    # download_button = self.driver.find_element(
+                    #     By.XPATH, "//input[@type='submit' and @value='Download']"
+                    # )
+                    # download_button.click()
+                    self._logger.debug("Download-Button geklickt, CSV wird heruntergeladen.")
+                    # warten, bis die Datei heruntergeladen ist (maximal 30 Sekunden)
+                    new_file = self._wait_for_new_file(timeout=30)
+                    if new_file:
+                        continue
+                    else:
+                        self._logger.warning(f"Kein Download erkannt für {key} innerhalb des Timeouts.")
+                except TimeoutException:
+                    self._logger.error(f"Download-Button nicht gefunden auf der Seite für {key}.")
                     continue
-                else:
-                    self._logger.warning(f"Kein Download erkannt für {key} innerhalb des Timeouts.")
+
         except Exception as e:
             self._logger.error(
                 f"Fehler beim Ausfüllen oder Absenden des Formulars für {key}",
                 exc_info=True
             )
-            self._logger.error(f"Fehler beim Download von ariva", exc_info=True)
 
 
     # ----------------------------------------------------------

@@ -244,6 +244,10 @@ Stuff for development
 
 ### TODOs
 
+- [ ] design Icon
+    - [ ] for exe file
+    - [ ] for sphinx docs
+
 - [ ] Improve performance of web scraping
     - [ ] Read data from out -> update only nessesary (new) entries
     - [ ] Check some stuff (async requests, headless browser options etc.)
