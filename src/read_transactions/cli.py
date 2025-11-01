@@ -15,9 +15,7 @@ import ast  # Für sichere Auswertung von Literal-Ausdrücken
 # from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # try:
-from read_transactions.logger import MainLogger
-from read_transactions.webcrawler import AVAILABLE_CRAWLERS
-from read_transactions.config import ConfigManager
+
 # except ImportError:
     # from src.read_transactions.logger import MainLogger
     # from src.read_transactions.webcrawler import AVAILABLE_CRAWLERS
@@ -38,6 +36,7 @@ Beispiele:
 # Funktionen zum Listen und Ausführen von Crawlern
 # -------------------------------------------------------------------
 def list_crawlers() -> None:
+    from read_transactions.webcrawler import AVAILABLE_CRAWLERS
     """Zeigt alle verfügbaren Crawler aus der Registry an."""
     if not AVAILABLE_CRAWLERS:
         print("⚠️  Keine Crawler registriert.")
@@ -49,6 +48,8 @@ def list_crawlers() -> None:
     print()
 
 def run_crawler(name: str, start: str, end: str, log_level: str, options: dict | None = None) -> None:
+    from read_transactions.webcrawler import AVAILABLE_CRAWLERS
+    from read_transactions.logger import MainLogger
     """Startet den angegebenen Crawler."""
     if name not in AVAILABLE_CRAWLERS:
         print(f"❌ Unbekannter Crawler: {name}")
@@ -82,6 +83,8 @@ def run_all_crawlers(start: str | None, end: str | None, log_level: str, options
     Startet mehrere Crawler gem. config.yaml: run_all.<crawler>: true/false.
     Per --include/--exclude kann die Auswahl überschrieben werden.
     """
+    from read_transactions.webcrawler import AVAILABLE_CRAWLERS
+    from read_transactions.config import ConfigManager
     cfg_flags = ConfigManager.get_run_all()  # dict[str,bool]
     available = set(AVAILABLE_CRAWLERS.keys())
     # Auswahl aus Config
@@ -261,6 +264,7 @@ def build_parser() -> argparse.ArgumentParser:
 # Hauptfunktion (nur hier: Logging & Ausführung)
 # -------------------------------------------------------------------
 def _configure_logging() -> None:
+    from read_transactions.logger import MainLogger
     """Konfiguriert das Logging – nur im CLI-Lauf, niemals beim Import (Sphinx!)."""
     logfile = "~/.config/read_transactions/readtx.log"
     MainLogger.configure(logfile=logfile)
@@ -271,6 +275,8 @@ def _configure_logging() -> None:
     MainLogger.debug_overview()
 
 def main(argv: list[str] | None = None) -> None:
+    from read_transactions.config import ConfigManager
+    from read_transactions.webcrawler import AVAILABLE_CRAWLERS
     # Nur beim echten CLI-Run Logging aktivieren:
     _configure_logging()
 
