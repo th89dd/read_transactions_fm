@@ -1,8 +1,6 @@
-```{include} ../README.md
-```
-
-```{eval-rst}
-.. include:: ../README.md
+```{include} ../Readme.md
+:start-after: <!-- docs:summary-start -->
+:end-before: <!-- docs:summary-end -->
 ```
 
 ***
@@ -17,22 +15,22 @@ api/index
 ```
 
 
-```{include} ../README.md
+```{include} ../Readme.md
 :start-after: <!-- docs:getting_started-start -->
 :end-before: <!-- docs:getting_started-end -->
 ```
 
-```{include} ../README.md
+```{include} ../Readme.md
 :start-after: <!-- docs:cli-start -->
 :end-before: <!-- docs:cli-end -->
 ```
 
-```{include} ../README.md
+```{include} ../Readme.md
 :start-after: <!-- docs:examples-start -->
 :end-before: <!-- docs:example-end -->
 ```
 
-```{include} ../README.md
+```{include} ../Readme.md
 :start-after: <!-- docs:installation-start -->
 :end-before: <!-- docs:installation-end -->
 ```
@@ -46,6 +44,6 @@ Diese Website wird bei jedem Push automatisch aus dem Quellcode erzeugt und ver√
 
 
 
-```{include} ../README.md
+```{include} ../Readme.md
 :start-after: <!-- docs:about-start -->
 :end-before: <!-- docs:about-end -->
