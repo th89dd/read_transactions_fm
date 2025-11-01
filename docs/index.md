@@ -1,5 +1,10 @@
 ```{include} ../README.md
 ```
+
+```{eval-rst}
+.. include:: ../README.md
+```
+
 ***
 ***
 
