@@ -11,8 +11,6 @@ import argparse
 import sys
 # import os
 import ast  # Für sichere Auswertung von Literal-Ausdrücken
-# import pandas as pd
-# from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # try:
 

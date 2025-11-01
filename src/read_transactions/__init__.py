@@ -17,7 +17,10 @@ __author__ = "Tim Häberlein"
 __license__ = "MIT"
 
 # Optionale vereinfachte Exporte (z. B. direkt aufrufbare CLI)
-from read_transactions.webcrawler import AVAILABLE_CRAWLERS
+try:
+    from read_transactions.webcrawler import AVAILABLE_CRAWLERS
+except Exception:
+    AVAILABLE_CRAWLERS = {}
 
 
 __all__ = ["AVAILABLE_CRAWLERS"]
