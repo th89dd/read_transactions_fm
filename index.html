@@ -231,6 +231,49 @@ Alle Befehle folgen dem Schema:</p>
 </table>
 </section>
 </section>
+<section id="beispiel-workflows">
+<h2>🧩 Beispiel-Workflows<a class="headerlink" href="#beispiel-workflows" title="Link to this heading"></a></h2>
+<section id="ariva-kurse-fur-q1-2024-abrufen">
+<h3>Ariva-Kurse für Q1 2024 abrufen<a class="headerlink" href="#ariva-kurse-fur-q1-2024-abrufen" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>run<span class="w"> </span>ariva<span class="w"> </span>--start<span class="w"> </span><span class="m">01</span>.01.2024<span class="w"> </span>--end<span class="w"> </span><span class="m">31</span>.03.2024
+</pre></div>
+</div>
+</section>
+<section id="alle-kreditkartenumsatze-der-letzten-6-monate-abrufen">
+<h3>Alle Kreditkartenumsätze der letzten 6 Monate abrufen<a class="headerlink" href="#alle-kreditkartenumsatze-der-letzten-6-monate-abrufen" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>run<span class="w"> </span>amex
+readtx<span class="w"> </span>run<span class="w"> </span>amazon_visa
+</pre></div>
+</div>
+</section>
+<section id="amazon-visa-umsatze-mit-bestellungen-von-amazon-de-abgleichen">
+<h3>Amazon Visa-Umsätze mit Bestellungen von Amazon.de abgleichen<a class="headerlink" href="#amazon-visa-umsatze-mit-bestellungen-von-amazon-de-abgleichen" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>run<span class="w"> </span>amazon_visa
+</pre></div>
+</div>
+<p>ohne orders von amazon.de zu speichern (default ist save_orders=True):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>run<span class="w"> </span>amazon_visa<span class="w"> </span>--o<span class="w"> </span><span class="nv">save_orders</span><span class="o">=</span>False
+</pre></div>
+</div>
+<p>ohne speichern und ohne amazon orders abzurufen (default ist details=True):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>run<span class="w"> </span>amazon_visa<span class="w"> </span>--o<span class="w"> </span><span class="nv">details</span><span class="o">=</span>False<span class="w"> </span><span class="nv">save_orders</span><span class="o">=</span>False
+</pre></div>
+</div>
+</section>
+<section id="traderepublic-umsatze-abrufen">
+<h3>TradeRepublic-Umsätze abrufen<a class="headerlink" href="#traderepublic-umsatze-abrufen" title="Link to this heading"></a></h3>
+<p>ohne zusätzliche Details der Transaktionen mit Trades (default ist details=True) - wesentlich schneller:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>run<span class="w"> </span>trade_republic<span class="w"> </span>--o<span class="w"> </span><span class="nv">details</span><span class="o">=</span>False
+</pre></div>
+</div>
+</section>
+<section id="config-prufen">
+<h3>Config prüfen<a class="headerlink" href="#config-prufen" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>config<span class="w"> </span>show<span class="w"> </span>--credentials
+</pre></div>
+</div>
+</section>
+</section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <p>You can use the following methods to install and use the package.</p>

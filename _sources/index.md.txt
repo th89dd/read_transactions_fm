@@ -27,7 +27,7 @@ api/index
 
 ```{include} ../Readme.md
 :start-after: <!-- docs:examples-start -->
-:end-before: <!-- docs:example-end -->
+:end-before: <!-- docs:examples-end -->
 ```
 
 ```{include} ../Readme.md
