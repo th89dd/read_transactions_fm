@@ -1,6 +1,5 @@
 ```{include} ../README.md
-:start-after: <!-- docs:summary-start -->
-:end-before: <!-- docs:summary-end -->
+
 ```
 ***
 ***
