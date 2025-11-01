@@ -15,7 +15,7 @@ sys.path.append(os.path.abspath("../src"))
 sys.path.insert(0, os.path.abspath("../src"))
 
 # -- Projektinformationen -----------------------------------------------------
-project = "read_transactions"
+project = "Read Transactions"
 author = "Tim Häberlein"
 current_year = str(datetime.now().year)
 copyright = f"{current_year}, {author}"
@@ -58,9 +58,15 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- HTML-Ausgabe -------------------------------------------------------------
 html_theme = "sphinx_rtd_theme"
+
+html_theme = "furo"
+# (Optional) hübschere Syntax-Highlighting-Styles:
+pygments_style = "tango"          # für Light
+pygments_dark_style = "native"    # für Dark
 # html_static_path = ["_static"]
 html_title = project
 html_logo = None  # Optional: Pfad zu Logo-Datei setzen
+html_favicon = None  # Optional: Pfad zu Favicon-Datei setzen
 html_theme_options = {
     "collapse_navigation": True,
     "navigation_depth": 3,

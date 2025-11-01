@@ -23,7 +23,7 @@ jobs:
       - name: Install doc deps
         run: |
           python -m pip install --upgrade pip
-          pip install sphinx sphinx-rtd-theme myst-parser sphinx-autoapi sphinx-argparse
+          pip install sphinx furo sphinx-rtd-theme myst-parser sphinx-autoapi sphinx-argparse
 
       - name: Build HTML
         run: |
