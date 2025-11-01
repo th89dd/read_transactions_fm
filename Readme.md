@@ -15,6 +15,9 @@ Aktuell unterstützt:
 - **Umsätze von American Express**
 - **Umsätze von Amazon Visa (Zinia)**
 - **Bestellungen von Amazon.de** (mit integration in Amazon Visa)
+
+Hier findest du die **[vollständige Dokumentation](https://th89dd.github.io/read_transactions_fm/)** des CLI-Interfaces und der Klassen.
+
 ***
 
 Diese Scriptsammlung dient dazu, Transaktionen via „WebCrawler“\

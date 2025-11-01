@@ -170,6 +170,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="readtx",
         description="CLI für das read_transactions-Projekt – verwaltet und startet Crawler.",
+        epilog="Weitere Informationen findest du unter https://th89dd.github.io/read_transactions_fm/index.html#"
+
     )
     subparsers = parser.add_subparsers(dest="command", help="Verfügbare Befehle")
 
