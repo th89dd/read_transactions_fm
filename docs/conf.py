@@ -12,6 +12,7 @@ from datetime import datetime
 
 # Pfad zum Paket (../src) hinzufügen
 sys.path.append(os.path.abspath("../src"))
+sys.path.insert(0, os.path.abspath("../src"))
 
 # -- Projektinformationen -----------------------------------------------------
 project = "read_transactions"
