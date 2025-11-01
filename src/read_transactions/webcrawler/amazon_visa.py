@@ -28,11 +28,7 @@ from selenium.common.exceptions import TimeoutException, StaleElementReferenceEx
 from typing import Any, List, Tuple
 
 # Import der eigenen Klassen über relativen Pfad
-# oder absoluten Pfad für den direkten Test
-try:
-    from .base import WebCrawler
-except ImportError:
-    from src.read_transactions.webcrawler.base import WebCrawler
+from read_transactions.webcrawler import WebCrawler
 # -------- /import block ---------
 
 

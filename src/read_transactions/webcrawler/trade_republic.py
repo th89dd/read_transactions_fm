@@ -34,10 +34,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
 
 from typing import Any
 
-try:
-    from .base import WebCrawler
-except ImportError:
-    from src.read_transactions.webcrawler.base import WebCrawler
+from read_transactions.webcrawler import WebCrawler
 # -------- /import block ---------
 
 class TradeRepublicCrawler(WebCrawler):

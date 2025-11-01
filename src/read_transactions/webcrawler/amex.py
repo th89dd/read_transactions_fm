@@ -26,10 +26,7 @@ import pandas as pd
 from typing import Any
 from selenium.common.exceptions import TimeoutException, ElementNotInteractableException
 
-try:
-    from .base import WebCrawler
-except ImportError:
-    from src.read_transactions.webcrawler.base import WebCrawler
+from read_transactions.webcrawler import WebCrawler
 # -------------------------------------------------------------------
 
 # AmexCrawler Klasse

@@ -28,10 +28,8 @@ from pathlib import Path
 from typing import Any, Dict
 from cryptography.fernet import Fernet
 
-try:
-    from read_transactions.logger import MainLogger
-except ImportError:
-    from src.read_transactions.logger import MainLogger
+from read_transactions.logger import MainLogger
+
 
 # Helpfer für classproperty
 class classproperty:

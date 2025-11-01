@@ -31,10 +31,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver import ActionChains
 
-try:
-    from src.read_transactions.webcrawler.base import WebCrawler
-except ImportError:
-    from read_transactions.webcrawler.base import WebCrawler
+from read_transactions.webcrawler import WebCrawler
 
 # -------- /import block ---------
 

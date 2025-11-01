@@ -23,12 +23,10 @@ import inspect
 import sys
 from pathlib import Path
 
-try:
-    from read_transactions.webcrawler.base import WebCrawler
-    from read_transactions.logger import MainLogger
-except ImportError:
-    from src.read_transactions.webcrawler.base import WebCrawler
-    from src.read_transactions.logger import MainLogger
+
+from read_transactions.webcrawler.base import WebCrawler
+from read_transactions.logger import MainLogger
+
 
 
 __version__ = "2.0.0"
