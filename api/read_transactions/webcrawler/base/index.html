@@ -1,93 +1,260 @@
+<!doctype html>
+<html class="no-js" lang="de" data-content_root="../../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Stichwortverzeichnis" href="../../../../genindex.html"><link rel="search" title="Suche" href="../../../../search.html"><link rel="next" title="read_transactions.webcrawler.trade_republic" href="../trade_republic/index.html"><link rel="prev" title="read_transactions.webcrawler.ariva" href="../ariva/index.html">
+        <link rel="canonical" href="https://th89dd.github.io/read_transactions_fm/api/read_transactions/webcrawler/base/index.html">
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
+        <title>read_transactions.webcrawler.base - Read Transactions</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
 
 
-<!DOCTYPE html>
-<html class="writer-html5" lang="de" data-content_root="../../../../">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>read_transactions.webcrawler.base &mdash; read_transactions</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
-
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
   
-    <link rel="canonical" href="https://th89dd.github.io/read_transactions_fm/api/read_transactions/webcrawler/base/index.html" />
-      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=245627df"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script src="../../../../_static/translations.js?v=9bf55d28"></script>
-    <script src="../../../../_static/js/theme.js"></script>
-    <link rel="index" title="Stichwortverzeichnis" href="../../../../genindex.html" />
-    <link rel="search" title="Suche" href="../../../../search.html" />
-    <link rel="next" title="read_transactions.webcrawler.trade_republic" href="../trade_republic/index.html" />
-    <link rel="prev" title="read_transactions.webcrawler.ariva" href="../ariva/index.html" /> 
-</head>
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
 
-          
-          
-          <a href="../../../../index.html" class="icon icon-home">
-            read_transactions
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Dokumentation durchsuchen" aria-label="Dokumentation durchsuchen" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Inhalt</span></p>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../index.html"><div class="brand">Read Transactions</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
+  
+  <span class="sidebar-brand-text">Read Transactions</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Suche" name="q" aria-label="Suche">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Inhalt</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">read_transactions</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../index.html#attributes">Attributes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../../index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../../index.html">read_transactions</a><input aria-label="Toggle navigation of read_transactions" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../__main__/index.html">read_transactions.__main__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/index.html">read_transactions.cli</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../config/index.html">read_transactions.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../logger/index.html">read_transactions.logger</a></li>
+<li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html">read_transactions.webcrawler</a><input aria-label="Toggle navigation of read_transactions.webcrawler" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../amazon/index.html">read_transactions.webcrawler.amazon</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../amazon_visa/index.html">read_transactions.webcrawler.amazon_visa</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../amex/index.html">read_transactions.webcrawler.amex</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ariva/index.html">read_transactions.webcrawler.ariva</a></li>
+<li class="toctree-l4 current current-page"><a class="current reference internal" href="#">read_transactions.webcrawler.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../trade_republic/index.html">read_transactions.webcrawler.trade_republic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../webdriver/index.html">read_transactions.webcrawler.webdriver</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
+</li>
+</ul>
 
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../../index.html">read_transactions</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
-          <li class="breadcrumb-item"><a href="../../index.html">read_transactions</a></li>
-          <li class="breadcrumb-item"><a href="../index.html">read_transactions.webcrawler</a></li>
-      <li class="breadcrumb-item active">read_transactions.webcrawler.base</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="../../../../_sources/api/read_transactions/webcrawler/base/index.rst.txt" rel="nofollow"> Quelltext anzeigen</a>
-      </li>
-  </ul>
-  <hr/>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
-  <section id="module-read_transactions.webcrawler.base">
-<span id="read-transactions-webcrawler-base"></span><h1>read_transactions.webcrawler.base<a class="headerlink" href="#module-read_transactions.webcrawler.base" title="Link to this heading"></a></h1>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../../../_sources/api/read_transactions/webcrawler/base/index.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-read_transactions.webcrawler.base">
+<span id="read-transactions-webcrawler-base"></span><h1>read_transactions.webcrawler.base<a class="headerlink" href="#module-read_transactions.webcrawler.base" title="Link to this heading">¶</a></h1>
 <dl class="field-list simple">
 <dt class="field-odd">author<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tim Häberlein</p>
@@ -103,7 +270,7 @@
 </dd>
 </dl>
 <section id="webcrawler">
-<h2>WebCrawler<a class="headerlink" href="#webcrawler" title="Link to this heading"></a></h2>
+<h2>WebCrawler<a class="headerlink" href="#webcrawler" title="Link to this heading">¶</a></h2>
 <p>Zentrale Basisklasse für alle Crawler im Projekt <cite>read_transactions_fm</cite>.
 - Einheitliches Logging über MainLogger
 - Nutzung einer externen WebDriverFactory
@@ -111,7 +278,8 @@
 - Standardmethoden für Login, Download, Verarbeitung und Speicherung</p>
 </section>
 <section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler" title="read_transactions.webcrawler.base.WebCrawler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WebCrawler</span></code></a></p></td>
@@ -119,12 +287,13 @@
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">read_transactions.webcrawler.base.</span></span><span class="sig-name descname"><span class="pre">WebCrawler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'WebCrawler'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'out'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">pd.to_datetime('today')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">pd.to_datetime('today')</span> <span class="pre">-</span> <span class="pre">pd.DateOffset(months=6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">browser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'edge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headless</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">read_transactions.webcrawler.base.</span></span><span class="sig-name descname"><span class="pre">WebCrawler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'WebCrawler'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'out'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">pd.to_datetime('today')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">pd.to_datetime('today')</span> <span class="pre">-</span> <span class="pre">pd.DateOffset(months=6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">browser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'edge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headless</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler" title="Link to this definition">¶</a></dt>
 <dd><p>Abstrakte Basisklasse für alle Crawler im Paket <cite>read_transactions</cite>.</p>
 <p>Diese Klasse kapselt den gesamten gemeinsamen Funktionsumfang:
 - zentrale Logging-Initialisierung über <cite>MainLogger</cite>
@@ -146,7 +315,7 @@ crawler.save_data()</p>
 </dd>
 </dl>
 <section id="parameter">
-<h3>Parameter<a class="headerlink" href="#parameter" title="Link to this heading"></a></h3>
+<h3>Parameter<a class="headerlink" href="#parameter" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>name<span class="classifier">str, optional</span></dt><dd><p>Logisch eindeutiger Name der Crawler-Instanz (z. B. <code class="docutils literal notranslate"><span class="pre">&quot;ariva&quot;</span></code>).</p>
 </dd>
@@ -178,7 +347,7 @@ Standard: <code class="docutils literal notranslate"><span class="pre">False</sp
 </dl>
 </section>
 <section id="attribute">
-<h3>Attribute<a class="headerlink" href="#attribute" title="Link to this heading"></a></h3>
+<h3>Attribute<a class="headerlink" href="#attribute" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>driver<span class="classifier">selenium.webdriver.Remote</span></dt><dd><p>Aktiver Selenium-WebDriver.</p>
 </dd>
@@ -195,39 +364,39 @@ Standard: <code class="docutils literal notranslate"><span class="pre">False</sp
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.__name">
-<span class="sig-name descname"><span class="pre">__name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WebCrawler'</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__name" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WebCrawler'</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__name" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.__output_path">
-<span class="sig-name descname"><span class="pre">__output_path</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'out'</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__output_path" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__output_path</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'out'</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__output_path" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._logging_lvl">
-<span class="sig-name descname"><span class="pre">_logging_lvl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INFO'</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._logging_lvl" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_logging_lvl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INFO'</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._logging_lvl" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.__logger">
-<span class="sig-name descname"><span class="pre">__logger</span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__logger" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__logger</span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__logger" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.start_date">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start_date</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.start_date" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start_date</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.start_date" title="Link to this definition">¶</a></dt>
 <dd><p>Startdatum (immer als pandas.Timestamp gespeichert).</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.end_date">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">end_date</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.end_date" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">end_date</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.end_date" title="Link to this definition">¶</a></dt>
 <dd><p>Enddatum (immer als pandas.Timestamp gespeichert).</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.with_details">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_details</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.with_details" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_details</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.with_details" title="Link to this definition">¶</a></dt>
 <dd><p>Gibt zurück, ob zusätzliche Details extrahiert werden:</p>
 <ul class="simple">
 <li><p>Bei Trade Republic z. B. zusätzliche Order-Details</p></li>
@@ -237,59 +406,59 @@ Standard: <code class="docutils literal notranslate"><span class="pre">False</sp
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._state">
-<span class="sig-name descname"><span class="pre">_state</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'initialized'</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._state" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_state</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'initialized'</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._state" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._download_directory">
-<span class="sig-name descname"><span class="pre">_download_directory</span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._download_directory" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_download_directory</span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._download_directory" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._initial_file_count">
-<span class="sig-name descname"><span class="pre">_initial_file_count</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._initial_file_count" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_initial_file_count</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._initial_file_count" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.__credentials">
-<span class="sig-name descname"><span class="pre">__credentials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__credentials" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__credentials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__credentials" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.__urls">
-<span class="sig-name descname"><span class="pre">__urls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__urls" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__urls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__urls" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.__data">
-<span class="sig-name descname"><span class="pre">__data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__data" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.__account_balance">
-<span class="sig-name descname"><span class="pre">__account_balance</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__account_balance" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__account_balance</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__account_balance" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.driver">
-<span class="sig-name descname"><span class="pre">driver</span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.driver" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">driver</span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.driver" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.name">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.name" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.name" title="Link to this definition">¶</a></dt>
 <dd><p>Name der Crawler-Instanz.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.data">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.data" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.data" title="Link to this definition">¶</a></dt>
 <dd><p>Heruntergeladene und ggf. verarbeitete Daten.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._credentials">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_credentials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._credentials" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_credentials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._credentials" title="Link to this definition">¶</a></dt>
 <dd><p>Login-Daten für den Crawler. Beinhaltet z. B. Benutzername und Passwort.
 - user: str, Benutzername
 - password: str, Passwort</p>
@@ -297,7 +466,7 @@ Standard: <code class="docutils literal notranslate"><span class="pre">False</sp
 
 <dl class="py property">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._urls">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_urls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._urls" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_urls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._urls" title="Link to this definition">¶</a></dt>
 <dd><p>URLs für den Crawler. Beinhaltet z. B. Login- und Download-Links.
 - login: str, Login-URL
 - transactions: str, Transaktions-URL
@@ -306,49 +475,49 @@ Standard: <code class="docutils literal notranslate"><span class="pre">False</sp
 
 <dl class="py property">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._logger">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_logger</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">logging.Logger</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._logger" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_logger</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">logging.Logger</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._logger" title="Link to this definition">¶</a></dt>
 <dd><p>Interner Logger (für Subklassen).</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.account_balance">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">account_balance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.account_balance" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">account_balance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.account_balance" title="Link to this definition">¶</a></dt>
 <dd><p>Gibt den aktuellen Kontostand zurück.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.login">
-<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.login" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.login" title="Link to this definition">¶</a></dt>
 <dd><p>Wird von Subklassen überschrieben – führt Login auf der Webseite aus.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.download_data">
-<span class="sig-name descname"><span class="pre">download_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.download_data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">download_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.download_data" title="Link to this definition">¶</a></dt>
 <dd><p>Wird von Subklassen überschrieben – startet Download-Vorgang.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.process_data">
-<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">';'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.process_data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">';'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.process_data" title="Link to this definition">¶</a></dt>
 <dd><p>Optional von Subklassen überschreiben – verarbeitet geladene Daten.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.save_data">
-<span class="sig-name descname"><span class="pre">save_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.save_data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.save_data" title="Link to this definition">¶</a></dt>
 <dd><p>Speichert geladene Daten als CSV.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.close" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.close" title="Link to this definition">¶</a></dt>
 <dd><p>Schließt WebDriver und löscht temporäre Ordner.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._load_config">
-<span class="sig-name descname"><span class="pre">_load_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._load_config" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_load_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._load_config" title="Link to this definition">¶</a></dt>
 <dd><p>Lädt Crawler-spezifische Konfiguration aus der zentralen config.yaml.</p>
 <dl class="simple">
 <dt>Diese Methode liest:</dt><dd><ul class="simple">
@@ -369,7 +538,7 @@ Standard: <code class="docutils literal notranslate"><span class="pre">False</sp
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.__enter__">
-<span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler" title="read_transactions.webcrawler.base.WebCrawler"><span class="pre">WebCrawler</span></a></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__enter__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler" title="read_transactions.webcrawler.base.WebCrawler"><span class="pre">WebCrawler</span></a></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__enter__" title="Link to this definition">¶</a></dt>
 <dd><p>Context-Manager-Einstiegspunkt.</p>
 <p>Wird automatisch aufgerufen, wenn der Crawler in einem
 <cite>with</cite>-Block verwendet wird. Gibt die aktuelle Instanz zurück,
@@ -389,7 +558,7 @@ sodass alle Methoden wie gewohnt verfügbar sind.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.__exit__">
-<span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traceback</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__exit__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traceback</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.__exit__" title="Link to this definition">¶</a></dt>
 <dd><p>Context-Manager-Ausstiegspunkt.</p>
 <p>Wird automatisch aufgerufen, wenn der <cite>with</cite>-Block endet,
 unabhängig davon, ob ein Fehler aufgetreten ist.
@@ -415,7 +584,7 @@ unterdrückt werden. (Python wirft sie weiter.)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.wait_for_element">
-<span class="sig-name descname"><span class="pre">wait_for_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.wait_for_element" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">wait_for_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.wait_for_element" title="Link to this definition">¶</a></dt>
 <dd><p>Wartet auf das Vorhandensein eines Elements und gibt es zurück.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
@@ -456,7 +625,7 @@ unterdrückt werden. (Python wirft sie weiter.)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.wait_clickable_and_click">
-<span class="sig-name descname"><span class="pre">wait_clickable_and_click</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.wait_clickable_and_click" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">wait_clickable_and_click</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.wait_clickable_and_click" title="Link to this definition">¶</a></dt>
 <dd><p>Wartet, bis ein Element klickbar ist, und klickt es dann an.
 by_map = {</p>
 <blockquote>
@@ -484,19 +653,19 @@ by_map = {</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.scroll_into_view">
-<span class="sig-name descname"><span class="pre">scroll_into_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.scroll_into_view" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">scroll_into_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.scroll_into_view" title="Link to this definition">¶</a></dt>
 <dd><p>Scrollt ein Element ins Viewport.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.click_js">
-<span class="sig-name descname"><span class="pre">click_js</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.click_js" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">click_js</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.click_js" title="Link to this definition">¶</a></dt>
 <dd><p>Klickt ein Element via JavaScript (Fallback bei Overlay o.Ä.).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.accept_cookies_if_present">
-<span class="sig-name descname"><span class="pre">accept_cookies_if_present</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ellipsis</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('button#onetrust-accept-btn-handler',</span> <span class="pre">&quot;button[aria-label='Akzeptieren']&quot;,</span> <span class="pre">'button.cookie-accept')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_each</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.accept_cookies_if_present" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">accept_cookies_if_present</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ellipsis</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('button#onetrust-accept-btn-handler',</span> <span class="pre">&quot;button[aria-label='Akzeptieren']&quot;,</span> <span class="pre">'button.cookie-accept')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_each</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.accept_cookies_if_present" title="Link to this definition">¶</a></dt>
 <dd><p>Versucht gängige Cookie-Banner wegzuklicken.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
@@ -516,7 +685,7 @@ by_map = {</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._wait_for_new_file">
-<span class="sig-name descname"><span class="pre">_wait_for_new_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._wait_for_new_file" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_wait_for_new_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._wait_for_new_file" title="Link to this definition">¶</a></dt>
 <dd><p>Wartet auf eine neue Datei im Download-Ordner und gibt deren Dateinamen zurück.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
@@ -534,7 +703,7 @@ by_map = {</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._read_temp_files">
-<span class="sig-name descname"><span class="pre">_read_temp_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">';'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._read_temp_files" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_read_temp_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">';'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._read_temp_files" title="Link to this definition">¶</a></dt>
 <dd><p>Liest Dateien aus dem Download-Ordner in <cite>self.data</cite>.</p>
 <p>Unterstützt CSV, XLS, XLSX. Wartet optional, bis temporäre
 Download-Dateien (.crdownload/.tmp) verschwunden sind.</p>
@@ -547,7 +716,7 @@ Download-Dateien (.crdownload/.tmp) verschwunden sind.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._retry_func">
-<span class="sig-name descname"><span class="pre">_retry_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._retry_func" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_retry_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._retry_func" title="Link to this definition">¶</a></dt>
 <dd><p>Versucht die Funktion mehrfach bei Fehlschlag.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
@@ -568,7 +737,7 @@ Download-Dateien (.crdownload/.tmp) verschwunden sind.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._wait_for_manual_exit">
-<span class="sig-name descname"><span class="pre">_wait_for_manual_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._wait_for_manual_exit" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_wait_for_manual_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._wait_for_manual_exit" title="Link to this definition">¶</a></dt>
 <dd><p>Wartet auf manuelles Schließen des Browsers durch den Nutzer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
@@ -585,7 +754,7 @@ Download-Dateien (.crdownload/.tmp) verschwunden sind.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._wait_for_condition">
-<span class="sig-name descname"><span class="pre">_wait_for_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._wait_for_condition" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_wait_for_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._wait_for_condition" title="Link to this definition">¶</a></dt>
 <dd><p>Wartet, bis eine Bedingungsfunktion True zurückgibt.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
@@ -606,7 +775,7 @@ Download-Dateien (.crdownload/.tmp) verschwunden sind.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._delete_header">
-<span class="sig-name descname"><span class="pre">_delete_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'datum'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._delete_header" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_delete_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'datum'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._delete_header" title="Link to this definition">¶</a></dt>
 <dd><p>Löscht die Header-Zeile bis zum header_key aus einem DataFrame und setzt die Spaltennamen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
@@ -623,7 +792,7 @@ Download-Dateien (.crdownload/.tmp) verschwunden sind.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._normalize_dataframe">
-<span class="sig-name descname"><span class="pre">_normalize_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_nan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_as_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._normalize_dataframe" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_normalize_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_nan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_as_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._normalize_dataframe" title="Link to this definition">¶</a></dt>
 <dd><p>Normalisiert die Transaktionsdaten eines DataFrames.
 - Datumsspalten in einheitliches Format bringen
 - Betragsspalten bereinigen
@@ -643,7 +812,7 @@ Download-Dateien (.crdownload/.tmp) verschwunden sind.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._normalize_amount">
-<span class="sig-name descname"><span class="pre">_normalize_amount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._normalize_amount" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_normalize_amount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._normalize_amount" title="Link to this definition">¶</a></dt>
 <dd><p>Bereinigt Währungs-Strings und konvertiert sie in float.
 Unterstützt pandas Series, DataFrames und einzelne Strings.</p>
 <dl class="field-list simple">
@@ -662,35 +831,127 @@ Unterstützt pandas Series, DataFrames und einzelne Strings.</p>
 </section>
 </section>
 
-
-           </div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../trade_republic/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">read_transactions.webcrawler.trade_republic</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../ariva/index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">read_transactions.webcrawler.ariva</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Tim Häberlein
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../ariva/index.html" class="btn btn-neutral float-left" title="read_transactions.webcrawler.ariva" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Zurück</a>
-        <a href="../trade_republic/index.html" class="btn btn-neutral float-right" title="read_transactions.webcrawler.trade_republic" accesskey="n" rel="next">Weiter <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
     </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">read_transactions.webcrawler.base</a><ul>
+<li><a class="reference internal" href="#webcrawler">WebCrawler</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler"><code class="docutils literal notranslate"><span class="pre">WebCrawler</span></code></a><ul>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.__name"><code class="docutils literal notranslate"><span class="pre">WebCrawler.__name</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.__output_path"><code class="docutils literal notranslate"><span class="pre">WebCrawler.__output_path</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._logging_lvl"><code class="docutils literal notranslate"><span class="pre">WebCrawler._logging_lvl</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.__logger"><code class="docutils literal notranslate"><span class="pre">WebCrawler.__logger</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.start_date"><code class="docutils literal notranslate"><span class="pre">WebCrawler.start_date</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.end_date"><code class="docutils literal notranslate"><span class="pre">WebCrawler.end_date</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.with_details"><code class="docutils literal notranslate"><span class="pre">WebCrawler.with_details</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._state"><code class="docutils literal notranslate"><span class="pre">WebCrawler._state</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._download_directory"><code class="docutils literal notranslate"><span class="pre">WebCrawler._download_directory</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._initial_file_count"><code class="docutils literal notranslate"><span class="pre">WebCrawler._initial_file_count</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.__credentials"><code class="docutils literal notranslate"><span class="pre">WebCrawler.__credentials</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.__urls"><code class="docutils literal notranslate"><span class="pre">WebCrawler.__urls</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.__data"><code class="docutils literal notranslate"><span class="pre">WebCrawler.__data</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.__account_balance"><code class="docutils literal notranslate"><span class="pre">WebCrawler.__account_balance</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.driver"><code class="docutils literal notranslate"><span class="pre">WebCrawler.driver</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.name"><code class="docutils literal notranslate"><span class="pre">WebCrawler.name</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.data"><code class="docutils literal notranslate"><span class="pre">WebCrawler.data</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._credentials"><code class="docutils literal notranslate"><span class="pre">WebCrawler._credentials</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._urls"><code class="docutils literal notranslate"><span class="pre">WebCrawler._urls</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._logger"><code class="docutils literal notranslate"><span class="pre">WebCrawler._logger</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.account_balance"><code class="docutils literal notranslate"><span class="pre">WebCrawler.account_balance</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.login"><code class="docutils literal notranslate"><span class="pre">WebCrawler.login()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.download_data"><code class="docutils literal notranslate"><span class="pre">WebCrawler.download_data()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.process_data"><code class="docutils literal notranslate"><span class="pre">WebCrawler.process_data()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.save_data"><code class="docutils literal notranslate"><span class="pre">WebCrawler.save_data()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.close"><code class="docutils literal notranslate"><span class="pre">WebCrawler.close()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._load_config"><code class="docutils literal notranslate"><span class="pre">WebCrawler._load_config()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.__enter__"><code class="docutils literal notranslate"><span class="pre">WebCrawler.__enter__()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.__exit__"><code class="docutils literal notranslate"><span class="pre">WebCrawler.__exit__()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.wait_for_element"><code class="docutils literal notranslate"><span class="pre">WebCrawler.wait_for_element()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.wait_clickable_and_click"><code class="docutils literal notranslate"><span class="pre">WebCrawler.wait_clickable_and_click()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.scroll_into_view"><code class="docutils literal notranslate"><span class="pre">WebCrawler.scroll_into_view()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.click_js"><code class="docutils literal notranslate"><span class="pre">WebCrawler.click_js()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.accept_cookies_if_present"><code class="docutils literal notranslate"><span class="pre">WebCrawler.accept_cookies_if_present()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._wait_for_new_file"><code class="docutils literal notranslate"><span class="pre">WebCrawler._wait_for_new_file()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._read_temp_files"><code class="docutils literal notranslate"><span class="pre">WebCrawler._read_temp_files()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._retry_func"><code class="docutils literal notranslate"><span class="pre">WebCrawler._retry_func()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._wait_for_manual_exit"><code class="docutils literal notranslate"><span class="pre">WebCrawler._wait_for_manual_exit()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._wait_for_condition"><code class="docutils literal notranslate"><span class="pre">WebCrawler._wait_for_condition()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._delete_header"><code class="docutils literal notranslate"><span class="pre">WebCrawler._delete_header()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._normalize_dataframe"><code class="docutils literal notranslate"><span class="pre">WebCrawler._normalize_dataframe()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._normalize_amount"><code class="docutils literal notranslate"><span class="pre">WebCrawler._normalize_amount()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2025, Tim Häberlein.</p>
-  </div>
-
-  Erstellt mit <a href="https://www.sphinx-doc.org/">Sphinx</a> mit einem
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    bereitgestellt von <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
+          </div>
         </div>
       </div>
-    </section>
+      
+      
+    </aside>
   </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
-
-</body>
+</div><script src="../../../../_static/documentation_options.js?v=245627df"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../../../../_static/translations.js?v=9bf55d28"></script>
+    </body>
 </html>
