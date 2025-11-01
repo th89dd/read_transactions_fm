@@ -10,6 +10,8 @@
 /src/read_transactions.egg-info
 readtx.spec
 
+# doc_files
+/docs/_build
 
 
 !/credentials_example.txt

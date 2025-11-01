@@ -4,8 +4,10 @@
 ![python](https://img.shields.io/badge/python-3.12-blue.svg)
 
 
+<!-- docs:summary-start -->
+# Read_Transactions für Finanzmanager
 
-# Read Transactions für Finanzmanager
+**read_transactions** – python Paket zum automatischen Abruf von Finanztransaktionen für den Finanzmanager.
 
 Aktuell unterstützt:
 - **Aktienkurse von Ariva**
@@ -25,6 +27,8 @@ Diese CSV-Dateien können anschließend im Finanzmanager über\
 **Datei → Export/Import → Datenimport → Umsätze** eingelesen werden.\
 Zur Vereinfachung können Importvorlagen genutzt werden – eine Beispielvorlage liegt unter [Vorlagen.dat](Vorlagen.dat).
 
+
+<!-- docs:summary-end -->
 ***
 ***
 
@@ -40,7 +44,7 @@ Zur Vereinfachung können Importvorlagen genutzt werden – eine Beispielvorlage
 6. [Lizenz](#lizenz)
 
 ***
-
+<!-- docs:getting_started-start -->
 ## 🌟 Getting Started (empfohlene Nutzung)
 
 Der einfachste Weg, das Tool zu verwenden, ist über das **vorkompilierte CLI-Programm**:
@@ -91,9 +95,10 @@ Der einfachste Weg, das Tool zu verwenden, ist über das **vorkompilierte CLI-Pr
    ```
    %USERPROFILE%\out\
    ```
-
+<!-- docs:getting_started-end -->
 ***
 
+<!-- docs:cli-start -->
 ## ⚙️ CLI-Kommandos
 
 Das Tool ist vollständig über die Kommandozeile steuerbar.\
@@ -124,8 +129,10 @@ readtx <command> [options]
 | `--l`     | Log-Level (DEBUG, INFO, WARNING, ERROR) | `--l DEBUG`                                               |
 | `--o`     | Zusätzliche Parameter (key=value)       | `--o output_path='myout' browser='chrome' headless=False` |
 
+<!-- docs:cli-end -->
 ***
 
+<!-- docs:examples-start -->
 ## 🧩 Beispiel-Workflows
 
 ### Ariva-Kurse für Q1 2024 abrufen
@@ -168,8 +175,8 @@ readtx run trade_republic --o details=False
 ```bash
 readtx config show --credentials
 ```
-
-
+<!-- docs:examples-end -->
+<!-- docs:installation-start -->
 ## Installation
 
 You can use the following methods to install and use the package.
@@ -224,7 +231,7 @@ You can use the following steps, or you can use the **[bat-file](setup.bat)** to
     ```bash
     deactivate
     ```
-
+<!-- docs:installation-end -->
 ***
 ***
 
@@ -321,6 +328,7 @@ pip install -r requirements.txt
 ```
 
 ***
+<!-- docs:about-start -->
 
 ## Versionshistorie
 | Version | Datum      | Beschreibung                          |
@@ -376,3 +384,4 @@ Die Nutzung automatisierter Zugriffe auf Drittanbieter-Dienste (z. B. Banking-Po
 
 > **Hinweis zur Lizenz:** Die Open-Source-Lizenz dieses Repos (z. B. MIT) bleibt unberührt. Dieser Abschnitt dient der **Aufklärung/Compliance** und begründet **keine** zusätzlichen Rechte.
 
+<!-- docs:about-end -->
