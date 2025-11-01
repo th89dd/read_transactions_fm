@@ -1,5 +1,5 @@
 ![version](https://img.shields.io/badge/version-2.1.1-blue.svg)
-![date](https://img.shields.io/badge/date-2025--10--27-green.svg)
+![date](https://img.shields.io/badge/date-2025--10--30-green.svg)
 ![status](https://img.shields.io/badge/status-dev-yellow.svg)
 ![python](https://img.shields.io/badge/python-3.12-blue.svg)
 
