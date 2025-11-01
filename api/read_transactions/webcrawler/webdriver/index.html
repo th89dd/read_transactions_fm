@@ -1,0 +1,199 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="de" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>read_transactions.webcrawler.webdriver &mdash; read_transactions</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+    <link rel="canonical" href="https://th89dd.github.io/read_transactions_fm/api/read_transactions/webcrawler/webdriver/index.html" />
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=245627df"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/translations.js?v=9bf55d28"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Stichwortverzeichnis" href="../../../../genindex.html" />
+    <link rel="search" title="Suche" href="../../../../search.html" />
+    <link rel="prev" title="read_transactions.webcrawler.trade_republic" href="../trade_republic/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            read_transactions
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Dokumentation durchsuchen" aria-label="Dokumentation durchsuchen" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Inhalt</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">read_transactions</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">read_transactions</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">read_transactions</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">read_transactions.webcrawler</a></li>
+      <li class="breadcrumb-item active">read_transactions.webcrawler.webdriver</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/api/read_transactions/webcrawler/webdriver/index.rst.txt" rel="nofollow"> Quelltext anzeigen</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-read_transactions.webcrawler.webdriver">
+<span id="read-transactions-webcrawler-webdriver"></span><h1>read_transactions.webcrawler.webdriver<a class="headerlink" href="#module-read_transactions.webcrawler.webdriver" title="Link to this heading"></a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">author<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tim Häberlein</p>
+</dd>
+<dt class="field-even">version<span class="colon">:</span></dt>
+<dd class="field-even"><p>1.0</p>
+</dd>
+<dt class="field-odd">date<span class="colon">:</span></dt>
+<dd class="field-odd"><p>21.10.2025</p>
+</dd>
+<dt class="field-even">organisation<span class="colon">:</span></dt>
+<dd class="field-even"><p>TU Dresden, FZM</p>
+</dd>
+</dl>
+<section id="webdriverfactory">
+<h2>WebDriverFactory<a class="headerlink" href="#webdriverfactory" title="Link to this heading"></a></h2>
+<p>Kapselt die Erstellung und Konfiguration von Selenium WebDriver-Instanzen.</p>
+<p>Unterstützte Browser:
+- Edge
+- Chrome
+- Firefox</p>
+<dl>
+<dt>Verwendung:</dt><dd><p>from read_transactions.webcrawler.webdriver import WebDriverFactory</p>
+<dl class="simple">
+<dt>driver = WebDriverFactory.create(</dt><dd><p>browser=“chrome“,
+headless=True,
+download_dir=“/tmp“,
+user_agent=“MyCustomAgent/1.0“</p>
+</dd>
+</dl>
+<p>)</p>
+</dd>
+</dl>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#read_transactions.webcrawler.webdriver.WebDriverFactory" title="read_transactions.webcrawler.webdriver.WebDriverFactory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WebDriverFactory</span></code></a></p></td>
+<td><p>Erzeugt und konfiguriert Selenium WebDriver-Instanzen.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.webdriver.WebDriverFactory">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">read_transactions.webcrawler.webdriver.</span></span><span class="sig-name descname"><span class="pre">WebDriverFactory</span></span><a class="headerlink" href="#read_transactions.webcrawler.webdriver.WebDriverFactory" title="Link to this definition"></a></dt>
+<dd><p>Erzeugt und konfiguriert Selenium WebDriver-Instanzen.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.webdriver.WebDriverFactory.create">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">browser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'edge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headless</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">os.getcwd()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">selenium.webdriver.Remote</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.webdriver.WebDriverFactory.create" title="Link to this definition"></a></dt>
+<dd><p>Erzeugt eine WebDriver-Instanz für den gewünschten Browser.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>browser</strong> – Name des Browsers („edge“, „chrome“, „firefox“).</p></li>
+<li><p><strong>headless</strong> – Aktiviert Headless-Modus (falls unterstützt).</p></li>
+<li><p><strong>download_dir</strong> – Zielverzeichnis für Downloads.</p></li>
+<li><p><strong>user_agent</strong> – Optionaler User-Agent-String.</p></li>
+<li><p><strong>extra_args</strong> – Liste zusätzlicher Argumente für den Browser.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Eine konfigurierte Selenium-WebDriver-Instanz.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p>webdriver.Remote</p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Wenn ein nicht unterstützter Browsername übergeben wird.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../trade_republic/index.html" class="btn btn-neutral float-left" title="read_transactions.webcrawler.trade_republic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Zurück</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Häberlein.</p>
+  </div>
+
+  Erstellt mit <a href="https://www.sphinx-doc.org/">Sphinx</a> mit einem
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    bereitgestellt von <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

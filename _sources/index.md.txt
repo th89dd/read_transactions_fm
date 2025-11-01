@@ -10,7 +10,7 @@
 :caption: Inhalt
 
 cli
-_autoapi/index
+api/index
 ```
 
 
