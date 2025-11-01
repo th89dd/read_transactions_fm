@@ -25,3 +25,16 @@ Submodules
    /api/read_transactions/webcrawler/index
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   read_transactions.AVAILABLE_CRAWLERS
+
+
+Package Contents
+----------------
+
+.. py:data:: AVAILABLE_CRAWLERS
+

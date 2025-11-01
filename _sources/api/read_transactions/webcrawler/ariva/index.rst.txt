@@ -38,7 +38,7 @@ Module Contents
 
 .. py:class:: ArivaCrawler(*args, **kwargs)
 
-   Bases: :py:obj:`src.read_transactions.webcrawler.base.WebCrawler`
+   Bases: :py:obj:`read_transactions.webcrawler.WebCrawler`
 
 
    Crawler für Kursdaten von ariva.de.

@@ -46,7 +46,7 @@ Module Contents
 
 .. py:class:: AmazonVisaCrawler(save_amazon_order: bool = True, *args, **kwargs)
 
-   Bases: :py:obj:`read_transactions.webcrawler.base.WebCrawler`
+   Bases: :py:obj:`read_transactions.webcrawler.WebCrawler`
 
 
    Crawler für Amazon Visa (Zinia).

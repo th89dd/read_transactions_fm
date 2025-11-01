@@ -33,7 +33,7 @@ Module Contents
 
 .. py:class:: AmazonCrawler(otp_method: Optional[str] = None, max_items_per_order: int = 5, title_max_chars: int = 40, *args, **kwargs)
 
-   Bases: :py:obj:`read_transactions.webcrawler.base.WebCrawler`
+   Bases: :py:obj:`read_transactions.webcrawler.WebCrawler`
 
 
    Crawler für Umsätze aus dem Zahlungsbereich von **amazon.de**.

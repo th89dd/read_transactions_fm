@@ -43,7 +43,7 @@ Module Contents
 
 .. py:class:: TradeRepublicCrawler(*args, **kwargs)
 
-   Bases: :py:obj:`read_transactions.webcrawler.base.WebCrawler`
+   Bases: :py:obj:`read_transactions.webcrawler.WebCrawler`
 
 
    TradeRepublicCrawler
