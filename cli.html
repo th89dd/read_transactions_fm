@@ -47,7 +47,16 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Inhalt</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">CLI</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CLI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#read_transactions.cli-build_parser-positional-arguments">Positional Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Sub-commands">Sub-commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#list">list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run">run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
 </ul>
 
@@ -78,6 +87,303 @@
   <section id="cli">
 <h1>CLI<a class="headerlink" href="#cli" title="Link to this heading"></a></h1>
 <p>Die CLI-Dokumentation wird aus dem <code class="docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code> generiert. Dafür muss in <code class="docutils literal notranslate"><span class="pre">read_transactions/cli.py</span></code> eine Funktion <code class="docutils literal notranslate"><span class="pre">build_parser()</span></code> existieren, die den Parser zurückgibt.</p>
+<p><p>CLI für das read_transactions-Projekt – verwaltet und startet Crawler.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">readtx</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="nb">list</span><span class="p">,</span><span class="n">run</span><span class="p">,</span><span class="n">config</span><span class="p">}</span> <span class="o">...</span>
+</pre></div>
+</div>
+<section id="read_transactions.cli-build_parser-positional-arguments">
+<h2>Positional Arguments<a class="headerlink" href="#read_transactions.cli-build_parser-positional-arguments" title="Link to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>command</kbd></dt>
+<dd><p>Possible choices: list, run, config</p>
+<p>Verfügbare Befehle</p>
+</dd>
+</dl>
+</section>
+<section id="Sub-commands">
+<h2>Sub-commands<a class="headerlink" href="#Sub-commands" title="Link to this heading"></a></h2>
+<section id="list">
+<h3>list<a class="headerlink" href="#list" title="Link to this heading"></a></h3>
+<p>Listet alle verfügbaren Crawler auf</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="nb">list</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="run">
+<h3>run<a class="headerlink" href="#run" title="Link to this heading"></a></h3>
+<p>Startet einen bestimmten Crawler oder all</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">run</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">start</span> <span class="n">Startdatum</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">end</span> <span class="n">Enddatum</span><span class="p">]</span>
+           <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="p">{</span><span class="n">DEBUG</span><span class="p">,</span><span class="n">INFO</span><span class="p">,</span><span class="n">WARNING</span><span class="p">,</span><span class="n">ERROR</span><span class="p">,</span><span class="n">CRITICAL</span><span class="p">}]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="p">[</span><span class="n">key</span><span class="o">=</span><span class="n">value</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">]</span>
+           <span class="p">[</span><span class="o">--</span><span class="n">include</span> <span class="p">[</span><span class="n">INCLUDE</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">exclude</span> <span class="p">[</span><span class="n">EXCLUDE</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span>
+           <span class="p">[</span><span class="o">-</span><span class="n">p</span> <span class="n">PARALLEL</span><span class="p">]</span>
+           <span class="p">[</span><span class="n">crawler</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h4>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Link to this heading"></a></h4>
+<dl class="option-list">
+<dt><kbd>crawler</kbd></dt>
+<dd><p>Name des Crawlers, z. B. amazon_visa, amex (weglassen bei –all).</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments">
+<h4>Named Arguments<a class="headerlink" href="#named-arguments" title="Link to this heading"></a></h4>
+<dl class="option-list">
+<dt><kbd>--start</kbd></dt>
+<dd><p>Startdatum im Format (dd.mm.yyyy) (default: heute - 1 Tag)</p>
+</dd>
+<dt><kbd>--end</kbd></dt>
+<dd><p>Enddatum im Format (dd.mm.yyyy) (default: heute - 6 Monate)</p>
+</dd>
+<dt><kbd>-l, --log-level</kbd></dt>
+<dd><p>Possible choices: DEBUG, INFO, WARNING, ERROR, CRITICAL</p>
+<p>Logging-Level für den Konsolenhandler</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">INFO</span></code></p>
+</dd>
+<dt><kbd>-o, --options</kbd></dt>
+<dd><p>Zusatzparameter, siehe Klassen-Dokumentation des jeweiligen Crawlers</p>
+</dd>
+<dt><kbd>-a, --all</kbd></dt>
+<dd><p>Startet alle in run_all konfigurierten Crawler</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><kbd>--include</kbd></dt>
+<dd><p>Nur diese Crawler (mit -a/–all)</p>
+</dd>
+<dt><kbd>--exclude</kbd></dt>
+<dd><p>Diese Crawler ausschließen (mit -a/–all)</p>
+</dd>
+<dt><kbd>--dry-run</kbd></dt>
+<dd><p>Nur anzeigen, was laufen würde</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><kbd>-p, --parallel</kbd></dt>
+<dd><p>Anzahl paralleler Prozesse (0/1 = sequentiell) - <em>experimentell</em></p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">0</span></code></p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="config">
+<h3>config<a class="headerlink" href="#config" title="Link to this heading"></a></h3>
+<p>Verwaltet die Konfiguration</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="n">show</span><span class="p">,</span><span class="n">clear</span><span class="p">,</span><span class="n">edit</span><span class="p">,</span><span class="n">init</span><span class="p">,</span><span class="nb">set</span><span class="p">,</span><span class="n">run</span><span class="o">-</span><span class="nb">all</span><span class="p">}</span> <span class="o">...</span>
+</pre></div>
+</div>
+<section id="positional-arguments_repeat1">
+<h4>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat1" title="Link to this heading"></a></h4>
+<dl class="option-list">
+<dt><kbd>action</kbd></dt>
+<dd><p>Possible choices: show, clear, edit, init, set, run-all</p>
+<p>Verfügbare Aktionen</p>
+</dd>
+</dl>
+</section>
+<section id="Sub-commands_repeat1">
+<h4>Sub-commands<a class="headerlink" href="#Sub-commands_repeat1" title="Link to this heading"></a></h4>
+<section id="show">
+<h5>show<a class="headerlink" href="#show" title="Link to this heading"></a></h5>
+<p>Zeigt die aktuelle Konfiguration an</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="n">show</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">credentials</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">urls</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat1">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat1" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>--credentials</kbd></dt>
+<dd><p>Zeigt nur verschlüsselte Zugangsdaten im Klartext an</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><kbd>--urls</kbd></dt>
+<dd><p>Zeigt nur die konfigurierten URLs an</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="clear">
+<h5>clear<a class="headerlink" href="#clear" title="Link to this heading"></a></h5>
+<p>Löscht Cache oder Datei</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="n">clear</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">delete</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat2">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat2" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>--delete</kbd></dt>
+<dd><p>Löscht zusätzlich die Datei</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="edit">
+<h5>edit<a class="headerlink" href="#edit" title="Link to this heading"></a></h5>
+<p>Ändert einen Config-Eintrag</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="n">edit</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="n">key</span> <span class="n">value</span>
+</pre></div>
+</div>
+<section id="positional-arguments_repeat2">
+<h6>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat2" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>key</kbd></dt>
+<dd><p>Pfad (z. B. credentials.amex.user)</p>
+</dd>
+<dt><kbd>value</kbd></dt>
+<dd><p>Neuer Wert</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="init">
+<h5>init<a class="headerlink" href="#init" title="Link to this heading"></a></h5>
+<p>Erstellt eine Default-Konfiguration</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="n">init</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">overwrite</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">path</span> <span class="n">PATH</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat3">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat3" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>--overwrite</kbd></dt>
+<dd><p>Überschreibt bestehende Datei</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt><kbd>--path</kbd></dt>
+<dd><p>Pfad zur Konfigurationsdatei (default: %USERPROFILE%/.config/read_transactions/config.yaml)</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="set">
+<h5>set<a class="headerlink" href="#set" title="Link to this heading"></a></h5>
+<p>Setzt Benutzername und/oder Passwort für einen Crawler</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="nb">set</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">user</span> <span class="n">USER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">pwd</span> <span class="n">PWD</span><span class="p">]</span> <span class="n">crawler</span>
+</pre></div>
+</div>
+<section id="positional-arguments_repeat3">
+<h6>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat3" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>crawler</kbd></dt>
+<dd><p>Crawler-Name (z. B. amex, amazon_visa)</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments_repeat4">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat4" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>--user</kbd></dt>
+<dd><p>Benutzername</p>
+</dd>
+<dt><kbd>--pwd</kbd></dt>
+<dd><p>Passwort (wird verschlüsselt gespeichert)</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="run-all">
+<h5>run-all<a class="headerlink" href="#run-all" title="Link to this heading"></a></h5>
+<p>Konfiguriert, welche Crawler bei ‚run -a/–all‘ berücksichtigt werden</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="n">run</span><span class="o">-</span><span class="nb">all</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="n">show</span><span class="p">,</span><span class="n">enable</span><span class="p">,</span><span class="n">disable</span><span class="p">,</span><span class="nb">set</span><span class="p">}</span> <span class="o">...</span>
+</pre></div>
+</div>
+<section id="positional-arguments_repeat4">
+<h6>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat4" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>ra_action</kbd></dt>
+<dd><p>Possible choices: show, enable, disable, set</p>
+<p>Aktionen</p>
+</dd>
+</dl>
+</section>
+<section id="Sub-commands_repeat2">
+<h6>Sub-commands<a class="headerlink" href="#Sub-commands_repeat2" title="Link to this heading"></a></h6>
+<section id="show_repeat1">
+<h6 aria-level="7">show<a class="headerlink" href="#show_repeat1" title="Link to this heading"></a></h6>
+<p>Zeigt die run_all-Einstellungen</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="n">run</span><span class="o">-</span><span class="nb">all</span> <span class="n">show</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">e</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat5">
+<h6 aria-level="8">Named Arguments<a class="headerlink" href="#named-arguments_repeat5" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>-e, --effective</kbd></dt>
+<dd><p>Zeigt zusätzlich die tatsächlich aktivierten &amp; verfügbaren Crawler</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="enable">
+<h6 aria-level="7">enable<a class="headerlink" href="#enable" title="Link to this heading"></a></h6>
+<p>Aktiviert einen/mehrere Crawler für –all</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="n">run</span><span class="o">-</span><span class="nb">all</span> <span class="n">enable</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="n">crawler</span> <span class="p">[</span><span class="n">crawler</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments_repeat5">
+<h6 aria-level="8">Positional Arguments<a class="headerlink" href="#positional-arguments_repeat5" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>crawler</kbd></dt>
+<dd><ol class="loweralpha simple" start="26">
+<li><ol class="upperalpha simple" start="2">
+<li><p>amex ariva trade_republic</p></li>
+</ol>
+</li>
+</ol>
+</dd>
+</dl>
+</section>
+</section>
+<section id="disable">
+<h6 aria-level="7">disable<a class="headerlink" href="#disable" title="Link to this heading"></a></h6>
+<p>Deaktiviert einen/mehrere Crawler für –all</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="n">run</span><span class="o">-</span><span class="nb">all</span> <span class="n">disable</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="n">crawler</span> <span class="p">[</span><span class="n">crawler</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments_repeat6">
+<h6 aria-level="8">Positional Arguments<a class="headerlink" href="#positional-arguments_repeat6" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>crawler</kbd></dt>
+<dd><ol class="loweralpha simple" start="26">
+<li><ol class="upperalpha simple" start="2">
+<li><p>amex ariva trade_republic</p></li>
+</ol>
+</li>
+</ol>
+</dd>
+</dl>
+</section>
+</section>
+<section id="set_repeat1">
+<h6 aria-level="7">set<a class="headerlink" href="#set_repeat1" title="Link to this heading"></a></h6>
+<p>Setzt einen Crawler explizit auf on/off</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readtx</span> <span class="n">config</span> <span class="n">run</span><span class="o">-</span><span class="nb">all</span> <span class="nb">set</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">off</span><span class="p">]</span> <span class="n">crawler</span>
+</pre></div>
+</div>
+<section id="positional-arguments_repeat7">
+<h6 aria-level="8">Positional Arguments<a class="headerlink" href="#positional-arguments_repeat7" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>crawler</kbd></dt>
+<dd><p>Crawler-Name</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments_repeat6">
+<h6 aria-level="8">Named Arguments<a class="headerlink" href="#named-arguments_repeat6" title="Link to this heading"></a></h6>
+<dl class="option-list">
+<dt><kbd>--off</kbd></dt>
+<dd><p>auf aus setzen, sonst an</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
 </section>
 
 
