@@ -33,13 +33,7 @@ Module Contents
 
 .. py:function:: list_crawlers() -> None
 
-   Zeigt alle verfügbaren Crawler aus der Registry an.
-
-
 .. py:function:: run_crawler(name: str, start: str, end: str, log_level: str, options: dict | None = None) -> None
-
-   Startet den angegebenen Crawler.
-
 
 .. py:function:: run_all_crawlers(start: str | None, end: str | None, log_level: str, options: dict | None = None, include: list[str] | None = None, exclude: list[str] | None = None, dry_run: bool = False, parallel: int = 0) -> None
 
@@ -64,9 +58,6 @@ Module Contents
 
 
 .. py:function:: _configure_logging() -> None
-
-   Konfiguriert das Logging – nur im CLI-Lauf, niemals beim Import (Sphinx!).
-
 
 .. py:function:: main(argv: list[str] | None = None) -> None
 
