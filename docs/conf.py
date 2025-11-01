@@ -31,10 +31,11 @@ extensions = [
 
 # MyST (Markdown) Optionen
 myst_enable_extensions = [
-    "deflist",
-    "fieldlist",
-    "attrs_block",
-    "attrs_inline",
+    "deflist",      # Definition Lists
+    "fieldlist",    # Field Lists
+    "attrs_block",  # Attribute-Blöcke
+    "attrs_inline", # Attribute Inline
+    "colon_fence",  #- Erweiterte Codeblöcke
 ]
 
 # AutoAPI – erzeugt API-Referenz vollständig aus Codebaum
