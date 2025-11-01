@@ -44,6 +44,12 @@ autoapi_add_toctree_entry = True
 # Bei Bedarf: Dateien behalten, um Output einzusehen
 # autoapi_keep_files = True
 
+# Kein Unterstrich-Verzeichnis für AutoAPI (umgeh Jekyll-Eigenheiten)
+autoapi_root = "api"            # <— statt _autoapi
+
+# Basis-URL setzen (hilft bei Kanonischen Links/Previews)
+html_baseurl = "https://th89dd.github.io/read_transactions_fm/"
+
 # Templates, Patterns
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
