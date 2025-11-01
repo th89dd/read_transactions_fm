@@ -25,6 +25,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install sphinx furo sphinx-rtd-theme myst-parser sphinx-autoapi sphinx-argparse
 
+      - name: Clean build dir
+        run: rm -rf docs/_build
+
+      - name: Build HTML (full rebuild)
+        run: sphinx-build -b html -a -E docs docs/_build/html
+
       - name: Build HTML
         run: |
           sphinx-build -b html -v docs docs/_build/html
