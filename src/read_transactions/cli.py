@@ -14,14 +14,14 @@ import ast  # Für sichere Auswertung von Literal-Ausdrücken
 # import pandas as pd
 # from concurrent.futures import ProcessPoolExecutor, as_completed
 
-try:
-    from read_transactions.logger import MainLogger
-    from read_transactions.webcrawler import AVAILABLE_CRAWLERS
-    from read_transactions.config import ConfigManager
-except ImportError:
-    from src.read_transactions.logger import MainLogger
-    from src.read_transactions.webcrawler import AVAILABLE_CRAWLERS
-    from src.read_transactions.config import ConfigManager
+# try:
+from read_transactions.logger import MainLogger
+from read_transactions.webcrawler import AVAILABLE_CRAWLERS
+from read_transactions.config import ConfigManager
+# except ImportError:
+    # from src.read_transactions.logger import MainLogger
+    # from src.read_transactions.webcrawler import AVAILABLE_CRAWLERS
+    # from src.read_transactions.config import ConfigManager
 
 # -------- /import block ---------
 """
