@@ -74,17 +74,38 @@ Der einfachste Weg, das Tool zu verwenden, ist über das **vorkompilierte CLI-Pr
 
    Dadurch wird automatisch eine Beispiel-`config.yaml` unter\
    `%USERPROFILE%\.config\read_transactions\config.yaml` erstellt.\
-   Trage dort deine Zugangsdaten (Benutzername/Passwort) ein oder nutze:
-
+   Trage dort deine Zugangsdaten (Benutzername/Passwort) ein oder nutze z. B. für amazon_visa:
+    
    ```bash
-   readtx config set amex --user <USERNAME> --pwd <PASSWORT>
+   readtx config set amazon_visa --user <USERNAME> --pwd <PASSWORT>
    ```
+   
+    >**Hinweis**:  
+    Wenn du die Zugangsdaten über das CLI-Tool setzt, werden diese verschlüsselt in der Config-Datei gespeichert.
+   
 
-4. **Crawler starten** Beispiel – Starte den Ariva-Crawler:
+4. **Crawler starten**:
+    
+    Starte den gewünschten Crawler mit dem `run`-Befehl.
+    
+    Zum Beispiel den Amazon Visa-Crawler:
+    ```bash
+    readtx run amazon_visa
+    ```
+   
+    Standardmäßig werden die Umsätze der letzten 6 Monate abgerufen.  
+    Dabei werden die Umsätze mit den Bestellungen von Amazon.de abgeglichen und gespeichert 
+    (``Details=True, save_orders=True``).
+    
+    Wenn du nur die Umsätze ohne Bestellungen abrufen möchtest, kannst du das so machen:
+    ```bash
+    readtx run amazon_visa --o details=False save_orders=False
+    ```
 
-   ```bash
-   readtx run ariva --start 01.01.2024 --end 31.03.2024 --l INFO
-   ```
+    Du kannst start und End-Datum setzen, z. B. für das erste Quartal 2024:
+    ```bash
+    readtx run amazon_visa --start 01.01.2024 --end 31.03.2024
+    ```
 
    oder den Trade-Republic-Crawler im Debug-Modus:
 
@@ -93,10 +114,10 @@ Der einfachste Weg, das Tool zu verwenden, ist über das **vorkompilierte CLI-Pr
    ```
 
 5. **Ergebnisse ansehen**\
-   Nach Abschluss findest du die CSV-Dateien im Ordner:
+   Nach Abschluss findest du die CSV-Dateien im aktuellen working-Dir unter dem Ordner:
 
    ```
-   %USERPROFILE%\out\
+   out\
    ```
 <!-- docs:getting_started-end -->
 ***

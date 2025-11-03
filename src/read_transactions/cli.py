@@ -183,7 +183,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser_run.add_argument("crawler", nargs='?',
                             help="Name des Crawlers, z. B. amazon_visa, amex (weglassen bei --all).")
     parser_run.add_argument("--start", metavar='Startdatum', type=str,
-                            help="Startdatum im Format (dd.mm.yyyy) (default: heute - 1 Tag)")
+                            help="Startdatum im Format (dd.mm.yyyy) (default: heute)")
     parser_run.add_argument("--end", metavar='Enddatum', type=str,
                             help="Enddatum im Format (dd.mm.yyyy) (default: heute - 6 Monate)")
     parser_run.add_argument("-l", "--log-level", dest='log_level',
