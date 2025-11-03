@@ -28,7 +28,7 @@ um diese z. B. im **Finanzmanager** zu importieren.
 Alle abgeholten Umsätze werden nach Dienstleister sortiert im Ordner [`out`](out) gespeichert.\
 Diese CSV-Dateien können anschließend im Finanzmanager über\
 **Datei → Export/Import → Datenimport → Umsätze** eingelesen werden.\
-Zur Vereinfachung können Importvorlagen genutzt werden – eine Beispielvorlage liegt unter [Vorlagen.dat](Vorlagen.dat).
+Zur Vereinfachung können Importvorlagen genutzt werden – eine Beispielvorlage liegt unter [Vorlagen.dat](https://github.com/th89dd/read_transactions_fm/releases/download/v2.1.1/Vorlagen.dat).
 
 
 <!-- docs:summary-end -->
@@ -366,9 +366,12 @@ das Icon ist in der svg datei unter [assets/icon.svg]('assets/icon.svg') gespeic
        winget install -e --id ImageMagick.ImageMagick
        ```
 2. Konvertierung
+    aus svg erzeugen (kein transparenter hintergrund):
     ```bash
     magick assets/readtx_icon.svg -background none -alpha on -define icon:auto-resize=16,24,32,48,64,128,256 -define icon:format=png assets/readtx.ico
     ```
+
+    oder aus png erzeugen:
     ````bash
     magick assets/readtx.png -define icon:auto-resize=16,24,32,48,64,128,256 -define icon:format=png assets\readtx.ico
     ````
