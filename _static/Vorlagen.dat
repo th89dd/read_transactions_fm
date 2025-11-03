@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<QPROFILES>
+	<INFO VERSION="1">
+		<DATUM>TT.MM.JJJJ</DATUM>
+		<WAEHRUNG>
+			<DEZIMAL>,</DEZIMAL>
+			<TAUSENDER>.</TAUSENDER>
+			<NAME>EURO</NAME>
+			<ZEICHEN>€</ZEICHEN>
+		</WAEHRUNG>
+	</INFO>
+	<PROFILES>
+		<ITEM>
+			<Name>Amex</Name>
+			<Type>2</Type>
+			<Format>TXT</Format>
+			<Steps>4</Steps>
+			<Filter>Text- oder CSV-Datei (*.txt;*.csv)|*.txt;*.csv</Filter>
+			<Description>python script zum download verwenden</Description>
+			<CurrencyFormat>COMMA</CurrencyFormat>
+			<DateFormat>TT.MM.JJJJ</DateFormat>
+			<FieldSeparator>NONE</FieldSeparator>
+			<Divider>SEMICOLON</Divider>
+			<TextDivider></TextDivider>
+			<StartInRow>1</StartInRow>
+			<Style>FLOATING</Style>
+			<FieldNames>KNOWN</FieldNames>
+			<Table>STATEMENTS</Table>
+			<AddressOverwrite></AddressOverwrite>
+			<Source>C:\read_transactions\out\AmexTransaction.csv</Source>
+			<Targetname>02_American Express</Targetname><Targetid>27</Targetid>
+			<ColumnPositions></ColumnPositions>
+			<ColumnAssignments>4</ColumnAssignments>
+			<Columns>
+				<Col><Target>0</Target><Source1>0</Source1><Source2>-1</Source2></Col>
+				<Col><Target>1</Target><Source1>0</Source1><Source2>-1</Source2></Col>
+				<Col><Target>8</Target><Source1>2</Source1><Source2>-1</Source2></Col>
+				<Col><Target>4</Target><Source1>1</Source1><Source2>-1</Source2></Col>
+			</Columns>
+		</ITEM>
+		<ITEM>
+			<Name>TradeRepublic</Name>
+			<Type>2</Type>
+			<Format>TXT</Format>
+			<Steps>4</Steps>
+			<Filter>Text- oder CSV-Datei (*.txt;*.csv)|*.txt;*.csv</Filter>
+			<Description>python script zum download ausführen:
+- Umsätze aus der Web Ansicht in ein Textfile kopieren
+- mit pyhton in csv-Umwandeln</Description>
+			<CurrencyFormat>COMMA</CurrencyFormat>
+			<DateFormat>TT.MM.JJJJ</DateFormat>
+			<FieldSeparator>NONE</FieldSeparator>
+			<Divider>SEMICOLON</Divider>
+			<TextDivider></TextDivider>
+			<StartInRow>1</StartInRow>
+			<Style>FLOATING</Style>
+			<FieldNames>KNOWN</FieldNames>
+			<Table>STATEMENTS</Table>
+			<AddressOverwrite></AddressOverwrite>
+			<Source>C:\read_transactions\out\TradeRepublicTransactions.csv</Source>
+			<Targetname>91_TR_Verrechnung</Targetname><Targetid>77</Targetid>
+			<ColumnPositions></ColumnPositions>
+			<ColumnAssignments>5</ColumnAssignments>
+			<Columns>
+				<Col><Target>0</Target><Source1>0</Source1><Source2>-1</Source2></Col>
+				<Col><Target>3</Target><Source1>3</Source1><Source2>-1</Source2></Col>
+				<Col><Target>1</Target><Source1>0</Source1><Source2>-1</Source2></Col>
+				<Col><Target>4</Target><Source1>2</Source1><Source2>-1</Source2></Col>
+				<Col><Target>8</Target><Source1>1</Source1><Source2>-1</Source2></Col>
+			</Columns>
+		</ITEM>
+		<ITEM>
+			<Name>Kurse_Ariva</Name>
+			<Type>2</Type>
+			<Format>TXT</Format>
+			<Steps>4</Steps>
+			<Filter>Text- oder CSV-Datei (*.txt;*.csv)|*.txt;*.csv</Filter>
+			<Description>python script nutzen, welches:
+- Kurse von https://www.ariva.de/ downloaden
+- mit pyhton zusammenfassen</Description>
+			<CurrencyFormat>COMMA</CurrencyFormat>
+			<DateFormat>TT.MM.JJJJ</DateFormat>
+			<FieldSeparator>NONE</FieldSeparator>
+			<Divider>SEMICOLON</Divider>
+			<TextDivider></TextDivider>
+			<StartInRow>1</StartInRow>
+			<Style>FLOATING</Style>
+			<FieldNames>KNOWN</FieldNames>
+			<Table>SECURITYDATA</Table>
+			<Source>C:\read_transactions\out\ArivaKurse.csv</Source>
+			<AddressOverwrite>SKIP</AddressOverwrite>
+			<Targetname>&lt;Alle Kurse importieren&gt;</Targetname><Targetid>-1</Targetid>
+			<ColumnPositions></ColumnPositions>
+			<ColumnAssignments>5</ColumnAssignments>
+			<Columns>
+				<Col><Target>1</Target><Source1>0</Source1><Source2>-1</Source2></Col>
+				<Col><Target>3</Target><Source1>2</Source1><Source2>-1</Source2></Col>
+				<Col><Target>4</Target><Source1>3</Source1><Source2>-1</Source2></Col>
+				<Col><Target>2</Target><Source1>1</Source1><Source2>-1</Source2></Col>
+				<Col><Target>0</Target><Source1>4</Source1><Source2>-1</Source2></Col>
+			</Columns>
+		</ITEM>
+		<ITEM>
+			<Name>Amazon_Kreditkarte</Name>
+			<Type>2</Type>
+			<Format>TXT</Format>
+			<Steps>4</Steps>
+			<Filter>Text- oder CSV-Datei (*.txt;*.csv)|*.txt;*.csv</Filter>
+			<Description></Description>
+			<CurrencyFormat>COMMA</CurrencyFormat>
+			<DateFormat>TT.MM.JJJJ</DateFormat>
+			<FieldSeparator>NONE</FieldSeparator>
+			<Divider>SEMICOLON</Divider>
+			<TextDivider></TextDivider>
+			<StartInRow>1</StartInRow>
+			<Style>FLOATING</Style>
+			<FieldNames>KNOWN</FieldNames>
+			<Table>STATEMENTS</Table>
+			<AddressOverwrite></AddressOverwrite>
+			<Source>C:\read_transactions\AmazonTransactions.csv</Source>
+			<Targetname>02_Amazon_Kreditkarte</Targetname><Targetid>84</Targetid>
+			<ColumnPositions></ColumnPositions>
+			<ColumnAssignments>5</ColumnAssignments>
+			<Columns>
+				<Col><Target>0</Target><Source1>0</Source1><Source2>-1</Source2></Col>
+				<Col><Target>4</Target><Source1>1</Source1><Source2>-1</Source2></Col>
+				<Col><Target>8</Target><Source1>2</Source1><Source2>-1</Source2></Col>
+				<Col><Target>9</Target><Source1>4</Source1><Source2>-1</Source2></Col>
+				<Col><Target>11</Target><Source1>3</Source1><Source2>-1</Source2></Col>
+			</Columns>
+		</ITEM>
+	</PROFILES>
+</QPROFILES>
