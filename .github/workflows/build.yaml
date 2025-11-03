@@ -1,8 +1,11 @@
 name: Build (executable + wheel) on Windows
 on:
-    push:
-        branches:
-        - master
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write  # Für Release-Assets
 
 jobs:
   build-windows:
@@ -93,9 +96,10 @@ jobs:
       if: steps.latest.outputs.tag != ''
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ steps.latest.outputs.tag }}
+        tag_name: ${{ steps.latest.outputs.tag }}   # << WICHTIG: echter Tag!
         files: |
           dist/*.exe
           dist/*.whl
+        fail_on_unmatched_files: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
