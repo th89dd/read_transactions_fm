@@ -311,7 +311,7 @@ dabei funktionieren aber keine relativen Pfade mehr, die vom paket ausgehen (fro
 
 im Projektroot ausführen (da wo "src/" liegt):
 ````bash
-pyinstaller --onefile --name readtx --paths src src/read_transactions/__main__.py --collect-submodules read_transactions
+pyinstaller --onefile --name readtx --paths src src/read_transactions/__main__.py --collect-submodules read_transactions --icon assets/readtx.ico
 ````
 
 #### Get Required Packages
@@ -333,6 +333,21 @@ Install required packages from `requirements.txt`:
 ```bash
 pip install -r requirements.txt
 ```
+
+### Icon-Datei erstellen
+das Icon ist in der svg datei unter [assets/icon.svg]('assets/icon.svg') gespeichert.
+
+### Konvertierung in .ico
+1. Install Imagemagick 
+   - [Website](https://imagemagick.org/script/download.php)
+   - mit winget:
+       ```bash
+       winget install -e --id ImageMagick.ImageMagick
+       ```
+2. Konvertierung
+    ```bash
+    magick assets/readtx_icon.svg -define icon:auto-resize=16,24,32,48,64,128,256 assets/readtx.ico
+    ```
 
 ***
 <!-- docs:about-start -->

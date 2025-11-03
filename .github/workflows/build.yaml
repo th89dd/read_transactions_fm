@@ -36,7 +36,7 @@ jobs:
 
     - name: Build Executable
       run: |
-        pyinstaller --onefile --name readtx --paths src src/read_transactions/__main__.py --collect-submodules read_transactions
+        pyinstaller --onefile --name readtx --paths src src/read_transactions/__main__.py --collect-submodules read_transactions --icon assets/readtx.ico
         # The executable will be in the dist/ directory created by PyInstaller
 
     # --- Release-Teil: neuestes Release ermitteln, Assets löschen, neue hochladen ---
