@@ -18,6 +18,10 @@ Aktuell unterstützt:
 
 Hier findest du die **[vollständige Dokumentation](https://th89dd.github.io/read_transactions_fm/)** des CLI-Interfaces und der Klassen.
 
+Um schnell loszulegen, siehe den Abschnitt [Getting Started](#-getting-started-empfohlene-nutzung).
+
+Für Fragen, Anmerkungen oder Probleme könnt ihr gern eine Diskussion im [GitHub-Repository](https://github.com/th89dd/read_transactions_fm/discussions) eröffnen. 
+
 ***
 
 Diese Scriptsammlung dient dazu, Transaktionen via „WebCrawler“\
