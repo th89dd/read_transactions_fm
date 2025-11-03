@@ -183,7 +183,7 @@ class WebCrawler:
         :return: -
         """
         if value is None:
-            value = pd.to_datetime("today")- pd.DateOffset(days=1)
+            value = pd.to_datetime("today") #- pd.DateOffset(days=1)
         if isinstance(value, str):
             value = pd.to_datetime(value, format="%d.%m.%Y", errors="raise")
         elif isinstance(value, datetime.date):
@@ -871,11 +871,18 @@ class WebCrawler:
                 df = df.dropna(subset=[date_cols])  # Zeilen mit ungültigen Daten entfernen
                 dropped = before_drop - len(df)
                 if dropped > 0:
-                    self._logger.debug(f"{dropped} Zeilen mit ungültigen Datumseinträgen entfernt.")
+                    self._logger.info(f"{dropped} Zeilen mit ungültigen Datumseinträgen entfernt.")
+                # Start und Enddatum filtern
+                before_drop = len(df)
+                df = df[(df[date_cols] <= self.start_date) & (df[date_cols] >= self.end_date)]
+                dropped = before_drop - len(df)
+                if dropped > 0:
+                    self._logger.info(f"{dropped} Zeilen außerhalb des Datumsbereichs entfernt.")
                 # formatieren
                 # -> als datetime belassen und beim speichern formatieren
                 if date_as_str:
                     df[date_cols] = df[date_cols].dt.strftime('%d.%m.%Y')
+
 
             except Exception:
                 self._logger.error("Fehler bei der Normalisierung der Datumsspalte", exc_info=True)
