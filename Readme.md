@@ -367,7 +367,7 @@ das Icon ist in der svg datei unter [assets/icon.svg]('assets/icon.svg') gespeic
        ```
 2. Konvertierung
     ```bash
-    magick assets/readtx_icon.svg -define icon:auto-resize=16,24,32,48,64,128,256 assets/readtx.ico
+    magick assets/readtx_icon.svg -background none -alpha on -define icon:auto-resize=16,24,32,48,64,128,256 -define icon:format=png assets/readtx.ico
     ```
 
 ***
