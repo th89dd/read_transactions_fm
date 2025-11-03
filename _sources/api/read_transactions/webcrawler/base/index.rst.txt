@@ -147,6 +147,8 @@ Module Contents
 
 
    .. py:attribute:: _download_directory
+      :value: b'.'
+
 
 
    .. py:attribute:: _initial_file_count

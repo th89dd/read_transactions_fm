@@ -319,13 +319,30 @@ Erstelle deine persönliche Konfigurationsdatei:</p>
 </div>
 <p>Dadurch wird automatisch eine Beispiel-<code class="docutils literal notranslate"><span class="pre">config.yaml</span></code> unter<br />
 <code class="docutils literal notranslate"><span class="pre">%USERPROFILE%\.config\read_transactions\config.yaml</span></code> erstellt.<br />
-Trage dort deine Zugangsdaten (Benutzername/Passwort) ein oder nutze:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>amex<span class="w"> </span>--user<span class="w"> </span>&lt;USERNAME&gt;<span class="w"> </span>--pwd<span class="w"> </span>&lt;PASSWORT&gt;
+Trage dort deine Zugangsdaten (Benutzername/Passwort) ein oder nutze z. B. für amazon_visa:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>amazon_visa<span class="w"> </span>--user<span class="w"> </span>&lt;USERNAME&gt;<span class="w"> </span>--pwd<span class="w"> </span>&lt;PASSWORT&gt;
 </pre></div>
 </div>
+<blockquote>
+<div><p><strong>Hinweis</strong>:<br />
+Wenn du die Zugangsdaten über das CLI-Tool setzt, werden diese verschlüsselt in der Config-Datei gespeichert.</p>
+</div></blockquote>
 </li>
-<li><p><strong>Crawler starten</strong> Beispiel – Starte den Ariva-Crawler:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>run<span class="w"> </span>ariva<span class="w"> </span>--start<span class="w"> </span><span class="m">01</span>.01.2024<span class="w"> </span>--end<span class="w"> </span><span class="m">31</span>.03.2024<span class="w"> </span>--l<span class="w"> </span>INFO
+<li><p><strong>Crawler starten</strong>:</p>
+<p>Starte den gewünschten Crawler mit dem <code class="docutils literal notranslate"><span class="pre">run</span></code>-Befehl.</p>
+<p>Zum Beispiel den Amazon Visa-Crawler:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>run<span class="w"> </span>amazon_visa
+</pre></div>
+</div>
+<p>Standardmäßig werden die Umsätze der letzten 6 Monate abgerufen.<br />
+Dabei werden die Umsätze mit den Bestellungen von Amazon.de abgeglichen und gespeichert
+(<code class="docutils literal notranslate"><span class="pre">Details=True,</span> <span class="pre">save_orders=True</span></code>).</p>
+<p>Wenn du nur die Umsätze ohne Bestellungen abrufen möchtest, kannst du das so machen:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>run<span class="w"> </span>amazon_visa<span class="w"> </span>--o<span class="w"> </span><span class="nv">details</span><span class="o">=</span>False<span class="w"> </span><span class="nv">save_orders</span><span class="o">=</span>False
+</pre></div>
+</div>
+<p>Du kannst start und End-Datum setzen, z. B. für das erste Quartal 2024:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>readtx<span class="w"> </span>run<span class="w"> </span>amazon_visa<span class="w"> </span>--start<span class="w"> </span><span class="m">01</span>.01.2024<span class="w"> </span>--end<span class="w"> </span><span class="m">31</span>.03.2024
 </pre></div>
 </div>
 <p>oder den Trade-Republic-Crawler im Debug-Modus:</p>
@@ -334,8 +351,8 @@ Trage dort deine Zugangsdaten (Benutzername/Passwort) ein oder nutze:</p>
 </div>
 </li>
 <li><p><strong>Ergebnisse ansehen</strong><br />
-Nach Abschluss findest du die CSV-Dateien im Ordner:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">USERPROFILE</span><span class="o">%</span>\<span class="n">out</span>\
+Nach Abschluss findest du die CSV-Dateien im aktuellen working-Dir unter dem Ordner:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span>\
 </pre></div>
 </div>
 </li>
