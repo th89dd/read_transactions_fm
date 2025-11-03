@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="1023.6501"
-   height="1023.6501"
-   viewBox="0 0 270.84076 270.84076"
+   width="1023.9999"
+   height="1023.9999"
+   viewBox="0 0 270.93333 270.93333"
    version="1.1"
    id="svg1"
    xmlns="http://www.w3.org/2000/svg"
@@ -12,22 +12,21 @@
   <defs
      id="defs1" />
   <g
-     id="layer1"
-     transform="translate(-0.13647672,-0.52316491)">
+     id="layer1">
     <g
        id="g6"
        transform="matrix(1.141193,0,0,1.141193,-49.834701,-181.97191)">
       <g
          id="g9">
         <rect
-           x="43.920834"
-           y="160.04834"
-           width="237.06667"
-           height="237.06667"
-           rx="52.916664"
+           x="43.920879"
+           y="160.04839"
+           width="237.14769"
+           height="237.14769"
+           rx="52.93475"
            fill="url(#bg)"
            id="rect2-6"
-           style="fill:#00305d;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1" />
+           style="fill:#00305d;fill-opacity:1;stroke:none;stroke-width:0.264673;stroke-opacity:1" />
         <g
            id="g5"
            transform="translate(-2.1166651,55.923834)">
@@ -107,6 +106,13 @@
              style="font-size:51.6194px;font-family:'Open Sans';-inkscape-font-specification:'Open Sans, Normal';fill:#ffffff;stroke-width:0.322622"
              aria-label="read" />
         </g>
+        <rect
+           style="fill:#00305d;fill-opacity:0;stroke:none;stroke-width:1.7665"
+           id="rect1"
+           width="235.64587"
+           height="235.64587"
+           x="44.552197"
+           y="160.34087" />
       </g>
     </g>
   </g>
