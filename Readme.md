@@ -369,6 +369,10 @@ das Icon ist in der svg datei unter [assets/icon.svg]('assets/icon.svg') gespeic
     ```bash
     magick assets/readtx_icon.svg -background none -alpha on -define icon:auto-resize=16,24,32,48,64,128,256 -define icon:format=png assets/readtx.ico
     ```
+    ````bash
+    magick assets/readtx.png -define icon:auto-resize=16,24,32,48,64,128,256 -define icon:format=png assets\readtx.ico
+    ````
+
 
 ***
 <!-- docs:about-start -->
