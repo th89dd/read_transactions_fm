@@ -177,9 +177,15 @@ Module Contents
 
 
 
-   .. py:method:: process_data() -> None
+   .. py:method:: process_data(*args, **kwargs) -> None
 
       Führt die Rohdaten in ein bereinigtes DataFrame-Format über.
+
+
+
+   .. py:method:: preprocess_data(key: str, df: pandas.DataFrame) -> pandas.DataFrame
+
+      Überschreibt die Basisklassen-Methode, da keine zusätzliche Vorverarbeitung notwendig ist.
 
 
 

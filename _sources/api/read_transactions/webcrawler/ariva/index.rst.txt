@@ -25,6 +25,14 @@ read_transactions.webcrawler.ariva
 
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.ariva.output_path
+
+
 Classes
 -------
 
@@ -123,14 +131,23 @@ Module Contents
 
 
 
-   .. py:method:: process_data() -> None
+   .. py:method:: process_data(*args, **kwargs) -> None
 
-      Führt alle eingelesenen CSV-Dateien zu einem einheitlichen DataFrame zusammen.
+      Verarbeitet und bereinigt die heruntergeladenen Kursdaten.
 
-      Für jede Datei:
-        - Daten vorverarbeiten (Datumsformat, Zahlenkonvertierung)
-        - WKN aus dem Dateinamen extrahieren
-      Anschließend werden alle Daten zusammengeführt und in self.data gespeichert.
+
+
+   .. py:method:: preprocess_data(key: str, df: pandas.DataFrame) -> pandas.DataFrame
+
+      Überschreibt die Basismethode, um benutzerdefinierte Vorverarbeitung zu ermöglichen.
+
+      :param key: Schlüssel der Datenquelle (Dateiname).
+      :type key: str
+      :param df: Eingabedaten.
+      :type df: pandas.DataFrame
+
+      :returns: Vorverarbeitete Daten.
+      :rtype: pandas.DataFrame
 
 
 
@@ -144,5 +161,9 @@ Module Contents
       :returns: True, wenn ein Banner gefunden und geschlossen wurde, sonst False.
       :rtype: bool
 
+
+
+.. py:data:: output_path
+   :value: '../../../out'
 
 

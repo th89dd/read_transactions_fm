@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Stichwortverzeichnis" href="../../../../genindex.html"><link rel="search" title="Suche" href="../../../../search.html"><link rel="next" title="read_transactions.webcrawler.webdriver" href="../webdriver/index.html"><link rel="prev" title="read_transactions.webcrawler.base" href="../base/index.html">
+<link rel="index" title="Stichwortverzeichnis" href="../../../../genindex.html"><link rel="search" title="Suche" href="../../../../search.html"><link rel="next" title="read_transactions.webcrawler.webdriver" href="../webdriver/index.html"><link rel="prev" title="read_transactions.webcrawler.paypal" href="../paypal/index.html">
         <link rel="canonical" href="https://th89dd.github.io/read_transactions_fm/api/read_transactions/webcrawler/trade_republic/index.html">
         <link rel="prefetch" href="../../../../_static/readtx.svg" as="image">
 
@@ -211,6 +211,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../amex/index.html">read_transactions.webcrawler.amex</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../ariva/index.html">read_transactions.webcrawler.ariva</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../base/index.html">read_transactions.webcrawler.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../paypal/index.html">read_transactions.webcrawler.paypal</a></li>
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#">read_transactions.webcrawler.trade_republic</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../webdriver/index.html">read_transactions.webcrawler.webdriver</a></li>
 </ul>
@@ -448,8 +449,14 @@ crawler.save_data()</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.process_data">
-<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.process_data" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.process_data" title="Link to this definition">¶</a></dt>
 <dd><p>Führt die Rohdaten in ein bereinigtes DataFrame-Format über.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.preprocess_data">
+<span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.preprocess_data" title="Link to this definition">¶</a></dt>
+<dd><p>Überschreibt die Basisklassen-Methode, da keine zusätzliche Vorverarbeitung notwendig ist.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -540,14 +547,14 @@ Gibt ein Dictionary der gefundenen Details zurück.</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../base/index.html">
+          <a class="prev-page" href="../paypal/index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">read_transactions.webcrawler.base</div>
+                <div class="title">read_transactions.webcrawler.paypal</div>
                 
               </div>
             </a>
@@ -593,6 +600,7 @@ Gibt ein Dictionary der gefundenen Details zurück.</p>
 <li><a class="reference internal" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.login"><code class="docutils literal notranslate"><span class="pre">TradeRepublicCrawler.login()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.download_data"><code class="docutils literal notranslate"><span class="pre">TradeRepublicCrawler.download_data()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.process_data"><code class="docutils literal notranslate"><span class="pre">TradeRepublicCrawler.process_data()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.preprocess_data"><code class="docutils literal notranslate"><span class="pre">TradeRepublicCrawler.preprocess_data()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._handle_cookie_banner"><code class="docutils literal notranslate"><span class="pre">TradeRepublicCrawler._handle_cookie_banner()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._enter_phone"><code class="docutils literal notranslate"><span class="pre">TradeRepublicCrawler._enter_phone()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._enter_pin"><code class="docutils literal notranslate"><span class="pre">TradeRepublicCrawler._enter_pin()</span></code></a></li>

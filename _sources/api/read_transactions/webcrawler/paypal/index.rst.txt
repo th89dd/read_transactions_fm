@@ -1,0 +1,268 @@
+read_transactions.webcrawler.paypal
+===================================
+
+.. py:module:: read_transactions.webcrawler.paypal
+
+.. autoapi-nested-parse::
+
+   :author: Tim Häberlein
+   :version: 1.0
+   :date: 03.11.2025
+   :organisation: TU Dresden, FZM
+
+   Paypal Crawler
+   -------------
+   Crawler für Paypal.com – lädt Transaktionen im csv Format herunter.
+
+   Verwendung:
+       from read_transactions.webcrawler.paypal import PaypalCrawler
+
+       with PaypalCrawler(logging_level="DEBUG") as crawler:
+           crawler.login()
+           crawler.download_data()
+           crawler.process_data()
+           crawler.save_data()
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.paypal.config
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   read_transactions.webcrawler.paypal.Report
+   read_transactions.webcrawler.paypal.PaypalCrawler
+
+
+Module Contents
+---------------
+
+.. py:class:: Report
+
+   Repräsentiert einen Berichtseintrag auf der Archiv Seite von Paypal.
+
+   .. attribute:: row
+
+      Die Tabellenzeile des Berichts.
+
+      :type: WebElement
+
+   .. attribute:: download_btn
+
+      Der Download-Button für den Bericht.
+
+      :type: WebElement
+
+   .. attribute:: start_date
+
+      Startdatum des Berichts.
+
+      :type: Optional[pd.Timestamp]
+
+   .. attribute:: end_date
+
+      Enddatum des Berichts.
+
+      :type: Optional[pd.Timestamp]
+
+   .. attribute:: gen_date
+
+      Erstellungsdatum des Berichts.
+
+      :type: Optional[pd.Timestamp]
+
+   .. attribute:: raw_date
+
+      Rohtext des Datumsbereichs.
+
+      :type: str
+
+   .. attribute:: raw_gen_date
+
+      Rohtext des Erstellungsdatums.
+
+      :type: str
+
+
+   .. py:attribute:: row
+      :type:  selenium.webdriver.remote.webelement.WebElement
+
+
+   .. py:attribute:: download_btn
+      :type:  selenium.webdriver.remote.webelement.WebElement
+
+
+   .. py:attribute:: start_date
+      :type:  Optional[pandas.Timestamp]
+
+
+   .. py:attribute:: end_date
+      :type:  Optional[pandas.Timestamp]
+
+
+   .. py:attribute:: gen_date
+      :type:  Optional[pandas.Timestamp]
+
+
+   .. py:attribute:: raw_date
+      :type:  str
+
+
+   .. py:attribute:: raw_gen_date
+      :type:  str
+
+
+.. py:class:: PaypalCrawler(*args, **kwargs)
+
+   Bases: :py:obj:`read_transactions.webcrawler.WebCrawler`
+
+
+    Crawler für Paypal.
+
+   Der Crawler automatisiert den Login auf `paypal.com`,
+   lädt alle Transaktionen im gewählten Datumsbereich herunter
+   und konvertiert sie in ein einheitliches CSV-Format.
+
+   Ablauf:
+       1. Login mit Benutzername + 4-stelliger PIN
+       2. Öffnen der Transaktionsseite
+       3. ...
+
+   Erfordert:
+       - gültige Zugangsdaten in `config.yaml`
+       - hinterlegte URLs für `login` und `transactions`
+       - funktionierenden Selenium-WebDriver (Edge / Chrome / Firefox)
+
+   Beispiel:
+       ```bash
+       readtx run paypal --start 01.01.2024 --end 31.03.2024 --log_level DEBUG
+       ```
+
+   Parameter
+   ----------
+   logfile : str, optional
+       Pfad zu einer Logdatei. Wenn `None`, wird nur in die Konsole geloggt.
+   output_path : str, optional
+       Verzeichnis, in dem die verarbeiteten Daten gespeichert werden.
+       Standard: ``out``.
+   start_date : str | pandas.Timestamp | datetime.date, optional
+       Startdatum für den Download (Format: ``dd.mm.yyyy``).
+       Standard: heutiges Datum.
+   end_date : str | pandas.Timestamp | datetime.date, optional
+       Enddatum für den Download (Format: ``dd.mm.yyyy``).
+       Standard: sechs Monate vor `start_date`.
+   logging_level : str, optional
+       Log-Level der Crawler-Instanz (z. B. "DEBUG", "INFO", "WARNING").
+       Standard: ``INFO``.
+   global_log_level : str, optional
+       Globales Log-Level für das gesamte Paket (Standard: ``INFO``).
+   browser : str, optional
+       Zu verwendender Browser-Treiber (``edge``, ``chrome`` oder ``firefox``).
+       Standard: ``edge``.
+   headless : bool, optional
+       Falls `True`, wird der Browser im Hintergrundmodus gestartet.
+       Standard: ``False``.
+   user_agent : str, optional
+       Optionaler User-Agent-String für den Browser.
+
+   Attribute:
+       account_balance (str): Aktueller Kontostand nach erfolgreichem Login.
+       data (pd.DataFrame): Aufbereitete Transaktionsdaten.
+
+
+   .. py:attribute:: _verified
+      :value: False
+
+
+
+   .. py:method:: login()
+
+      Führt den Login auf Paypal durch.
+
+
+
+   .. py:method:: download_data()
+
+      Lädt die Transaktionsdaten im CSV-Format herunter.
+
+
+
+   .. py:method:: process_data(*args, **kwargs)
+
+      Verarbeitet die heruntergeladenen CSV-Dateien und konsolidiert sie in ein DataFrame.
+
+
+
+   .. py:method:: preprocess_data(key: str, df: pandas.DataFrame) -> pandas.DataFrame
+
+      Überschreibt die preprocess_data Methode der Basis-Klasse für Paypal-spezifische Anpassungen.
+      - Filtert und benennt Spalten um
+      - Bereinigt bestimmte Transaktionstypen
+      - Integriert Hinweise in den Verwendungszweck
+
+
+
+   .. py:method:: _login_enter_username(timeout: int = 180) -> bool
+
+      Gibt den Benutzernamen auf der Login-Seite ein und drückt "Weiter".
+
+
+
+   .. py:method:: _login_enter_password()
+
+      Gibt das Passwort auf der Login-Seite ein und drückt "Anmelden".
+
+
+
+   .. py:method:: _verify_identity(timeout: int = 180) -> bool
+
+      Führt die 2-Faktor-Authentifizierung durch (z. B. PIN-Eingabe).
+
+
+
+   .. py:method:: _check_available_reports() -> list[Report]
+
+      prüft verfügbare Berichte auf der Transaktionsseite
+
+      :returns: Liste der verfügbaren Berichte mit Metadaten.
+      :rtype: list[Report]
+
+
+
+   .. py:method:: _generate_new_report(start_date: pandas.Timestamp | None = None, end_date: pandas.Timestamp | None = None, timeout: int = 180) -> bool
+
+      Erstellt einen neuen Bericht für den gewünschten datumsbereich
+
+      :param start_date: Startdatum (inklusive). Wenn None, wird der Standardwert verwendet.
+      :type start_date: pd.Timestamp | None
+      :param end_date: Enddatum (inklusive). Wenn None, wird der Standardwert verwendet.
+      :type end_date: pd.Timestamp | None
+      :param timeout: Maximale Wartezeit in Sekunden für den Berichtserstellungsprozess.
+      :type timeout: int
+
+
+
+   .. py:method:: split_dates() -> list[tuple[pandas.Timestamp, pandas.Timestamp]]
+
+      Zerlegt den aktuellen Datumsbereich des Crawlers in Jahressegmente.
+      Sofern der Bereich über mehrere Jahre geht, werden die vollen Jahre
+      als eigene Segmente zurückgegeben. Teiljahre am Anfang und Ende werden ebenfalls berücksichtigt.
+      Sollte das erste Jahr das aktuelle Jahr sein, wird das Enddatum auf das heutige Datum begrenzt.
+
+      :returns: Liste von Tupeln mit (start_date, end_date) für jedes Segment.
+      :rtype: list[tuple[pd.Timestamp, pd.Timestamp]]
+
+
+
+.. py:data:: config
+   :value: None
+
+

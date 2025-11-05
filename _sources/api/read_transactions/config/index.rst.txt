@@ -88,11 +88,17 @@ Module Contents
 
 
 
-   .. py:method:: load() -> Dict[str, Any]
+   .. py:method:: load(ignore_cache: bool = False) -> Dict[str, Any]
       :classmethod:
 
 
       Lädt und cached die YAML-Konfiguration.
+
+      :param ignore_cache: Wenn True, wird der Cache ignoriert und die Datei neu geladen.
+      :type ignore_cache: bool
+
+      :returns: Geladene Konfigurationsdaten.
+      :rtype: Dict[str, Any]
 
 
 
@@ -203,4 +209,6 @@ Module Contents
 
 
 .. py:data:: config
+   :value: None
+
 

@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Stichwortverzeichnis" href="../../../../genindex.html"><link rel="search" title="Suche" href="../../../../search.html"><link rel="next" title="read_transactions.webcrawler.trade_republic" href="../trade_republic/index.html"><link rel="prev" title="read_transactions.webcrawler.ariva" href="../ariva/index.html">
+<link rel="index" title="Stichwortverzeichnis" href="../../../../genindex.html"><link rel="search" title="Suche" href="../../../../search.html"><link rel="next" title="read_transactions.webcrawler.paypal" href="../paypal/index.html"><link rel="prev" title="read_transactions.webcrawler.ariva" href="../ariva/index.html">
         <link rel="canonical" href="https://th89dd.github.io/read_transactions_fm/api/read_transactions/webcrawler/base/index.html">
         <link rel="prefetch" href="../../../../_static/readtx.svg" as="image">
 
@@ -211,6 +211,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../amex/index.html">read_transactions.webcrawler.amex</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../ariva/index.html">read_transactions.webcrawler.ariva</a></li>
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#">read_transactions.webcrawler.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../paypal/index.html">read_transactions.webcrawler.paypal</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../trade_republic/index.html">read_transactions.webcrawler.trade_republic</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../webdriver/index.html">read_transactions.webcrawler.webdriver</a></li>
 </ul>
@@ -297,7 +298,7 @@
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">read_transactions.webcrawler.base.</span></span><span class="sig-name descname"><span class="pre">WebCrawler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'WebCrawler'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'out'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">pd.to_datetime('today')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">pd.to_datetime('today')</span> <span class="pre">-</span> <span class="pre">pd.DateOffset(months=6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">browser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'edge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headless</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">read_transactions.webcrawler.base.</span></span><span class="sig-name descname"><span class="pre">WebCrawler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'WebCrawler'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'out'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">datetime.date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">browser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'edge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headless</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler" title="Link to this definition">¶</a></dt>
 <dd><p>Abstrakte Basisklasse für alle Crawler im Paket <cite>read_transactions</cite>.</p>
 <p>Diese Klasse kapselt den gesamten gemeinsamen Funktionsumfang:
 - zentrale Logging-Initialisierung über <cite>MainLogger</cite>
@@ -503,8 +504,44 @@ Standard: <code class="docutils literal notranslate"><span class="pre">False</sp
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.process_data">
-<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">';'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.process_data" title="Link to this definition">¶</a></dt>
-<dd><p>Optional von Subklassen überschreiben – verarbeitet geladene Daten.</p>
+<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_temp_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">';'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.process_data" title="Link to this definition">¶</a></dt>
+<dd><p>Optional von Subklassen überschreiben – verarbeitet geladene Daten.
+Standardmäßig werden alle Dateien im temporären Download-Verzeichnis eingelesen
+und in ein einziges DataFrame zusammengeführt.
+Dabei wird die Funktion <cite>preprocess_data()</cite> für jedes DataFrame aufgerufen.</p>
+<p>Im Anschluss wird <cite>self.data</cite> normalisiert.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>read_temp_files</strong> (<em>bool</em><em>, </em><em>optional</em>) – Ob Dateien im temporären Download-Verzeichnis eingelesen werden sollen.</p></li>
+<li><p><strong>sep</strong> (<em>str</em><em>, </em><em>optional</em>) – Trennzeichen für CSV-Dateien. Standard ist ‚;‘.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.preprocess_data">
+<span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.preprocess_data" title="Link to this definition">¶</a></dt>
+<dd><p>Bereinigt ein einzelnes DataFrame.
+Für weitere Verarbeitung muss funktion in Unterklasse überschrieben werden.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Schlüssel des DataFrames (bei dict-Daten).</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Eingabedaten.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Bereinigte Daten.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -588,71 +625,145 @@ unterdrückt werden. (Python wirft sie weiter.)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.wait_for_element">
-<span class="sig-name descname"><span class="pre">wait_for_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.wait_for_element" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">wait_for_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">selenium.webdriver.remote.webelement.WebElement</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.wait_for_element" title="Link to this definition">¶</a></dt>
 <dd><p>Wartet auf das Vorhandensein eines Elements und gibt es zurück.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>by</strong> – Selenium-By-Strategie, z. B. „css selector“/By.CSS_SELECTOR.</p></li>
-<li><p><strong>selector</strong> – Selektor-String.</p></li>
-<li><p><strong>timeout</strong> – Max. Wartezeit in Sekunden.</p></li>
+<li><p><strong>by</strong> (<em>str</em><em> | </em><em>selenium.webdriver.common.by.By</em>) – Suchstrategie für Selenium. Akzeptiert entweder:
+- einen case‑insensitiven String-Key (siehe <em>Accepted string keys</em>)
+- oder direkt eine Selenium-By‑Konstante (z. B. <cite>By.CSS_SELECTOR</cite>).
+Bei Übergabe eines bereits aufgelösten By/Tuple wird dieses direkt verwendet.</p></li>
+<li><p><strong>selector</strong> (<em>str</em>) – Selektor-String passend zur gewählten Strategie (z. B. CSS-Selector oder XPath).</p></li>
+<li><p><strong>timeout</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximale Wartezeit in Sekunden. Standard ist 15.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Das gefundene Webelement.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p>WebElement</p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>selenium.common.exceptions.TimeoutException</strong> – Wenn das Element innerhalb der <cite>timeout</cite>-Zeit nicht gefunden wird.</p>
 </dd>
 </dl>
 <dl class="simple">
-<dt>by_map = {</dt><dd><ul class="simple">
-<li><p>„id“: _By.ID,</p></li>
-<li><p>„name“: _By.NAME,</p></li>
-<li><p>„css“: _By.CSS_SELECTOR,</p></li>
-<li><p>„css selector“: _By.CSS_SELECTOR,</p></li>
-<li><p>„xpath“: _By.XPATH,</p></li>
-<li><p>„link text“: _By.LINK_TEXT,</p></li>
-<li><p>„partial link text“: _By.PARTIAL_LINK_TEXT,</p></li>
-<li><p>„tag“: _By.TAG_NAME,</p></li>
-<li><p>„class“: _By.CLASS_NAME,</p></li>
+<dt>Accepted string keys (case-insensitive) and mapping:</dt><dd><ul class="simple">
+<li><p>„id“                 -&gt; By.ID</p></li>
+<li><p>„name“               -&gt; By.NAME</p></li>
+<li><p>„css“, „css selector“-&gt; By.CSS_SELECTOR</p></li>
+<li><p>„xpath“              -&gt; By.XPATH</p></li>
+<li><p>„link text“          -&gt; By.LINK_TEXT</p></li>
+<li><p>„partial link text“  -&gt; By.PARTIAL_LINK_TEXT</p></li>
+<li><p>„tag“                -&gt; By.TAG_NAME</p></li>
+<li><p>„class“              -&gt; By.CLASS_NAME</p></li>
 </ul>
 </dd>
-</dl>
-<p>}</p>
-<dl class="field-list simple">
-<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Gefundenes Element.</p>
-</dd>
-<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
-<dd class="field-even"><p>WebElement</p>
-</dd>
-<dt class="field-odd">Verursacht<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>TimeoutException</strong> – Wenn das Element nicht rechtzeitig erscheint.</p>
+<dt>Default behavior:</dt><dd><p>Wenn ein unbekannter String-Key übergeben wird, wird <cite>By.CSS_SELECTOR</cite> als Fallback verwendet.
+Wenn bereits eine By-Konstante oder ein Tuple <cite>(By.SOMETHING, selector)</cite> übergeben wird,
+wird dieser Wert unverändert verwendet.</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># mit String-Key (case-insensitive)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_element</span><span class="p">(</span><span class="s2">&quot;css&quot;</span><span class="p">,</span> <span class="s2">&quot;div.my-class&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># mit vollständigem Key</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_element</span><span class="p">(</span><span class="s2">&quot;css selector&quot;</span><span class="p">,</span> <span class="s2">&quot;div.my-class&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># mit Selenium By-Konstante</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">selenium.webdriver.common.by</span><span class="w"> </span><span class="kn">import</span> <span class="n">By</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># direktes Tuple (By, selector) möglich, falls intern verwendet</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_element</span><span class="p">((</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">&quot;//button[text()=</span><span class="se">\&quot;</span><span class="s2">OK</span><span class="se">\&quot;</span><span class="s2">]&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.wait_clickable_and_click">
 <span class="sig-name descname"><span class="pre">wait_clickable_and_click</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.wait_clickable_and_click" title="Link to this definition">¶</a></dt>
-<dd><p>Wartet, bis ein Element klickbar ist, und klickt es dann an.
-by_map = {</p>
-<blockquote>
-<div><p>„id“: _By.ID,
-„name“: _By.NAME,
-„css“: _By.CSS_SELECTOR,
-„css selector“: _By.CSS_SELECTOR,
-„xpath“: _By.XPATH,
-„link text“: _By.LINK_TEXT,
-„partial link text“: _By.PARTIAL_LINK_TEXT,
-„tag“: _By.TAG_NAME,
-„class“: _By.CLASS_NAME,
-}</p>
-</div></blockquote>
+<dd><p>Wartet auf ein Element und klickt es dann an.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>by</strong> (<em>str</em>) – by je nach by_map</p></li>
-<li><p><strong>selector</strong> (<em>str</em>) – selector</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>) – Timeout in sekunden</p></li>
+<li><p><strong>by</strong> (<em>str</em><em> | </em><em>By</em>) – Suchstrategie oder <cite>By</cite>-Konstante.</p></li>
+<li><p><strong>selector</strong> (<em>str</em>) – Selektor-String.</p></li>
+<li><p><strong>timeout</strong> (<em>int</em><em>, </em><em>optional</em>) – Timeout in Sekunden. Standard 15.</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">Siehe auch</p>
+<p>wait_for_element: Wartet auf das Element und gibt es zurück (verwendet von dieser Methode).</p>
+</div>
+<dl class="simple">
+<dt>Sphinx cross-reference (für generierte Docs / IDE‑Plugins):</dt><dd><p><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.wait_for_element" title="read_transactions.webcrawler.base.WebCrawler.wait_for_element"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wait_for_element()</span></code></a>
+or fully qualified:
+<a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.wait_for_element" title="read_transactions.webcrawler.base.WebCrawler.wait_for_element"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wait_for_element()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.find_first_matching_element">
+<span class="sig-name descname"><span class="pre">find_first_matching_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_each</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">selenium.webdriver.remote.webelement.WebElement</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.find_first_matching_element" title="Link to this definition">¶</a></dt>
+<dd><p>Versucht mehrere Selektoren nacheinander und gibt das erste gefundene Element zurück.
+:param selectors: Liste von (by, selector)-Tupeln.
+:param timeout_each: Timeout pro Selektor in Sekunden.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Erstes gefundenes Element.</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p>WebElement</p>
+</dd>
+<dt class="field-odd">Verursacht<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>selenium.common.exceptions.TimeoutException</strong> – Wenn kein Element für die gegebenen Selektoren gefunden wird.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">selectors</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;css&quot;</span><span class="p">,</span> <span class="s2">&quot;div.class1&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;xpath&quot;</span><span class="p">,</span> <span class="s2">&quot;//div[@id=&#39;main&#39;]&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_first_matching_element</span><span class="p">(</span><span class="n">selectors</span><span class="p">,</span> <span class="n">timeout_each</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See also:
+wait_for_element: Wartet auf das Element und gibt es zurück (verwendet von dieser Methode).</p>
+<dl class="simple">
+<dt>Sphinx cross-reference (für generierte Docs / IDE‑Plugins):</dt><dd><p><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.wait_for_element" title="read_transactions.webcrawler.base.WebCrawler.wait_for_element"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wait_for_element()</span></code></a>
+or fully qualified:
+<a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.wait_for_element" title="read_transactions.webcrawler.base.WebCrawler.wait_for_element"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wait_for_element()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.click_first_matching_element">
+<span class="sig-name descname"><span class="pre">click_first_matching_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_each</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.click_first_matching_element" title="Link to this definition">¶</a></dt>
+<dd><p>Versucht mehrere Selektoren nacheinander und klickt das erste gefundene Element an.
+:param selectors: Liste von (by, selector)-Tupeln.
+:param timeout_each: Timeout pro Selektor in Sekunden.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Verursacht<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>selenium.common.exceptions.TimeoutException</strong> – Wenn kein Element für die gegebenen Selektoren gefunden wird.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">selectors</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;css&quot;</span><span class="p">,</span> <span class="s2">&quot;button.accept&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;xpath&quot;</span><span class="p">,</span> <span class="s2">&quot;//button[text()=&#39;Accept&#39;]&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">click_first_matching_element</span><span class="p">(</span><span class="n">selectors</span><span class="p">,</span> <span class="n">timeout_each</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.find_all_in">
+<span class="sig-name descname"><span class="pre">find_all_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">selenium.webdriver.remote.webelement.WebElement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">selenium.webdriver.remote.webelement.WebElement</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.find_all_in" title="Link to this definition">¶</a></dt>
+<dd><p>Findet alle passenden Unterelemente innerhalb eines Elements.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler.find_first_in">
+<span class="sig-name descname"><span class="pre">find_first_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">selenium.webdriver.remote.webelement.WebElement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">selenium.webdriver.remote.webelement.WebElement</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler.find_first_in" title="Link to this definition">¶</a></dt>
+<dd><p>Findet das erste passende Unterelement innerhalb eines Elements.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -815,8 +926,45 @@ Download-Dateien (.crdownload/.tmp) verschwunden sind.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._normalize_date_in_dataframe">
+<span class="sig-name descname"><span class="pre">_normalize_date_in_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_as_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dayfirst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._normalize_date_in_dataframe" title="Link to this definition">¶</a></dt>
+<dd><p>Normalisiert die Datumswerte in der angegebenen Spalte eines DataFrames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – Eingabe-DataFrame.</p></li>
+<li><p><strong>date_column</strong> – Name der Spalte mit den Datumswerten.</p></li>
+<li><p><strong>date_as_str</strong> – Ob das Datum als String zurückgegeben werden soll. (Standard: False)</p></li>
+<li><p><strong>dayfirst</strong> – Ob der Tag vor dem Monat steht. (Standard: True)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame mit normalisierten Datumswerten.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._normalize_amount_in_dataframe">
+<span class="sig-name descname"><span class="pre">_normalize_amount_in_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_nan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._normalize_amount_in_dataframe" title="Link to this definition">¶</a></dt>
+<dd><p>Normalisiert die Beträge in der angegebenen Spalte eines DataFrames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – Eingabe-DataFrame.</p></li>
+<li><p><strong>amount_column</strong> – Name der Spalte mit den Beträgen.</p></li>
+<li><p><strong>remove_nan</strong> – Ob Zeilen mit NaN-Werten entfernt werden sollen. (Standard: False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame mit normalisierten Beträgen.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._normalize_amount">
-<span class="sig-name descname"><span class="pre">_normalize_amount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._normalize_amount" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_normalize_amount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._normalize_amount" title="Link to this definition">¶</a></dt>
 <dd><p>Bereinigt Währungs-Strings und konvertiert sie in float.
 Unterstützt pandas Series, DataFrames und einzelne Strings.</p>
 <dl class="field-list simple">
@@ -825,6 +973,98 @@ Unterstützt pandas Series, DataFrames und einzelne Strings.</p>
 </dd>
 <dt class="field-even">Rückgabe<span class="colon">:</span></dt>
 <dd class="field-even"><p>Bereinigter Wert als float, Series oder DataFrame.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._filter_out_rows_by_needles">
+<span class="sig-name descname"><span class="pre">_filter_out_rows_by_needles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_sensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_regex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whole_word</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_na</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._filter_out_rows_by_needles" title="Link to this definition">¶</a></dt>
+<dd><p>Entfernt Zeilen, wenn <cite>column</cite> einen Begriff der <cite>needles</cite> enthält.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – Eingabe-DataFrame.</p></li>
+<li><p><strong>column</strong> – Zu durchsuchende Spalte.</p></li>
+<li><p><strong>needles</strong> – Liste Suchbegriffe (oder Regex, wenn allow_regex=True).</p></li>
+<li><p><strong>case_sensitive</strong> – Groß-/Kleinschreibung beachten?</p></li>
+<li><p><strong>allow_regex</strong> – <cite>needles</cite> als echte Regex behandeln?</p></li>
+<li><p><strong>whole_word</strong> – Nur ganze Wörter matchen (setzt allow_regex=True intern).</p></li>
+<li><p><strong>keep_na</strong> – NaN in <cite>column</cite> behalten (True) oder als „kein Treffer“ behandeln (False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Gefiltertes DataFrame (Treffer werden entfernt).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._filter_in_rows_by_needles">
+<span class="sig-name descname"><span class="pre">_filter_in_rows_by_needles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_sensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_regex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whole_word</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_na</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._filter_in_rows_by_needles" title="Link to this definition">¶</a></dt>
+<dd><p>Behalte nur Zeilen, wenn <cite>column</cite> einen Begriff der <cite>needles</cite> enthält.
+:param df: Eingabe-DataFrame.
+:param column: Zu durchsuchende Spalte.
+:param needles: Liste Suchbegriffe (oder Regex, wenn allow_regex=True).
+:param case_sensitive: Groß-/Kleinschreibung beachten?
+:param allow_regex: <cite>needles</cite> als echte Regex behandeln?
+:param whole_word: Nur ganze Wörter matchen (setzt allow_regex=True intern).
+:param keep_na: NaN in <cite>column</cite> behalten (True) oder als „kein Treffer“ behandeln (False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Gefiltertes DataFrame (nur Treffer werden behalten).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._filter_columns_by_names">
+<span class="sig-name descname"><span class="pre">_filter_columns_by_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">pd.NA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_insensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._filter_columns_by_names" title="Link to this definition">¶</a></dt>
+<dd><p>Behält nur die Spalten in <cite>column_names</cite> (in derselben Reihenfolge).
+Optional:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>add_missing: fehlende Spalten erzeugen (mit fill_value)</p></li>
+<li><p>case_insensitive: Spaltennamen case-insensitiv auflösen</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._rename_columns_by_map">
+<span class="sig-name descname"><span class="pre">_rename_columns_by_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rename_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_insensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._rename_columns_by_map" title="Link to this definition">¶</a></dt>
+<dd><p>Benennt Spalten gemäß rename_map um.
+:param df: Eingabe-DataFrame.
+:param rename_map: Dict mit {alter_spaltenname: neuer_spaltenname}.
+:param case_insensitive: Ob Spaltennamen case-insensitiv gesucht werden sollen.
+:type case_insensitive: bool, optional</p>
+<p>Optional: case_insensitive: Sucht Spaltennamen case-insensitiv.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame mit umbenannten Spalten.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._abort_windows_passkey">
+<span class="sig-name descname"><span class="pre">_abort_windows_passkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._abort_windows_passkey" title="Link to this definition">¶</a></dt>
+<dd><p>Versucht, einen nativen Windows-Passkey/Hello/WebAuthn-Dialog zu schließen.
+Priorität: pywinauto -&gt; ctypes SendInput -&gt; pyautogui/keyboard -&gt; ESC an Browser.
+Gibt True zurück, wenn mind. ein Abbruchversuch gesendet wurde.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.base.WebCrawler._log_error_with_debug_msg">
+<span class="sig-name descname"><span class="pre">_log_error_with_debug_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.base.WebCrawler._log_error_with_debug_msg" title="Link to this definition">¶</a></dt>
+<dd><p>Loggt eine Debug-Nachricht mit Funktionsname, Dateiname und Zeilennummer
+der aufrufenden Stelle (nicht der Logger-Funktion selbst).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> – Zusätzliche Nachricht, die geloggt werden soll. (Optional)</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -840,12 +1080,12 @@ Unterstützt pandas Series, DataFrames und einzelne Strings.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../trade_republic/index.html">
+          <a class="next-page" href="../paypal/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">read_transactions.webcrawler.trade_republic</div>
+                <div class="title">read_transactions.webcrawler.paypal</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -919,6 +1159,7 @@ Unterstützt pandas Series, DataFrames und einzelne Strings.</p>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.login"><code class="docutils literal notranslate"><span class="pre">WebCrawler.login()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.download_data"><code class="docutils literal notranslate"><span class="pre">WebCrawler.download_data()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.process_data"><code class="docutils literal notranslate"><span class="pre">WebCrawler.process_data()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.preprocess_data"><code class="docutils literal notranslate"><span class="pre">WebCrawler.preprocess_data()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.save_data"><code class="docutils literal notranslate"><span class="pre">WebCrawler.save_data()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.close"><code class="docutils literal notranslate"><span class="pre">WebCrawler.close()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._load_config"><code class="docutils literal notranslate"><span class="pre">WebCrawler._load_config()</span></code></a></li>
@@ -926,6 +1167,10 @@ Unterstützt pandas Series, DataFrames und einzelne Strings.</p>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.__exit__"><code class="docutils literal notranslate"><span class="pre">WebCrawler.__exit__()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.wait_for_element"><code class="docutils literal notranslate"><span class="pre">WebCrawler.wait_for_element()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.wait_clickable_and_click"><code class="docutils literal notranslate"><span class="pre">WebCrawler.wait_clickable_and_click()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.find_first_matching_element"><code class="docutils literal notranslate"><span class="pre">WebCrawler.find_first_matching_element()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.click_first_matching_element"><code class="docutils literal notranslate"><span class="pre">WebCrawler.click_first_matching_element()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.find_all_in"><code class="docutils literal notranslate"><span class="pre">WebCrawler.find_all_in()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.find_first_in"><code class="docutils literal notranslate"><span class="pre">WebCrawler.find_first_in()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.scroll_into_view"><code class="docutils literal notranslate"><span class="pre">WebCrawler.scroll_into_view()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.click_js"><code class="docutils literal notranslate"><span class="pre">WebCrawler.click_js()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler.accept_cookies_if_present"><code class="docutils literal notranslate"><span class="pre">WebCrawler.accept_cookies_if_present()</span></code></a></li>
@@ -936,7 +1181,15 @@ Unterstützt pandas Series, DataFrames und einzelne Strings.</p>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._wait_for_condition"><code class="docutils literal notranslate"><span class="pre">WebCrawler._wait_for_condition()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._delete_header"><code class="docutils literal notranslate"><span class="pre">WebCrawler._delete_header()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._normalize_dataframe"><code class="docutils literal notranslate"><span class="pre">WebCrawler._normalize_dataframe()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._normalize_date_in_dataframe"><code class="docutils literal notranslate"><span class="pre">WebCrawler._normalize_date_in_dataframe()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._normalize_amount_in_dataframe"><code class="docutils literal notranslate"><span class="pre">WebCrawler._normalize_amount_in_dataframe()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._normalize_amount"><code class="docutils literal notranslate"><span class="pre">WebCrawler._normalize_amount()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._filter_out_rows_by_needles"><code class="docutils literal notranslate"><span class="pre">WebCrawler._filter_out_rows_by_needles()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._filter_in_rows_by_needles"><code class="docutils literal notranslate"><span class="pre">WebCrawler._filter_in_rows_by_needles()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._filter_columns_by_names"><code class="docutils literal notranslate"><span class="pre">WebCrawler._filter_columns_by_names()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._rename_columns_by_map"><code class="docutils literal notranslate"><span class="pre">WebCrawler._rename_columns_by_map()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._abort_windows_passkey"><code class="docutils literal notranslate"><span class="pre">WebCrawler._abort_windows_passkey()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.base.WebCrawler._log_error_with_debug_msg"><code class="docutils literal notranslate"><span class="pre">WebCrawler._log_error_with_debug_msg()</span></code></a></li>
 </ul>
 </li>
 </ul>

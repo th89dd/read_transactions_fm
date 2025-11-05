@@ -23,6 +23,7 @@ Submodules
    /api/read_transactions/webcrawler/amex/index
    /api/read_transactions/webcrawler/ariva/index
    /api/read_transactions/webcrawler/base/index
+   /api/read_transactions/webcrawler/paypal/index
    /api/read_transactions/webcrawler/trade_republic/index
    /api/read_transactions/webcrawler/webdriver/index
 

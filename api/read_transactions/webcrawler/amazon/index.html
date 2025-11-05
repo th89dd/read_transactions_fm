@@ -211,6 +211,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../amex/index.html">read_transactions.webcrawler.amex</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../ariva/index.html">read_transactions.webcrawler.ariva</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../base/index.html">read_transactions.webcrawler.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../paypal/index.html">read_transactions.webcrawler.paypal</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../trade_republic/index.html">read_transactions.webcrawler.trade_republic</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../webdriver/index.html">read_transactions.webcrawler.webdriver</a></li>
 </ul>
@@ -390,14 +391,6 @@ Maximale Zeichenanzahl für den Verwendungszweck (Standard: <code class="docutil
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="read_transactions.webcrawler.amazon.AmazonCrawler._abort_windows_passkey">
-<span class="sig-name descname"><span class="pre">_abort_windows_passkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.amazon.AmazonCrawler._abort_windows_passkey" title="Link to this definition">¶</a></dt>
-<dd><p>Versucht, einen nativen Windows-Passkey/Hello/WebAuthn-Dialog zu schließen.
-Priorität: pywinauto -&gt; ctypes SendInput -&gt; pyautogui/keyboard -&gt; ESC an Browser.
-Gibt True zurück, wenn mind. ein Abbruchversuch gesendet wurde.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.amazon.AmazonCrawler._fill_password_and_submit">
 <span class="sig-name descname"><span class="pre">_fill_password_and_submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.amazon.AmazonCrawler._fill_password_and_submit" title="Link to this definition">¶</a></dt>
 <dd><p>Füllt das Passwortfeld und sendet das Formular ab.</p>
@@ -428,8 +421,23 @@ Gibt True zurück, wenn mind. ein Abbruchversuch gesendet wurde.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.amazon.AmazonCrawler.process_data">
-<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.amazon.AmazonCrawler.process_data" title="Link to this definition">¶</a></dt>
-<dd><p>Optional von Subklassen überschreiben – verarbeitet geladene Daten.</p>
+<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.amazon.AmazonCrawler.process_data" title="Link to this definition">¶</a></dt>
+<dd><p>Optional von Subklassen überschreiben – verarbeitet geladene Daten.
+Standardmäßig werden alle Dateien im temporären Download-Verzeichnis eingelesen
+und in ein einziges DataFrame zusammengeführt.
+Dabei wird die Funktion <cite>preprocess_data()</cite> für jedes DataFrame aufgerufen.</p>
+<p>Im Anschluss wird <cite>self.data</cite> normalisiert.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>read_temp_files</strong> (<em>bool</em><em>, </em><em>optional</em>) – Ob Dateien im temporären Download-Verzeichnis eingelesen werden sollen.</p></li>
+<li><p><strong>sep</strong> (<em>str</em><em>, </em><em>optional</em>) – Trennzeichen für CSV-Dateien. Standard ist ‚;‘.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -559,7 +567,6 @@ If year is missing, uses default_year or current year.</p>
 <li><a class="reference internal" href="#read_transactions.webcrawler.amazon.AmazonCrawler.title_max_chars"><code class="docutils literal notranslate"><span class="pre">AmazonCrawler.title_max_chars</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.amazon.AmazonCrawler.login"><code class="docutils literal notranslate"><span class="pre">AmazonCrawler.login()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.amazon.AmazonCrawler._set_username_if_present"><code class="docutils literal notranslate"><span class="pre">AmazonCrawler._set_username_if_present()</span></code></a></li>
-<li><a class="reference internal" href="#read_transactions.webcrawler.amazon.AmazonCrawler._abort_windows_passkey"><code class="docutils literal notranslate"><span class="pre">AmazonCrawler._abort_windows_passkey()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.amazon.AmazonCrawler._fill_password_and_submit"><code class="docutils literal notranslate"><span class="pre">AmazonCrawler._fill_password_and_submit()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.amazon.AmazonCrawler._handle_2fa_if_present"><code class="docutils literal notranslate"><span class="pre">AmazonCrawler._handle_2fa_if_present()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.amazon.AmazonCrawler._wait_for_login"><code class="docutils literal notranslate"><span class="pre">AmazonCrawler._wait_for_login()</span></code></a></li>

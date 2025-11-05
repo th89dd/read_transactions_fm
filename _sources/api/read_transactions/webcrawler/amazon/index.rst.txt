@@ -123,14 +123,6 @@ Module Contents
 
 
 
-   .. py:method:: _abort_windows_passkey(tries: int = 10, timeout: int = 10) -> bool
-
-      Versucht, einen nativen Windows-Passkey/Hello/WebAuthn-Dialog zu schließen.
-      Priorität: pywinauto -> ctypes SendInput -> pyautogui/keyboard -> ESC an Browser.
-      Gibt True zurück, wenn mind. ein Abbruchversuch gesendet wurde.
-
-
-
    .. py:method:: _fill_password_and_submit(password: str) -> None
 
       Füllt das Passwortfeld und sendet das Formular ab.
@@ -157,9 +149,21 @@ Module Contents
 
 
 
-   .. py:method:: process_data() -> None
+   .. py:method:: process_data(*args, **kwargs) -> None
 
       Optional von Subklassen überschreiben – verarbeitet geladene Daten.
+      Standardmäßig werden alle Dateien im temporären Download-Verzeichnis eingelesen
+      und in ein einziges DataFrame zusammengeführt.
+      Dabei wird die Funktion `preprocess_data()` für jedes DataFrame aufgerufen.
+
+      Im Anschluss wird `self.data` normalisiert.
+
+      :param read_temp_files: Ob Dateien im temporären Download-Verzeichnis eingelesen werden sollen.
+      :type read_temp_files: bool, optional
+      :param sep: Trennzeichen für CSV-Dateien. Standard ist ';'.
+      :type sep: str, optional
+
+      :returns: None
 
 
 

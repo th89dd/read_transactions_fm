@@ -211,6 +211,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../amex/index.html">read_transactions.webcrawler.amex</a></li>
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#">read_transactions.webcrawler.ariva</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../base/index.html">read_transactions.webcrawler.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../paypal/index.html">read_transactions.webcrawler.paypal</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../trade_republic/index.html">read_transactions.webcrawler.trade_republic</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../webdriver/index.html">read_transactions.webcrawler.webdriver</a></li>
 </ul>
@@ -287,6 +288,18 @@ crawler.save_data()</p>
 </dl>
 </dd>
 </dl>
+</section>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#read_transactions.webcrawler.ariva.output_path" title="read_transactions.webcrawler.ariva.output_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_path</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </section>
 <section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
@@ -395,16 +408,28 @@ Werbe-Overlays (über handle_ad_banner).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="read_transactions.webcrawler.ariva.ArivaCrawler.process_data">
-<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.ariva.ArivaCrawler.process_data" title="Link to this definition">¶</a></dt>
-<dd><p>Führt alle eingelesenen CSV-Dateien zu einem einheitlichen DataFrame zusammen.</p>
-<dl class="simple">
-<dt>Für jede Datei:</dt><dd><ul class="simple">
-<li><p>Daten vorverarbeiten (Datumsformat, Zahlenkonvertierung)</p></li>
-<li><p>WKN aus dem Dateinamen extrahieren</p></li>
+<span class="sig-name descname"><span class="pre">process_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.ariva.ArivaCrawler.process_data" title="Link to this definition">¶</a></dt>
+<dd><p>Verarbeitet und bereinigt die heruntergeladenen Kursdaten.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.ariva.ArivaCrawler.preprocess_data">
+<span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#read_transactions.webcrawler.ariva.ArivaCrawler.preprocess_data" title="Link to this definition">¶</a></dt>
+<dd><p>Überschreibt die Basismethode, um benutzerdefinierte Vorverarbeitung zu ermöglichen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Schlüssel der Datenquelle (Dateiname).</p></li>
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – Eingabedaten.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Vorverarbeitete Daten.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
 </dl>
-<p>Anschließend werden alle Daten zusammengeführt und in self.data gespeichert.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -425,6 +450,11 @@ und klickt ihn. Schaltet dabei automatisch den Frame-Kontext um.</p>
 
 </section>
 </dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="read_transactions.webcrawler.ariva.output_path">
+<span class="sig-prename descclassname"><span class="pre">read_transactions.webcrawler.ariva.</span></span><span class="sig-name descname"><span class="pre">output_path</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'../../../out'</span></em><a class="headerlink" href="#read_transactions.webcrawler.ariva.output_path" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </section>
 </section>
@@ -486,15 +516,18 @@ und klickt ihn. Schaltet dabei automatisch den Frame-Kontext um.</p>
             <ul>
 <li><a class="reference internal" href="#">read_transactions.webcrawler.ariva</a><ul>
 <li><a class="reference internal" href="#arivacrawler">ArivaCrawler</a></li>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
 <li><a class="reference internal" href="#classes">Classes</a></li>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#read_transactions.webcrawler.ariva.ArivaCrawler"><code class="docutils literal notranslate"><span class="pre">ArivaCrawler</span></code></a><ul>
 <li><a class="reference internal" href="#read_transactions.webcrawler.ariva.ArivaCrawler.login"><code class="docutils literal notranslate"><span class="pre">ArivaCrawler.login()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.ariva.ArivaCrawler.download_data"><code class="docutils literal notranslate"><span class="pre">ArivaCrawler.download_data()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.ariva.ArivaCrawler.process_data"><code class="docutils literal notranslate"><span class="pre">ArivaCrawler.process_data()</span></code></a></li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.ariva.ArivaCrawler.preprocess_data"><code class="docutils literal notranslate"><span class="pre">ArivaCrawler.preprocess_data()</span></code></a></li>
 <li><a class="reference internal" href="#read_transactions.webcrawler.ariva.ArivaCrawler._handle_ad_banner"><code class="docutils literal notranslate"><span class="pre">ArivaCrawler._handle_ad_banner()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#read_transactions.webcrawler.ariva.output_path"><code class="docutils literal notranslate"><span class="pre">output_path</span></code></a></li>
 </ul>
 </li>
 </ul>

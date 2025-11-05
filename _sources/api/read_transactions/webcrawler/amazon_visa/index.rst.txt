@@ -134,9 +134,15 @@ Module Contents
 
 
 
-   .. py:method:: process_data() -> None
+   .. py:method:: process_data(*args, **kwargs) -> None
 
       Verarbeitet heruntergeladene XLS-Daten.
+
+
+
+   .. py:method:: preprocess_data(key: str, df: pandas.DataFrame) -> pandas.DataFrame
+
+      Überschreibt die Clean-Funktion der Basis-Klasse.
 
 
 

@@ -209,6 +209,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/read_transactions/webcrawler/amex/index.html">read_transactions.webcrawler.amex</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/read_transactions/webcrawler/ariva/index.html">read_transactions.webcrawler.ariva</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/read_transactions/webcrawler/base/index.html">read_transactions.webcrawler.base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/read_transactions/webcrawler/paypal/index.html">read_transactions.webcrawler.paypal</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/read_transactions/webcrawler/trade_republic/index.html">read_transactions.webcrawler.trade_republic</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/read_transactions/webcrawler/webdriver/index.html">read_transactions.webcrawler.webdriver</a></li>
 </ul>
@@ -284,7 +285,9 @@
 </li>
         <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.__urls">__urls (Attribut von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
-        <li><a href="api/read_transactions/webcrawler/amazon/index.html#read_transactions.webcrawler.amazon.AmazonCrawler._abort_windows_passkey">_abort_windows_passkey() (Methode von read_transactions.webcrawler.amazon.AmazonCrawler)</a>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._abort_windows_passkey">_abort_windows_passkey() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler._check_available_reports">_check_available_reports() (Methode von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
 </li>
         <li><a href="api/read_transactions/webcrawler/amazon/index.html#read_transactions.webcrawler.amazon.AmazonCrawler._coerce_date_string_de">_coerce_date_string_de() (statische Methode von read_transactions.webcrawler.amazon.AmazonCrawler)</a>
 </li>
@@ -314,7 +317,15 @@
 </li>
         <li><a href="api/read_transactions/webcrawler/amazon/index.html#read_transactions.webcrawler.amazon.AmazonCrawler._fill_password_and_submit">_fill_password_and_submit() (Methode von read_transactions.webcrawler.amazon.AmazonCrawler)</a>
 </li>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._filter_columns_by_names">_filter_columns_by_names() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._filter_in_rows_by_needles">_filter_in_rows_by_needles() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._filter_out_rows_by_needles">_filter_out_rows_by_needles() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager._find_config_file">_find_config_file() (Klassenmethode von read_transactions.config.ConfigManager)</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler._generate_new_report">_generate_new_report() (Methode von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
 </li>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager._get_cipher">_get_cipher() (Klassenmethode von read_transactions.config.ConfigManager)</a>
 </li>
@@ -336,13 +347,15 @@
         </ul></li>
         <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._initial_file_count">_initial_file_count (Attribut von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager._key_path">_key_path (Attribut von read_transactions.config.ConfigManager)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/read_transactions/webcrawler/amex/index.html#read_transactions.webcrawler.amex.AmexCrawler._load_all_transactions">_load_all_transactions() (Methode von read_transactions.webcrawler.amex.AmexCrawler)</a>
 </li>
         <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._load_config">_load_config() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._log_error_with_debug_msg">_log_error_with_debug_msg() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager._logger">_logger (Attribut von read_transactions.config.ConfigManager)</a>
 
@@ -352,9 +365,17 @@
         </ul></li>
         <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._logging_lvl">_logging_lvl (Attribut von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler._login_enter_password">_login_enter_password() (Methode von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler._login_enter_username">_login_enter_username() (Methode von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
+</li>
         <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._normalize_amount">_normalize_amount() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._normalize_amount_in_dataframe">_normalize_amount_in_dataframe() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
         <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._normalize_dataframe">_normalize_dataframe() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._normalize_date_in_dataframe">_normalize_date_in_dataframe() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
         <li><a href="api/read_transactions/webcrawler/amazon/index.html#read_transactions.webcrawler.amazon.AmazonCrawler._parse_orders_on_page">_parse_orders_on_page() (Methode von read_transactions.webcrawler.amazon.AmazonCrawler)</a>
 </li>
@@ -369,6 +390,8 @@
         <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._read_temp_files">_read_temp_files() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
         <li><a href="api/read_transactions/logger/index.html#read_transactions.logger.MainLogger._rebuild_central_filter">_rebuild_central_filter() (Klassenmethode von read_transactions.logger.MainLogger)</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._rename_columns_by_map">_rename_columns_by_map() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
         <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler._retry_func">_retry_func() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
@@ -393,11 +416,15 @@
         <ul>
           <li><a href="api/read_transactions/webcrawler/amex/index.html#read_transactions.webcrawler.amex.AmexCrawler._verified">(Attribut von read_transactions.webcrawler.amex.AmexCrawler)</a>
 </li>
+          <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler._verified">(Attribut von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
+</li>
         </ul></li>
         <li><a href="api/read_transactions/webcrawler/amazon_visa/index.html#read_transactions.webcrawler.amazon_visa.AmazonVisaCrawler._verify_identity">_verify_identity() (Methode von read_transactions.webcrawler.amazon_visa.AmazonVisaCrawler)</a>
 
         <ul>
           <li><a href="api/read_transactions/webcrawler/amex/index.html#read_transactions.webcrawler.amex.AmexCrawler._verify_identity">(Methode von read_transactions.webcrawler.amex.AmexCrawler)</a>
+</li>
+          <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler._verify_identity">(Methode von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
 </li>
           <li><a href="api/read_transactions/webcrawler/trade_republic/index.html#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler._verify_identity">(Methode von read_transactions.webcrawler.trade_republic.TradeRepublicCrawler)</a>
 </li>
@@ -470,12 +497,18 @@
 </li>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager.clear">clear() (Klassenmethode von read_transactions.config.ConfigManager)</a>
 </li>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.click_first_matching_element">click_first_matching_element() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
         <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.click_js">click_js() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
         <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.close">close() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
 </li>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.config">config (in Modul read_transactions.config)</a>
+
+        <ul>
+          <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.config">(in Modul read_transactions.webcrawler.paypal)</a>
 </li>
+        </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager.config_path">config_path() (Methode von read_transactions.config.ConfigManager)</a>
@@ -504,6 +537,8 @@
 </li>
         <li><a href="api/read_transactions/logger/index.html#read_transactions.logger.MainLogger.detach_file_for">detach_file_for() (Klassenmethode von read_transactions.logger.MainLogger)</a>
 </li>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#id1">download_btn (Attribut von read_transactions.webcrawler.paypal.Report)</a>, <a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.Report.download_btn">[1]</a>
+</li>
         <li><a href="api/read_transactions/webcrawler/amazon/index.html#read_transactions.webcrawler.amazon.AmazonCrawler.download_data">download_data() (Methode von read_transactions.webcrawler.amazon.AmazonCrawler)</a>
 
         <ul>
@@ -514,6 +549,8 @@
           <li><a href="api/read_transactions/webcrawler/ariva/index.html#read_transactions.webcrawler.ariva.ArivaCrawler.download_data">(Methode von read_transactions.webcrawler.ariva.ArivaCrawler)</a>
 </li>
           <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.download_data">(Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
+          <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler.download_data">(Methode von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
 </li>
           <li><a href="api/read_transactions/webcrawler/trade_republic/index.html#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.download_data">(Methode von read_transactions.webcrawler.trade_republic.TradeRepublicCrawler)</a>
 </li>
@@ -544,8 +581,12 @@
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.end_date">end_date (read_transactions.webcrawler.base.WebCrawler property)</a>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#id3">end_date (Attribut von read_transactions.webcrawler.paypal.Report)</a>, <a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.Report.end_date">[1]</a>
+
+        <ul>
+          <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.end_date">(read_transactions.webcrawler.base.WebCrawler property)</a>
 </li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -556,8 +597,14 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.classproperty.f">f (Attribut von read_transactions.config.classproperty)</a>
 </li>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.find_all_in">find_all_in() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.find_first_in">find_first_in() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.find_first_matching_element">find_first_matching_element() (Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
         <li><a href="api/read_transactions/logger/index.html#read_transactions.logger.JsonFormatter.format">format() (Methode von read_transactions.logger.JsonFormatter)</a>
 </li>
     </ul></td>
@@ -568,12 +615,14 @@
   <h2>G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager.get_credentials">get_credentials() (Klassenmethode von read_transactions.config.ConfigManager)</a>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#id4">gen_date (Attribut von read_transactions.webcrawler.paypal.Report)</a>, <a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.Report.gen_date">[1]</a>
 </li>
-        <li><a href="api/read_transactions/logger/index.html#read_transactions.logger.MainLogger.get_logger">get_logger() (Klassenmethode von read_transactions.logger.MainLogger)</a>
+        <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager.get_credentials">get_credentials() (Klassenmethode von read_transactions.config.ConfigManager)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/read_transactions/logger/index.html#read_transactions.logger.MainLogger.get_logger">get_logger() (Klassenmethode von read_transactions.logger.MainLogger)</a>
+</li>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager.get_run_all">get_run_all() (Klassenmethode von read_transactions.config.ConfigManager)</a>
 </li>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager.get_urls">get_urls() (Klassenmethode von read_transactions.config.ConfigManager)</a>
@@ -612,6 +661,8 @@
           <li><a href="api/read_transactions/webcrawler/ariva/index.html#read_transactions.webcrawler.ariva.ArivaCrawler.login">(Methode von read_transactions.webcrawler.ariva.ArivaCrawler)</a>
 </li>
           <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.login">(Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
+          <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler.login">(Methode von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
 </li>
           <li><a href="api/read_transactions/webcrawler/trade_republic/index.html#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.login">(Methode von read_transactions.webcrawler.trade_republic.TradeRepublicCrawler)</a>
 </li>
@@ -656,6 +707,8 @@
 </li>
           <li><a href="api/read_transactions/webcrawler/base/index.html#module-read_transactions.webcrawler.base">read_transactions.webcrawler.base</a>
 </li>
+          <li><a href="api/read_transactions/webcrawler/paypal/index.html#module-read_transactions.webcrawler.paypal">read_transactions.webcrawler.paypal</a>
+</li>
           <li><a href="api/read_transactions/webcrawler/trade_republic/index.html#module-read_transactions.webcrawler.trade_republic">read_transactions.webcrawler.trade_republic</a>
 </li>
           <li><a href="api/read_transactions/webcrawler/webdriver/index.html#module-read_transactions.webcrawler.webdriver">read_transactions.webcrawler.webdriver</a>
@@ -683,8 +736,12 @@
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/read_transactions/webcrawler/trade_republic/index.html#read_transactions.webcrawler.trade_republic.output_path">output_path (in Modul read_transactions.webcrawler.trade_republic)</a>
+        <li><a href="api/read_transactions/webcrawler/ariva/index.html#read_transactions.webcrawler.ariva.output_path">output_path (in Modul read_transactions.webcrawler.ariva)</a>
+
+        <ul>
+          <li><a href="api/read_transactions/webcrawler/trade_republic/index.html#read_transactions.webcrawler.trade_republic.output_path">(in Modul read_transactions.webcrawler.trade_republic)</a>
 </li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -695,8 +752,24 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/read_transactions/cli/index.html#read_transactions.cli.parse_kv_list">parse_kv_list() (im Modul read_transactions.cli)</a>
 </li>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler">PaypalCrawler (Klasse in read_transactions.webcrawler.paypal)</a>
+</li>
         <li><a href="api/read_transactions/webcrawler/trade_republic/index.html#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.portfolio_balance">portfolio_balance (read_transactions.webcrawler.trade_republic.TradeRepublicCrawler property)</a>
 </li>
+        <li><a href="api/read_transactions/webcrawler/amazon_visa/index.html#read_transactions.webcrawler.amazon_visa.AmazonVisaCrawler.preprocess_data">preprocess_data() (Methode von read_transactions.webcrawler.amazon_visa.AmazonVisaCrawler)</a>
+
+        <ul>
+          <li><a href="api/read_transactions/webcrawler/ariva/index.html#read_transactions.webcrawler.ariva.ArivaCrawler.preprocess_data">(Methode von read_transactions.webcrawler.ariva.ArivaCrawler)</a>
+</li>
+          <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.preprocess_data">(Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
+          <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler.preprocess_data">(Methode von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
+</li>
+          <li><a href="api/read_transactions/webcrawler/trade_republic/index.html#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.preprocess_data">(Methode von read_transactions.webcrawler.trade_republic.TradeRepublicCrawler)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/read_transactions/webcrawler/amazon/index.html#read_transactions.webcrawler.amazon.AmazonCrawler.process_data">process_data() (Methode von read_transactions.webcrawler.amazon.AmazonCrawler)</a>
 
         <ul>
@@ -707,6 +780,8 @@
           <li><a href="api/read_transactions/webcrawler/ariva/index.html#read_transactions.webcrawler.ariva.ArivaCrawler.process_data">(Methode von read_transactions.webcrawler.ariva.ArivaCrawler)</a>
 </li>
           <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.process_data">(Methode von read_transactions.webcrawler.base.WebCrawler)</a>
+</li>
+          <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler.process_data">(Methode von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
 </li>
           <li><a href="api/read_transactions/webcrawler/trade_republic/index.html#read_transactions.webcrawler.trade_republic.TradeRepublicCrawler.process_data">(Methode von read_transactions.webcrawler.trade_republic.TradeRepublicCrawler)</a>
 </li>
@@ -719,6 +794,10 @@
   <h2>R</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#id5">raw_date (Attribut von read_transactions.webcrawler.paypal.Report)</a>, <a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.Report.raw_date">[1]</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#id6">raw_gen_date (Attribut von read_transactions.webcrawler.paypal.Report)</a>, <a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.Report.raw_gen_date">[1]</a>
+</li>
         <li>
     read_transactions
 
@@ -768,8 +847,6 @@
           <li><a href="api/read_transactions/webcrawler/amazon/index.html#module-read_transactions.webcrawler.amazon">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     read_transactions.webcrawler.amazon_visa
 
@@ -777,6 +854,8 @@
           <li><a href="api/read_transactions/webcrawler/amazon_visa/index.html#module-read_transactions.webcrawler.amazon_visa">module</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     read_transactions.webcrawler.amex
 
@@ -799,6 +878,13 @@
 </li>
         </ul></li>
         <li>
+    read_transactions.webcrawler.paypal
+
+        <ul>
+          <li><a href="api/read_transactions/webcrawler/paypal/index.html#module-read_transactions.webcrawler.paypal">module</a>
+</li>
+        </ul></li>
+        <li>
     read_transactions.webcrawler.trade_republic
 
         <ul>
@@ -812,6 +898,10 @@
           <li><a href="api/read_transactions/webcrawler/webdriver/index.html#module-read_transactions.webcrawler.webdriver">module</a>
 </li>
         </ul></li>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.Report">Report (Klasse in read_transactions.webcrawler.paypal)</a>
+</li>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#id0">row (Attribut von read_transactions.webcrawler.paypal.Report)</a>, <a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.Report.row">[1]</a>
+</li>
         <li><a href="api/read_transactions/cli/index.html#read_transactions.cli.run_all_crawlers">run_all_crawlers() (im Modul read_transactions.cli)</a>
 </li>
         <li><a href="api/read_transactions/cli/index.html#read_transactions.cli.run_all_crawlers_parallel">run_all_crawlers_parallel() (im Modul read_transactions.cli)</a>
@@ -834,18 +924,24 @@
 </li>
         <li><a href="api/read_transactions/logger/index.html#read_transactions.logger.MainLogger.set_file_level">set_file_level() (Klassenmethode von read_transactions.logger.MainLogger)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/read_transactions/logger/index.html#read_transactions.logger.MainLogger.set_level">set_level() (Klassenmethode von read_transactions.logger.MainLogger)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager.set_run_all">set_run_all() (Klassenmethode von read_transactions.config.ConfigManager)</a>
 </li>
         <li><a href="api/read_transactions/logger/index.html#read_transactions.logger.MainLogger.set_stream_level">set_stream_level() (Klassenmethode von read_transactions.logger.MainLogger)</a>
 </li>
         <li><a href="api/read_transactions/config/index.html#read_transactions.config.ConfigManager.show">show() (Klassenmethode von read_transactions.config.ConfigManager)</a>
 </li>
-        <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.start_date">start_date (read_transactions.webcrawler.base.WebCrawler property)</a>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.PaypalCrawler.split_dates">split_dates() (Methode von read_transactions.webcrawler.paypal.PaypalCrawler)</a>
 </li>
+        <li><a href="api/read_transactions/webcrawler/paypal/index.html#id2">start_date (Attribut von read_transactions.webcrawler.paypal.Report)</a>, <a href="api/read_transactions/webcrawler/paypal/index.html#read_transactions.webcrawler.paypal.Report.start_date">[1]</a>
+
+        <ul>
+          <li><a href="api/read_transactions/webcrawler/base/index.html#read_transactions.webcrawler.base.WebCrawler.start_date">(read_transactions.webcrawler.base.WebCrawler property)</a>
+</li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>

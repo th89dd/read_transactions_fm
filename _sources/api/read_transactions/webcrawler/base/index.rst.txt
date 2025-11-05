@@ -31,7 +31,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: WebCrawler(name: str = 'WebCrawler', output_path: str = 'out', start_date: Union[str, pandas.Timestamp, datetime.date, None] = pd.to_datetime('today'), end_date: Union[str, pandas.Timestamp, datetime.date, None] = pd.to_datetime('today') - pd.DateOffset(months=6), details: bool = True, logging_level: str = 'INFO', logfile: Optional[str | None] = None, *, browser: str = 'edge', headless: bool = False, user_agent: Optional[str] = None)
+.. py:class:: WebCrawler(name: str = 'WebCrawler', output_path: str = 'out', start_date: Union[str, pandas.Timestamp, datetime.date, None] = None, end_date: Union[str, pandas.Timestamp, datetime.date, None] = None, details: bool = True, logging_level: str = 'INFO', logfile: Optional[str | None] = None, *, browser: str = 'edge', headless: bool = False, user_agent: Optional[str] = None)
 
    Abstrakte Basisklasse für alle Crawler im Paket `read_transactions`.
 
@@ -235,9 +235,36 @@ Module Contents
 
 
 
-   .. py:method:: process_data(sep: str = ';') -> None
+   .. py:method:: process_data(read_temp_files: bool = True, sep: str = ';') -> None
 
       Optional von Subklassen überschreiben – verarbeitet geladene Daten.
+      Standardmäßig werden alle Dateien im temporären Download-Verzeichnis eingelesen
+      und in ein einziges DataFrame zusammengeführt.
+      Dabei wird die Funktion `preprocess_data()` für jedes DataFrame aufgerufen.
+
+      Im Anschluss wird `self.data` normalisiert.
+
+      :param read_temp_files: Ob Dateien im temporären Download-Verzeichnis eingelesen werden sollen.
+      :type read_temp_files: bool, optional
+      :param sep: Trennzeichen für CSV-Dateien. Standard ist ';'.
+      :type sep: str, optional
+
+      :returns: None
+
+
+
+   .. py:method:: preprocess_data(key: str, df: pandas.DataFrame) -> pandas.DataFrame
+
+      Bereinigt ein einzelnes DataFrame.
+      Für weitere Verarbeitung muss funktion in Unterklasse überschrieben werden.
+
+      :param key: Schlüssel des DataFrames (bei dict-Daten).
+      :type key: str
+      :param df: Eingabedaten.
+      :type df: pd.DataFrame
+
+      :returns: Bereinigte Daten.
+      :rtype: pd.DataFrame
 
 
 
@@ -303,54 +330,125 @@ Module Contents
 
 
 
-   .. py:method:: wait_for_element(by: str, selector: str, timeout: int = 15)
+   .. py:method:: wait_for_element(by: str, selector: str, timeout: int = 15) -> selenium.webdriver.remote.webelement.WebElement
 
       Wartet auf das Vorhandensein eines Elements und gibt es zurück.
 
-      :param by: Selenium-By-Strategie, z. B. "css selector"/By.CSS_SELECTOR.
-      :param selector: Selektor-String.
-      :param timeout: Max. Wartezeit in Sekunden.
+      :param by: Suchstrategie für Selenium. Akzeptiert entweder:
+                 - einen case‑insensitiven String-Key (siehe *Accepted string keys*)
+                 - oder direkt eine Selenium-By‑Konstante (z. B. `By.CSS_SELECTOR`).
+                 Bei Übergabe eines bereits aufgelösten By/Tuple wird dieses direkt verwendet.
+      :type by: str | selenium.webdriver.common.by.By
+      :param selector: Selektor-String passend zur gewählten Strategie (z. B. CSS-Selector oder XPath).
+      :type selector: str
+      :param timeout: Maximale Wartezeit in Sekunden. Standard ist 15.
+      :type timeout: int, optional
 
-      by_map = {
-          - "id": _By.ID,
-          - "name": _By.NAME,
-          - "css": _By.CSS_SELECTOR,
-          - "css selector": _By.CSS_SELECTOR,
-          - "xpath": _By.XPATH,
-          - "link text": _By.LINK_TEXT,
-          - "partial link text": _By.PARTIAL_LINK_TEXT,
-          - "tag": _By.TAG_NAME,
-          - "class": _By.CLASS_NAME,
-      }
-
-      :returns: Gefundenes Element.
+      :returns: Das gefundene Webelement.
       :rtype: WebElement
 
-      :raises TimeoutException: Wenn das Element nicht rechtzeitig erscheint.
+      :raises selenium.common.exceptions.TimeoutException: Wenn das Element innerhalb der `timeout`-Zeit nicht gefunden wird.
+
+      Accepted string keys (case-insensitive) and mapping:
+          - "id"                 -> By.ID
+          - "name"               -> By.NAME
+          - "css", "css selector"-> By.CSS_SELECTOR
+          - "xpath"              -> By.XPATH
+          - "link text"          -> By.LINK_TEXT
+          - "partial link text"  -> By.PARTIAL_LINK_TEXT
+          - "tag"                -> By.TAG_NAME
+          - "class"              -> By.CLASS_NAME
+
+      Default behavior:
+          Wenn ein unbekannter String-Key übergeben wird, wird `By.CSS_SELECTOR` als Fallback verwendet.
+          Wenn bereits eine By-Konstante oder ein Tuple `(By.SOMETHING, selector)` übergeben wird,
+          wird dieser Wert unverändert verwendet.
+
+      .. rubric:: Examples
+
+      >>> # mit String-Key (case-insensitive)
+      >>> elem = self.wait_for_element("css", "div.my-class")
+      >>> # mit vollständigem Key
+      >>> elem = self.wait_for_element("css selector", "div.my-class")
+      >>> # mit Selenium By-Konstante
+      >>> from selenium.webdriver.common.by import By
+      >>> elem = self.wait_for_element(By.ID, "username")
+      >>> # direktes Tuple (By, selector) möglich, falls intern verwendet
+      >>> elem = self.wait_for_element((By.XPATH, "//button[text()=\"OK\"]"), None)
 
 
 
    .. py:method:: wait_clickable_and_click(by: str, selector: str, timeout: int = 15) -> None
 
-      Wartet, bis ein Element klickbar ist, und klickt es dann an.
-      by_map = {
-          "id": _By.ID,
-          "name": _By.NAME,
-          "css": _By.CSS_SELECTOR,
-          "css selector": _By.CSS_SELECTOR,
-          "xpath": _By.XPATH,
-          "link text": _By.LINK_TEXT,
-          "partial link text": _By.PARTIAL_LINK_TEXT,
-          "tag": _By.TAG_NAME,
-          "class": _By.CLASS_NAME,
-          }
+      Wartet auf ein Element und klickt es dann an.
 
-      :param by: by je nach by_map
-      :type by: str
-      :param selector: selector
+      :param by: Suchstrategie oder `By`-Konstante.
+      :type by: str | By
+      :param selector: Selektor-String.
       :type selector: str
-      :param timeout: Timeout in sekunden
-      :type timeout: int
+      :param timeout: Timeout in Sekunden. Standard 15.
+      :type timeout: int, optional
+
+      .. seealso:: wait_for_element: Wartet auf das Element und gibt es zurück (verwendet von dieser Methode).
+
+      Sphinx cross-reference (für generierte Docs / IDE‑Plugins):
+          :meth:`wait_for_element`
+          or fully qualified:
+          :meth:`~read_transactions.webcrawler.base.WebCrawler.wait_for_element`
+
+
+
+   .. py:method:: find_first_matching_element(selectors: list[tuple[str, str]], timeout_each: int = 10, debug_msg: bool = False) -> selenium.webdriver.remote.webelement.WebElement
+
+      Versucht mehrere Selektoren nacheinander und gibt das erste gefundene Element zurück.
+      :param selectors: Liste von (by, selector)-Tupeln.
+      :param timeout_each: Timeout pro Selektor in Sekunden.
+
+      :returns: Erstes gefundenes Element.
+      :rtype: WebElement
+
+      :raises selenium.common.exceptions.TimeoutException: Wenn kein Element für die gegebenen Selektoren gefunden wird.
+
+      .. rubric:: Example
+
+      >>> selectors = (("css", "div.class1"), ("xpath", "//div[@id='main']"))
+      >>> elem = self.find_first_matching_element(selectors, timeout_each=5)
+
+      See also:
+      wait_for_element: Wartet auf das Element und gibt es zurück (verwendet von dieser Methode).
+
+      Sphinx cross-reference (für generierte Docs / IDE‑Plugins):
+          :meth:`wait_for_element`
+          or fully qualified:
+          :meth:`~read_transactions.webcrawler.base.WebCrawler.wait_for_element`
+
+
+
+
+   .. py:method:: click_first_matching_element(selectors: list[tuple[str, str]], timeout_each: int = 10) -> None
+
+      Versucht mehrere Selektoren nacheinander und klickt das erste gefundene Element an.
+      :param selectors: Liste von (by, selector)-Tupeln.
+      :param timeout_each: Timeout pro Selektor in Sekunden.
+
+      :raises selenium.common.exceptions.TimeoutException: Wenn kein Element für die gegebenen Selektoren gefunden wird.
+
+      .. rubric:: Example
+
+      >>> selectors = (("css", "button.accept"), ("xpath", "//button[text()='Accept']"))
+      >>> self.click_first_matching_element(selectors, timeout_each=5)
+
+
+
+   .. py:method:: find_all_in(elem: selenium.webdriver.remote.webelement.WebElement, selectors: list[tuple[str, str]], debug_msg: bool = False) -> list[selenium.webdriver.remote.webelement.WebElement]
+
+      Findet alle passenden Unterelemente innerhalb eines Elements.
+
+
+
+   .. py:method:: find_first_in(elem: selenium.webdriver.remote.webelement.WebElement, selectors: list[tuple[str, str]], debug_msg: bool = False) -> selenium.webdriver.remote.webelement.WebElement
+
+      Findet das erste passende Unterelement innerhalb eines Elements.
 
 
 
@@ -459,7 +557,32 @@ Module Contents
 
 
 
-   .. py:method:: _normalize_amount(value: Any) -> Any
+   .. py:method:: _normalize_date_in_dataframe(df: pandas.DataFrame, date_column: str, *, date_as_str: bool = False, dayfirst: bool = True) -> pandas.DataFrame
+
+      Normalisiert die Datumswerte in der angegebenen Spalte eines DataFrames.
+
+      :param df: Eingabe-DataFrame.
+      :param date_column: Name der Spalte mit den Datumswerten.
+      :param date_as_str: Ob das Datum als String zurückgegeben werden soll. (Standard: False)
+      :param dayfirst: Ob der Tag vor dem Monat steht. (Standard: True)
+
+      :returns: DataFrame mit normalisierten Datumswerten.
+
+
+
+   .. py:method:: _normalize_amount_in_dataframe(df: pandas.DataFrame, amount_column: str, *, remove_nan: bool = False) -> pandas.DataFrame
+
+      Normalisiert die Beträge in der angegebenen Spalte eines DataFrames.
+
+      :param df: Eingabe-DataFrame.
+      :param amount_column: Name der Spalte mit den Beträgen.
+      :param remove_nan: Ob Zeilen mit NaN-Werten entfernt werden sollen. (Standard: False)
+
+      :returns: DataFrame mit normalisierten Beträgen.
+
+
+
+   .. py:method:: _normalize_amount(value: Any) -> float
 
       Bereinigt Währungs-Strings und konvertiert sie in float.
       Unterstützt pandas Series, DataFrames und einzelne Strings.
@@ -467,6 +590,79 @@ Module Contents
       :param value: Eingabewert (Series, DataFrame oder String).
       :return: Bereinigter Wert als float, Series oder DataFrame.
 
+
+
+
+   .. py:method:: _filter_out_rows_by_needles(df: pandas.DataFrame, column: str, needles: list[str], *, case_sensitive: bool = False, allow_regex: bool = False, whole_word: bool = False, keep_na: bool = True) -> pandas.DataFrame
+
+      Entfernt Zeilen, wenn `column` einen Begriff der `needles` enthält.
+
+      :param df: Eingabe-DataFrame.
+      :param column: Zu durchsuchende Spalte.
+      :param needles: Liste Suchbegriffe (oder Regex, wenn allow_regex=True).
+      :param case_sensitive: Groß-/Kleinschreibung beachten?
+      :param allow_regex: `needles` als echte Regex behandeln?
+      :param whole_word: Nur ganze Wörter matchen (setzt allow_regex=True intern).
+      :param keep_na: NaN in `column` behalten (True) oder als "kein Treffer" behandeln (False).
+
+      :returns: Gefiltertes DataFrame (Treffer werden entfernt).
+
+
+
+   .. py:method:: _filter_in_rows_by_needles(df: pandas.DataFrame, column: str, needles: list[str], *, case_sensitive: bool = False, allow_regex: bool = False, whole_word: bool = False, keep_na: bool = True) -> pandas.DataFrame
+
+      Behalte nur Zeilen, wenn `column` einen Begriff der `needles` enthält.
+      :param df: Eingabe-DataFrame.
+      :param column: Zu durchsuchende Spalte.
+      :param needles: Liste Suchbegriffe (oder Regex, wenn allow_regex=True).
+      :param case_sensitive: Groß-/Kleinschreibung beachten?
+      :param allow_regex: `needles` als echte Regex behandeln?
+      :param whole_word: Nur ganze Wörter matchen (setzt allow_regex=True intern).
+      :param keep_na: NaN in `column` behalten (True) oder als "kein Treffer" behandeln (False).
+
+      :returns: Gefiltertes DataFrame (nur Treffer werden behalten).
+
+
+
+   .. py:method:: _filter_columns_by_names(df: pandas.DataFrame, column_names: list[str], *, add_missing: bool = False, fill_value=pd.NA, case_insensitive: bool = False) -> pandas.DataFrame
+
+      Behält nur die Spalten in `column_names` (in derselben Reihenfolge).
+      Optional:
+        - add_missing: fehlende Spalten erzeugen (mit fill_value)
+        - case_insensitive: Spaltennamen case-insensitiv auflösen
+
+
+
+   .. py:method:: _rename_columns_by_map(df: pandas.DataFrame, rename_map: dict[str, str], *, case_insensitive: bool = False)
+
+      Benennt Spalten gemäß rename_map um.
+      :param df: Eingabe-DataFrame.
+      :param rename_map: Dict mit {alter_spaltenname: neuer_spaltenname}.
+      :param case_insensitive: Ob Spaltennamen case-insensitiv gesucht werden sollen.
+      :type case_insensitive: bool, optional
+
+      Optional: case_insensitive: Sucht Spaltennamen case-insensitiv.
+
+      :returns: DataFrame mit umbenannten Spalten.
+
+
+
+   .. py:method:: _abort_windows_passkey(tries: int = 10, timeout: int = 10) -> bool
+
+      Versucht, einen nativen Windows-Passkey/Hello/WebAuthn-Dialog zu schließen.
+      Priorität: pywinauto -> ctypes SendInput -> pyautogui/keyboard -> ESC an Browser.
+      Gibt True zurück, wenn mind. ein Abbruchversuch gesendet wurde.
+
+
+
+   .. py:method:: _log_error_with_debug_msg(msg: str | None = None) -> None
+
+      Loggt eine Debug-Nachricht mit Funktionsname, Dateiname und Zeilennummer
+      der aufrufenden Stelle (nicht der Logger-Funktion selbst).
+
+      :param msg: Zusätzliche Nachricht, die geloggt werden soll. (Optional)
+
+      :returns: None
 
 
 
