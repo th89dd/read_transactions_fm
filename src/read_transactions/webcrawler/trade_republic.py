@@ -208,16 +208,19 @@ class TradeRepublicCrawler(WebCrawler):
     # ------------------------------------------------------------------
     # Verarbeitung
     # ------------------------------------------------------------------
-    def process_data(self) -> None:
+    def process_data(self, *args, **kwargs) -> None:
         """Führt die Rohdaten in ein bereinigtes DataFrame-Format über."""
-        # super().process_data() -> keine Daten einzulesen -> speziell implementieren
-        self._state = "process_data"
-        if not isinstance(self.data, pd.DataFrame) or self.data.empty:
-            self._logger.warning("Keine Transaktionsdaten zum Verarbeiten gefunden.")
-            return
+        # Aufruf der Basisklassen-Methode, ohne einlesen von temporären Dateien
+        # da Daten bereits im Speicher vorliegen
+        # ein weiteres processing ist auch nicht notwendig, da bereits geschehen
+        super().process_data(read_temp_files=False, *args, **kwargs)
+
+        # daten normalisieren
         self.data = self._normalize_dataframe(self.data)
         self._logger.info(f"{len(self.data)} Trade Republic Transaktionen verarbeitet.")
-
+    def preprocess_data(self, key: str, df: pd.DataFrame) -> pd.DataFrame:
+        """ Überschreibt die Basisklassen-Methode, da keine zusätzliche Vorverarbeitung notwendig ist."""
+        return df
     # ------------------------------------------------------------------
     # Cookie-Banner
     # ------------------------------------------------------------------

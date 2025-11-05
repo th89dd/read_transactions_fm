@@ -18,16 +18,24 @@ Zentrale Basisklasse für alle Crawler im Projekt `read_transactions_fm`.
 
 from __future__ import annotations
 
-import os
-import shutil
-import time
-import datetime
-import tempfile
-import pandas as pd
-import logging
-from typing import Any, Dict, Optional, Union
-import warnings
+import os       # for file system operations
+import sys      # for system-specific parameters and functions
+import selenium.types   # for type hints
+from selenium.webdriver.remote.webelement import WebElement     # for type hints
+import shutil   # for file operations
+import time     # for sleep and timeouts
+import datetime # for date handling
+import tempfile # for temporary directories
+import pandas as pd     # for data manipulation
+import re       # for regular expressions - filtern und verarbeiten von strings
+import logging  # for logging
+from typing import Any, Dict, Optional, Union   # for type hints
+import warnings # for handling warnings
 
+import inspect      # for better error logging
+import linecache    # for better error logging
+
+# own modules
 from ..logger import MainLogger
 from .webdriver import WebDriverFactory
 from ..config import ConfigManager
@@ -109,8 +117,8 @@ class WebCrawler:
             self,
             name: str = "WebCrawler",
             output_path: str = "out",
-            start_date: Union[str, pd.Timestamp, datetime.date, None] = pd.to_datetime("today"),
-            end_date: Union[str, pd.Timestamp, datetime.date, None] = (pd.to_datetime("today") - pd.DateOffset(months=6)),
+            start_date: Union[str, pd.Timestamp, datetime.date, None] = None,
+            end_date: Union[str, pd.Timestamp, datetime.date, None] = None,
             details: bool = True,
             logging_level: str = "INFO",
             logfile: Optional[str | None] = None,
@@ -133,6 +141,13 @@ class WebCrawler:
         # Zeitparameter setzen
         self.start_date = start_date
         self.end_date = end_date
+        # sicherstellen, dass start_date nach end_date liegt (start_data >= end_date), sonst vertauschen
+        if self.start_date < self.end_date:
+            self._logger.warning(
+                f"Startdatum {self.start_date.strftime('%d.%m.%Y')} liegt vor Enddatum "
+                f"{self.end_date.strftime('%d.%m.%Y')}. Vertausche die Werte."
+            )
+            self.start_date, self.end_date = self.end_date, self.start_date
 
         # Details-Flag
         self.with_details = details
@@ -183,6 +198,7 @@ class WebCrawler:
         :return: -
         """
         if value is None:
+            # genau heute (std, min, sec genau wie jetzt)
             value = pd.to_datetime("today") #- pd.DateOffset(days=1)
         if isinstance(value, str):
             value = pd.to_datetime(value, format="%d.%m.%Y", errors="raise")
@@ -209,7 +225,9 @@ class WebCrawler:
         :return: -
         """
         if value is None:
+            # nur auf den tag genau - 6 monate
             value = pd.to_datetime("today") - pd.DateOffset(months=6)
+            value = pd.Timestamp(year=value.year, month=value.month, day=value.day)
         if isinstance(value, str):
             value = pd.to_datetime(value, format="%d.%m.%Y", errors="raise")
         elif isinstance(value, datetime.date):
@@ -314,11 +332,60 @@ class WebCrawler:
             f"Downloading der Daten vom {self.start_date.strftime('%d.%m.%Y')} "
             f"bis zum {self.end_date.strftime('%d.%m.%Y')} gestartet.")
 
-    def process_data(self, sep: str = ';') -> None:
-        """Optional von Subklassen überschreiben – verarbeitet geladene Daten."""
+    def process_data(self, read_temp_files: bool = True, sep: str = ';') -> None:
+        """Optional von Subklassen überschreiben – verarbeitet geladene Daten.
+        Standardmäßig werden alle Dateien im temporären Download-Verzeichnis eingelesen
+        und in ein einziges DataFrame zusammengeführt.
+        Dabei wird die Funktion `preprocess_data()` für jedes DataFrame aufgerufen.
+
+        Im Anschluss wird `self.data` normalisiert.
+
+        Args:
+            read_temp_files (bool, optional): Ob Dateien im temporären Download-Verzeichnis eingelesen werden sollen.
+            sep (str, optional): Trennzeichen für CSV-Dateien. Standard ist ';'.
+        Returns:
+            None
+        """
         self._state = "process_data"
-        if not self._read_temp_files(sep=sep):
-            self._logger.debug('Keine Dateien im Temp-Verzeichnis')
+        if read_temp_files:
+            if not self._read_temp_files(sep=sep):
+                self._logger.debug('Keine Dateien im Temp-Verzeichnis')
+
+        if len(self.data) == 0:
+            self._logger.warning("Keine Transaktionen zum Verarbeiten gefunden.")
+            return
+
+        merged_df = pd.DataFrame()
+
+        try:
+            if isinstance(self.data, dict):
+                for key, df in self.data.items():
+                    merged_df = pd.merge(
+                        left=merged_df,
+                        right=self.preprocess_data(key, df), how='outer'
+                    ) if not merged_df.empty else self.preprocess_data(key, df)
+                self.data = merged_df
+            else:
+                self.data = self.preprocess_data("", self.data)
+
+        except Exception:
+            self._logger.error("Fehler bei der Datenverarbeitung", exc_info=True)
+
+
+    def preprocess_data(self, key: str, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Bereinigt ein einzelnes DataFrame.
+        Für weitere Verarbeitung muss funktion in Unterklasse überschrieben werden.
+
+        Args:
+            key (str): Schlüssel des DataFrames (bei dict-Daten).
+            df (pd.DataFrame): Eingabedaten.
+        Returns:
+            pd.DataFrame: Bereinigte Daten.
+        """
+        # header entfernen
+        df = self._delete_header(df, header_key='Datum')
+        return df
 
     def save_data(self) -> None:
         """Speichert geladene Daten als CSV."""
@@ -440,34 +507,57 @@ class WebCrawler:
         # False sorgt dafür, dass Exceptions weitergereicht werden
         return False
 
-    # ------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------------------------
     # Download & Selenium Helpers
-    # ------------------------------------------------------------------
-    def wait_for_element(self, by: str, selector: str, timeout: int = 15):
-        """Wartet auf das Vorhandensein eines Elements und gibt es zurück.
+    # -----------------------------------------------------------------------------------------------------------------
+    def wait_for_element(self, by: str, selector: str, timeout: int = 15) -> WebElement:
+        """
+        Wartet auf das Vorhandensein eines Elements und gibt es zurück.
 
         Args:
-            by: Selenium-By-Strategie, z. B. "css selector"/By.CSS_SELECTOR.
-            selector: Selektor-String.
-            timeout: Max. Wartezeit in Sekunden.
-
-        by_map = {
-            - "id": _By.ID,
-            - "name": _By.NAME,
-            - "css": _By.CSS_SELECTOR,
-            - "css selector": _By.CSS_SELECTOR,
-            - "xpath": _By.XPATH,
-            - "link text": _By.LINK_TEXT,
-            - "partial link text": _By.PARTIAL_LINK_TEXT,
-            - "tag": _By.TAG_NAME,
-            - "class": _By.CLASS_NAME,
-        }
+            by (str | selenium.webdriver.common.by.By):
+                Suchstrategie für Selenium. Akzeptiert entweder:
+                - einen case‑insensitiven String-Key (siehe *Accepted string keys*)
+                - oder direkt eine Selenium-By‑Konstante (z. B. `By.CSS_SELECTOR`).
+                Bei Übergabe eines bereits aufgelösten By/Tuple wird dieses direkt verwendet.
+            selector (str):
+                Selektor-String passend zur gewählten Strategie (z. B. CSS-Selector oder XPath).
+            timeout (int, optional):
+                Maximale Wartezeit in Sekunden. Standard ist 15.
 
         Returns:
-            WebElement: Gefundenes Element.
+            WebElement: Das gefundene Webelement.
 
         Raises:
-            TimeoutException: Wenn das Element nicht rechtzeitig erscheint.
+            selenium.common.exceptions.TimeoutException:
+                Wenn das Element innerhalb der `timeout`-Zeit nicht gefunden wird.
+
+        Accepted string keys (case-insensitive) and mapping:
+            - "id"                 -> By.ID
+            - "name"               -> By.NAME
+            - "css", "css selector"-> By.CSS_SELECTOR
+            - "xpath"              -> By.XPATH
+            - "link text"          -> By.LINK_TEXT
+            - "partial link text"  -> By.PARTIAL_LINK_TEXT
+            - "tag"                -> By.TAG_NAME
+            - "class"              -> By.CLASS_NAME
+
+        Default behavior:
+            Wenn ein unbekannter String-Key übergeben wird, wird `By.CSS_SELECTOR` als Fallback verwendet.
+            Wenn bereits eine By-Konstante oder ein Tuple `(By.SOMETHING, selector)` übergeben wird,
+            wird dieser Wert unverändert verwendet.
+
+        Examples:
+            >>> # mit String-Key (case-insensitive)
+            >>> elem = self.wait_for_element("css", "div.my-class")
+            >>> # mit vollständigem Key
+            >>> elem = self.wait_for_element("css selector", "div.my-class")
+            >>> # mit Selenium By-Konstante
+            >>> from selenium.webdriver.common.by import By
+            >>> elem = self.wait_for_element(By.ID, "username")
+            >>> # direktes Tuple (By, selector) möglich, falls intern verwendet
+            >>> elem = self.wait_for_element((By.XPATH, "//button[text()=\\"OK\\"]"), None)
+
         """
         from selenium.webdriver.common.by import By as _By
         from selenium.webdriver.support.ui import WebDriverWait as _WebDriverWait
@@ -490,29 +580,84 @@ class WebCrawler:
         )
 
     def wait_clickable_and_click(self, by: str, selector: str, timeout: int = 15) -> None:
-        """Wartet, bis ein Element klickbar ist, und klickt es dann an.
-        by_map = {
-            "id": _By.ID,
-            "name": _By.NAME,
-            "css": _By.CSS_SELECTOR,
-            "css selector": _By.CSS_SELECTOR,
-            "xpath": _By.XPATH,
-            "link text": _By.LINK_TEXT,
-            "partial link text": _By.PARTIAL_LINK_TEXT,
-            "tag": _By.TAG_NAME,
-            "class": _By.CLASS_NAME,
-            }
+        """Wartet auf ein Element und klickt es dann an.
 
         Args:
-            by (str): by je nach by_map
-            selector (str): selector
-            timeout (int): Timeout in sekunden
+            by (str | By): Suchstrategie oder `By`-Konstante.
+            selector (str): Selektor-String.
+            timeout (int, optional): Timeout in Sekunden. Standard 15.
 
+        See also:
+            wait_for_element: Wartet auf das Element und gibt es zurück (verwendet von dieser Methode).
+
+        Sphinx cross-reference (für generierte Docs / IDE‑Plugins):
+            :meth:`wait_for_element`
+            or fully qualified:
+            :meth:`~read_transactions.webcrawler.base.WebCrawler.wait_for_element`
+        """
+        elem = self.wait_for_element(by, selector, timeout)
+        elem.click()
+
+    def find_first_matching_element(
+            self, selectors: list[tuple[str, str]], timeout_each: int = 10, debug_msg: bool = False) -> WebElement:
+        """
+        Versucht mehrere Selektoren nacheinander und gibt das erste gefundene Element zurück.
+        Args:
+            selectors: Liste von (by, selector)-Tupeln.
+            timeout_each: Timeout pro Selektor in Sekunden.
+        Returns:
+            WebElement: Erstes gefundenes Element.
+        Raises:
+            selenium.common.exceptions.TimeoutException:
+                Wenn kein Element für die gegebenen Selektoren gefunden wird.
+
+        Example:
+            >>> selectors = (("css", "div.class1"), ("xpath", "//div[@id='main']"))
+            >>> elem = self.find_first_matching_element(selectors, timeout_each=5)
+
+        See also:
+        wait_for_element: Wartet auf das Element und gibt es zurück (verwendet von dieser Methode).
+
+        Sphinx cross-reference (für generierte Docs / IDE‑Plugins):
+            :meth:`wait_for_element`
+            or fully qualified:
+            :meth:`~read_transactions.webcrawler.base.WebCrawler.wait_for_element`
 
         """
+        from selenium.common.exceptions import TimeoutException
+        for sel_tuple in selectors:
+            by, selector = sel_tuple
+            try:
+                elem = self.wait_for_element(by, selector, timeout=timeout_each)
+                if debug_msg:
+                    self._logger.debug(f"Element gefunden mit selector {selector}")
+                return elem
+            except TimeoutException:
+                continue
+        raise TimeoutException("Kein Element für die gegebenen Selektoren gefunden.")
+
+    def click_first_matching_element(self, selectors: list[tuple[str, str]], timeout_each: int = 10) -> None:
+        """
+        Versucht mehrere Selektoren nacheinander und klickt das erste gefundene Element an.
+        Args:
+            selectors: Liste von (by, selector)-Tupeln.
+            timeout_each: Timeout pro Selektor in Sekunden.
+        Raises:
+            selenium.common.exceptions.TimeoutException:
+                Wenn kein Element für die gegebenen Selektoren gefunden wird.
+
+        Example:
+            >>> selectors = (("css", "button.accept"), ("xpath", "//button[text()='Accept']"))
+            >>> self.click_first_matching_element(selectors, timeout_each=5)
+        """
+        elem = self.find_first_matching_element(selectors, timeout_each)
+        elem.click()
+
+    def find_all_in(
+            self, elem: WebElement, selectors: list[tuple[str, str]], debug_msg: bool = False) -> list[WebElement]:
+        """Findet alle passenden Unterelemente innerhalb eines Elements."""
         from selenium.webdriver.common.by import By as _By
-        from selenium.webdriver.support.ui import WebDriverWait as _WebDriverWait
-        from selenium.webdriver.support import expected_conditions as _EC
+        from selenium.common.exceptions import TimeoutException
 
         by_map = {
             "id": _By.ID,
@@ -525,11 +670,46 @@ class WebCrawler:
             "tag": _By.TAG_NAME,
             "class": _By.CLASS_NAME,
         }
-        _by = by_map.get(str(by).lower(), _By.CSS_SELECTOR)
-        elem = _WebDriverWait(self.driver, timeout).until(
-            _EC.element_to_be_clickable((_by, selector))
-        )
-        elem.click()
+        for by, selector in selectors:
+            list_elems = []
+            _by = by_map.get(str(by).lower(), _By.CSS_SELECTOR)
+            try:
+                list_elems = elem.find_elements(_by, selector)
+                if len(list_elems) > 0:
+                    if debug_msg:
+                        self._logger.debug(f"Elemente gefunden mit selector {selector}, count: {len(list_elems)}")
+                    return list_elems
+            except Exception:
+                continue
+        raise TimeoutException
+
+    def find_first_in(self, elem: WebElement, selectors: list[tuple[str, str]], debug_msg: bool = False) -> WebElement:
+        """Findet das erste passende Unterelement innerhalb eines Elements."""
+        from selenium.webdriver.common.by import By as _By
+        from selenium.common.exceptions import TimeoutException
+
+        by_map = {
+            "id": _By.ID,
+            "name": _By.NAME,
+            "css": _By.CSS_SELECTOR,
+            "css selector": _By.CSS_SELECTOR,
+            "xpath": _By.XPATH,
+            "link text": _By.LINK_TEXT,
+            "partial link text": _By.PARTIAL_LINK_TEXT,
+            "tag": _By.TAG_NAME,
+            "class": _By.CLASS_NAME,
+        }
+        for by, selector in selectors:
+            _by = by_map.get(str(by).lower(), _By.CSS_SELECTOR)
+            try:
+                found_elem = elem.find_element(_by, selector)
+                if debug_msg:
+                    self._logger.debug(f"Element gefunden mit selector {selector}")
+                return found_elem
+            except Exception:
+                continue
+        raise TimeoutException
+
 
     def scroll_into_view(self, element) -> None:
         """Scrollt ein Element ins Viewport."""
@@ -689,7 +869,7 @@ class WebCrawler:
                         self._logger.error("Fehler beim Einlesen einer Datei", exc_info=True)
 
                 if not file_content:
-                    self._logger.warning("Keine unterstützten Dateien gefunden")
+                    # self._logger.warning("Keine unterstützten Dateien gefunden")
                     return False
 
                 # Bei 1 Datei → direkt DF speichern, sonst dict
@@ -775,7 +955,13 @@ class WebCrawler:
                 return False
         self._logger.debug("Timeout – Bedingung nicht erfüllt")
         return False
+    # -----------------------------------------------------------------------------------------------------------------
 
+    # -----------------------------------------------------------------------------------------------------------------
+    # DataFrame Helpers
+    # -----------------------------------------------------------------------------------------------------------------
+
+    # ---------- Header Removal ------------
     def _delete_header(self, df: pd.DataFrame, header_key: str = 'datum') -> pd.DataFrame:
         """
         Löscht die Header-Zeile bis zum header_key aus einem DataFrame und setzt die Spaltennamen.
@@ -805,6 +991,8 @@ class WebCrawler:
             self._logger.debug(f"⚠️ Kein Header gefunden in DataFrame")
             return df  # Header nicht gefunden, Original zurückgeben
 
+
+    # ---------- Data Normalization ------------
     def _normalize_dataframe(self, df: pd.DataFrame, remove_nan: bool = False, date_as_str: bool = False) -> pd.DataFrame:
         """
         Normalisiert die Transaktionsdaten eines DataFrames.
@@ -816,11 +1004,6 @@ class WebCrawler:
         :param remove_nan: Ob Zeilen mit NaN-Werten entfernt werden sollen. (Standard: False)
         :return: DataFrame mit normalisierten Daten.
         """
-        def _safe_replace(value: pd.Series, to_replace: str, replacement: str) -> pd.Series:
-            try:
-                return value.astype(str).str.replace(replacement, to_replace)
-            except Exception:
-                return value
         # -------------------------------------------------------------------------------------------------------------
         # Spaltennamen erkennen und umbenennen
         # -------------------------------------------------------------------------------------------------------------
@@ -864,45 +1047,11 @@ class WebCrawler:
         # Datumsspalte normalisieren
         if date_cols:
             date_cols = rename_map[date_cols]  # aktualisierter Spaltenname
-            try:
-                df[date_cols] = pd.to_datetime(df[date_cols], errors='coerce', dayfirst=True)
-                # NaT (Not a Time) behandeln
-                before_drop = len(df)
-                df = df.dropna(subset=[date_cols])  # Zeilen mit ungültigen Daten entfernen
-                dropped = before_drop - len(df)
-                if dropped > 0:
-                    self._logger.info(f"{dropped} Zeilen mit ungültigen Datumseinträgen entfernt.")
-                # Start und Enddatum filtern
-                before_drop = len(df)
-                df = df[(df[date_cols] <= self.start_date) & (df[date_cols] >= self.end_date)]
-                dropped = before_drop - len(df)
-                if dropped > 0:
-                    self._logger.info(f"{dropped} Zeilen außerhalb des Datumsbereichs entfernt.")
-                # formatieren
-                # -> als datetime belassen und beim speichern formatieren
-                if date_as_str:
-                    df[date_cols] = df[date_cols].dt.strftime('%d.%m.%Y')
-
-
-            except Exception:
-                self._logger.error("Fehler bei der Normalisierung der Datumsspalte", exc_info=True)
-
+            df = self._normalize_date_in_dataframe(df, date_cols, date_as_str=date_as_str)
         # Betragsspalte normalisieren
         if amount_cols:
             amount_cols = rename_map[amount_cols]  # aktualisierter Spaltenname
-            try:
-                df[amount_cols] = df[amount_cols].pipe(self._normalize_amount)
-                # NaN-Werte behandeln - entweder entfernen oder auf 0 setzen
-                if remove_nan:  # Zeilen mit NaN entfernen
-                    before_drop = len(df)
-                    df = df.dropna(subset=[amount_cols])  # Zeilen mit ungültigen Beträgen entfernen
-                    dropped = before_drop - len(df)
-                    if dropped > 0:
-                        self._logger.debug(f"{dropped} Zeilen mit ungültigen Betragseinträgen entfernt.")
-                else:  # NaN-Werte auf 0 setzen
-                    df[amount_cols] = df[amount_cols].fillna(0.0)
-            except Exception:
-                self._logger.error("Fehler bei der Normalisierug der Betragsspalte", exc_info=True)
+            df = self._normalize_amount_in_dataframe(df, amount_cols, remove_nan=remove_nan)
         self._logger.debug("DataFrame normalisiert")
 
         # alle unerkannten Spaltennamen als key: value in spalte verwendungszweck 2 speichern
@@ -928,11 +1077,86 @@ class WebCrawler:
             df = df.drop(columns=unknown_cols)
             self._logger.debug(f"Unbekannte Spalten in 'Verwendungszweck 2' zusammengefasst: {unknown_cols}")
         # -------------------------------------------------------------------------------------------------------------
+        return df
+
+    def _normalize_date_in_dataframe(self, df: pd.DataFrame, date_column: str, *,
+                                     date_as_str: bool = False, dayfirst: bool = True
+                                     ) -> pd.DataFrame:
+        """
+        Normalisiert die Datumswerte in der angegebenen Spalte eines DataFrames.
+
+        Args:
+            df: Eingabe-DataFrame.
+            date_column: Name der Spalte mit den Datumswerten.
+            date_as_str: Ob das Datum als String zurückgegeben werden soll. (Standard: False)
+            dayfirst: Ob der Tag vor dem Monat steht. (Standard: True)
+        Returns:
+            DataFrame mit normalisierten Datumswerten.
+        """
+        if date_column not in df.columns:
+            self._log_error_with_debug_msg(f"Datumsspalte '{date_column}' nicht im DataFrame gefunden.")
+            return df
+
+        try:
+            df[date_column] = pd.to_datetime(df[date_column], errors='coerce', dayfirst=dayfirst)
+            # NaT (Not a Time) behandeln
+            before_drop = len(df)
+            df = df.dropna(subset=[date_column])  # Zeilen mit ungültigen Daten entfernen
+            dropped = before_drop - len(df)
+            if dropped > 0:
+                self._logger.info(f"{dropped} Zeilen mit ungültigen Datumseinträgen entfernt.")
+            # Start und Enddatum filtern
+            before_drop = len(df)
+            df = df[(df[date_column] <= self.start_date) & (df[date_column] >= self.end_date)]
+            dropped = before_drop - len(df)
+            if dropped > 0:
+                self._logger.info(f"{dropped} Zeilen außerhalb des Datumsbereichs entfernt.")
+            # formatieren
+            # -> als datetime belassen und beim speichern formatieren
+            if date_as_str:
+                df[date_column] = df[date_column].dt.strftime('%d.%m.%Y')
+        except Exception:
+            self._logger.error("Fehler bei der Normalisierung der Datumsspalte", exc_info=True)
+
+        return df
+
+    def _normalize_amount_in_dataframe(self, df: pd.DataFrame, amount_column: str,* ,
+                                       remove_nan: bool = False,
+                                       ) -> pd.DataFrame:
+        """
+        Normalisiert die Beträge in der angegebenen Spalte eines DataFrames.
+
+        Args:
+            df: Eingabe-DataFrame.
+            amount_column: Name der Spalte mit den Beträgen.
+            remove_nan: Ob Zeilen mit NaN-Werten entfernt werden sollen. (Standard: False)
+        Returns:
+            DataFrame mit normalisierten Beträgen.
+
+        """
+        if amount_column not in df.columns:
+            self._log_error_with_debug_msg(f"Betragsspalte '{amount_column}' nicht im DataFrame gefunden.")
+            return df
+
+        try:
+            df[amount_column] = df[amount_column].pipe(self._normalize_amount)
+            # NaN-Werte behandeln - entweder entfernen oder auf 0 setzen
+            if remove_nan:  # Zeilen mit NaN entfernen
+                before_drop = len(df)
+                df = df.dropna(subset=[amount_column])  # Zeilen mit ungültigen Beträgen entfernen
+                dropped = before_drop - len(df)
+                if dropped > 0:
+                    self._logger.debug(f"{dropped} Zeilen mit ungültigen Betragseinträgen entfernt.")
+            else:  # NaN-Werte auf 0 setzen
+                df[amount_column] = df[amount_column].fillna(0.0)
+        except Exception:
+            self._logger.error("Fehler bei der Normalisierug der Betragsspalte", exc_info=True)
 
         return df
 
 
-    def _normalize_amount(self, value: Any) -> Any:
+    # -------- Betrag normalisieren --------------------
+    def _normalize_amount(self, value: Any) -> float:
         """
         Bereinigt Währungs-Strings und konvertiert sie in float.
         Unterstützt pandas Series, DataFrames und einzelne Strings.
@@ -976,6 +1200,343 @@ class WebCrawler:
         except Exception:
             pass
         return value
+
+    # -------- Dataframe filtern --------------------
+    def _filter_out_rows_by_needles(self, df: pd.DataFrame, column: str, needles: list[str], *,
+                                    case_sensitive: bool = False, allow_regex: bool = False, whole_word: bool = False,
+                                    keep_na: bool = True,
+                                    ) -> pd.DataFrame:
+        """
+        Entfernt Zeilen, wenn `column` einen Begriff der `needles` enthält.
+
+        Args:
+            df: Eingabe-DataFrame.
+            column: Zu durchsuchende Spalte.
+            needles: Liste Suchbegriffe (oder Regex, wenn allow_regex=True).
+            case_sensitive: Groß-/Kleinschreibung beachten?
+            allow_regex: `needles` als echte Regex behandeln?
+            whole_word: Nur ganze Wörter matchen (setzt allow_regex=True intern).
+            keep_na: NaN in `column` behalten (True) oder als "kein Treffer" behandeln (False).
+
+        Returns:
+            Gefiltertes DataFrame (Treffer werden entfernt).
+        """
+
+        if column not in df.columns:
+            self._log_error_with_debug_msg(f"Spalte '{column}' nicht im DataFrame gefunden.")
+            return df
+
+        # Nichts zu filtern
+        if not needles:
+            return df
+
+        # Muster bauen
+        if whole_word:
+            allow_regex = True  # Wortgrenzen brauchen Regex
+            # Unicode-Wortgrenzen: (?u)\b  — escapen, damit Sonderzeichen in needles nicht "ausbrechen"
+            parts = [rf"(?u)\b{re.escape(n)}\b" for n in needles]
+            pattern = "|".join(parts)
+        elif allow_regex:
+            # Nutzer liefert Regex – mit Alternation verbinden (ohne Escaping)
+            pattern = "|".join(f"(?:{n})" for n in needles)
+        else:
+            # Plain-Text-Suche: alles escapen und mit Alternation verbinden
+            pattern = "|".join(re.escape(n) for n in needles)
+
+        # Vektorisierte Suche
+        ser = df[column].astype("string")
+        # na=False → NaNs zählen als "kein Treffer"; wenn keep_na=True, bleiben sie sowieso drin
+        mask_hit = ser.str.contains(
+            pattern,
+            case=case_sensitive,
+            regex=True,
+            na=False
+        )
+
+        # Treffer entfernen, optional NaN separat behandeln
+        if keep_na:
+            # Behalte NaN-Zeilen unabhängig vom Treffer (sie sind in mask_hit ohnehin False)
+            out = df.loc[~mask_hit].copy()
+        else:
+            out = df.loc[~mask_hit | ser.isna()].copy()
+
+        removed = len(df) - len(out)
+        self._logger.debug(
+            f"Filtered {removed} rows from '{column}' via needles={needles} "
+            f"(case_sensitive={case_sensitive}, allow_regex={allow_regex}, whole_word={whole_word})."
+        )
+        return out.reset_index(drop=True)
+
+    def _filter_in_rows_by_needles(self, df: pd.DataFrame, column: str, needles: list[str], *,
+                                   case_sensitive: bool = False, allow_regex: bool = False, whole_word: bool = False,
+                                   keep_na: bool = True,
+                                   ) -> pd.DataFrame:
+        """
+        Behalte nur Zeilen, wenn `column` einen Begriff der `needles` enthält.
+        Args:
+            df: Eingabe-DataFrame.
+            column: Zu durchsuchende Spalte.
+            needles: Liste Suchbegriffe (oder Regex, wenn allow_regex=True).
+            case_sensitive: Groß-/Kleinschreibung beachten?
+            allow_regex: `needles` als echte Regex behandeln?
+            whole_word: Nur ganze Wörter matchen (setzt allow_regex=True intern).
+            keep_na: NaN in `column` behalten (True) oder als "kein Treffer" behandeln (False).
+        Returns:
+            Gefiltertes DataFrame (nur Treffer werden behalten).
+        """
+        if column not in df.columns:
+            self._log_error_with_debug_msg(f"Spalte '{column}' nicht im DataFrame gefunden.")
+            return df
+        # Nichts zu filtern
+        if not needles:
+            return df
+        # Muster bauen
+        if whole_word:
+            allow_regex = True  # Wortgrenzen brauchen Regex
+            # Unicode-Wortgrenzen: (?u)\b  — escapen, damit Sonderzeichen in needles nicht "ausbrechen"
+            parts = [rf"(?u)\b{re.escape(n)}\b" for n in needles]
+            pattern = "|".join(parts)
+        elif allow_regex:
+            # Nutzer liefert Regex – mit Alternation verbinden (ohne Escaping)
+            pattern = "|".join(f"(?:{n})" for n in needles)
+        else:
+            # Plain-Text-Suche: alles escapen und mit Alternation verbinden
+            pattern = "|".join(re.escape(n) for n in needles)
+        # Vektorisierte Suche
+        ser = df[column].astype("string")
+        # na=False → NaNs zählen als "kein Treffer"; wenn keep_na=True, bleiben sie sowieso drin
+        mask_hit = ser.str.contains(
+            pattern,
+            case=case_sensitive,
+            regex=True,
+            na=False
+        )
+        # Nur Treffer behalten, optional NaN separat behandeln
+        if keep_na:
+            # Behalte NaN-Zeilen unabhängig vom Treffer (sie sind in mask_hit ohnehin False)
+            out = df.loc[mask_hit | ser.isna()].copy()
+        else:
+            out = df.loc[mask_hit].copy()
+        kept = len(out)
+        self._logger.debug(
+            f"Kept {kept} rows from '{column}' via needles={needles} "
+            f"(case_sensitive={case_sensitive}, allow_regex={allow_regex}, whole_word={whole_word})."
+        )
+        return out.reset_index(drop=True)
+
+    def _filter_columns_by_names(self, df: pd.DataFrame, column_names: list[str], *,
+                                 add_missing: bool = False, fill_value=pd.NA, case_insensitive: bool = False,
+                                 ) -> pd.DataFrame:
+        """
+        Behält nur die Spalten in `column_names` (in derselben Reihenfolge).
+        Optional:
+          - add_missing: fehlende Spalten erzeugen (mit fill_value)
+          - case_insensitive: Spaltennamen case-insensitiv auflösen
+        """
+        if not case_insensitive:
+            present = [c for c in column_names if c in df.columns]
+            missing = [c for c in column_names if c not in df.columns]
+            out = df[present].copy()
+        else:
+            lower_map = {c.lower(): c for c in df.columns}
+            present_real = []
+            missing = []
+            for wanted in column_names:
+                key = wanted.lower()
+                if key in lower_map:
+                    present_real.append(lower_map[key])
+                else:
+                    missing.append(wanted)
+            out = df[present_real].copy()
+            # gewünschte Reihenfolge gemäß column_names herstellen
+            reorder = []
+            seen = set()
+            for wanted in column_names:
+                real = lower_map.get(wanted.lower())
+                if real and real not in seen:
+                    reorder.append(real)
+                    seen.add(real)
+            out = out[reorder]
+
+        if add_missing and missing:
+            for m in missing:
+                out[m] = fill_value
+            # Reihenfolge erneut gemäß column_names
+            out = out[column_names]
+
+        self._logger.debug(
+            f"_filter_columns_by_names: kept={list(out.columns)}, missing={missing}"
+            + (", added_missing" if add_missing and missing else "")
+        )
+        return out
+
+    def _rename_columns_by_map(self, df: pd.DataFrame, rename_map: dict[str, str], *,
+                               case_insensitive: bool = False):
+        """
+        Benennt Spalten gemäß rename_map um.
+        Args:
+            df: Eingabe-DataFrame.
+            rename_map: Dict mit {alter_spaltenname: neuer_spaltenname}.
+            case_insensitive (bool, optional): Ob Spaltennamen case-insensitiv gesucht werden sollen.
+
+        Optional: case_insensitive: Sucht Spaltennamen case-insensitiv.
+
+        Returns:
+            DataFrame mit umbenannten Spalten.
+
+        """
+        if case_insensitive:
+            lower = {c.lower(): c for c in df.columns}
+            applied = {lower[k.lower()]: v for k, v in rename_map.items() if k.lower() in lower}
+            missing = [k for k in rename_map if k.lower() not in lower]
+        else:
+            applied = {k: v for k, v in rename_map.items() if k in df.columns}
+            missing = [k for k in rename_map if k not in df.columns]
+
+        if missing:
+            self._logger.warning(f"_rename_columns_by_map: missing columns: {missing}")
+
+        self._logger.debug(f"_rename_columns_by_map: renaming columns: {applied}")
+
+        return df.rename(columns=applied)
+
+    # -----------------------------------------------------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Allgemeine Hilfsfunktionen
+    # -----------------------------------------------------------------------------------------------------------------
+
+    def _abort_windows_passkey(self, tries: int = 10, timeout: int = 10) -> bool:
+        """
+        Versucht, einen nativen Windows-Passkey/Hello/WebAuthn-Dialog zu schließen.
+        Priorität: pywinauto -> ctypes SendInput -> pyautogui/keyboard -> ESC an Browser.
+        Gibt True zurück, wenn mind. ein Abbruchversuch gesendet wurde.
+        """
+        def _press_esc_via_ctypes() -> bool:
+            if sys.platform != "win32":
+                return False
+            try:
+                import ctypes
+                from ctypes import wintypes
+                PUL = ctypes.POINTER(ctypes.c_ulong)
+                class KEYBDINPUT(ctypes.Structure):
+                    _fields_ = [("wVk", wintypes.WORD), ("wScan", wintypes.WORD),
+                                ("dwFlags", wintypes.DWORD), ("time", wintypes.DWORD),
+                                ("dwExtraInfo", PUL)]
+                class INPUT(ctypes.Structure):
+                    _fields_ = [("type", wintypes.DWORD), ("ki", KEYBDINPUT), ("padding", wintypes.BYTE * 8)]
+                SendInput = ctypes.windll.user32.SendInput
+                INPUT_KEYBOARD = 1; KEYEVENTF_KEYUP = 0x0002; VK_ESCAPE = 0x1B
+                def _key(vk, flags=0):
+                    return INPUT(type=INPUT_KEYBOARD,
+                                 ki=KEYBDINPUT(wVk=vk, wScan=0, dwFlags=flags, time=0, dwExtraInfo=None))
+                arr = (INPUT * 2)(_key(VK_ESCAPE, 0), _key(VK_ESCAPE, KEYEVENTF_KEYUP))
+                return SendInput(2, ctypes.byref(arr), ctypes.sizeof(INPUT)) == 2
+            except Exception as e:
+                return False
+
+        def _get_active_window_info() -> tuple[int|None, str, str]:
+            """
+            Returns (hwnd, title, class_name) of the foreground window.
+            On non-Windows returns (None, "", "").
+            """
+            if sys.platform != "win32":
+                return None, "", ""
+            import ctypes
+            user32 = ctypes.windll.user32
+            kernel32 = ctypes.windll.kernel32
+            hwnd = user32.GetForegroundWindow()
+            if not hwnd:
+                return None, "", ""
+            # title
+            length = user32.GetWindowTextLengthW(hwnd)
+            buf = ctypes.create_unicode_buffer(length + 1)
+            user32.GetWindowTextW(hwnd, buf, length + 1)
+            # class
+            cls_buf = ctypes.create_unicode_buffer(256)
+            user32.GetClassNameW(hwnd, cls_buf, 256)
+            return hwnd, buf.value or "", cls_buf.value or ""
+
+        def _is_windows_security_active() -> bool:
+            """
+            Heuristic: detects Windows Security / Hello / Security Key dialogs
+            by foreground window title.
+            """
+            _, title, cls = _get_active_window_info()
+            needles = (
+                "Windows-Sicherheit", "Windows Sicherheit", "Windows Security",
+                "Windows Hello", "Sicherheitsschlüssel", "Security Key"
+            )
+            title_l = title.lower()
+            if any(n.lower() in title_l for n in needles):
+                return True
+            return False
+
+        # ------- Hauptlogik -------
+        time.sleep(1)  # kurz warten, bis Dialog da ist
+        window_was_active = False
+        sleep = timeout / max(tries, 1)
+        if sys.platform == "win32":
+            for attempt in range(tries):
+                # prüfe ob Dialog ("Windows-Sicherheit" o.ä.) im Vordergrund ist
+                if _is_windows_security_active():
+                    window_was_active = True
+                    self._logger.debug(f"Passkey-Abbruchversuch {attempt + 1}/{tries} (Windows)...")
+
+                    # Variante A: ctypes SendInput
+                    if _press_esc_via_ctypes():
+                        self._logger.debug("Passkey-Abbruch via ctypes SendInput gesendet.")
+                        time.sleep(1)
+                elif window_was_active:
+                    break
+                time.sleep(sleep)
+            else:
+                self._logger.debug("Passkey-Abbruchversuche (Windows) erschöpft.")
+                return False
+            return True if window_was_active else False
+        if sys.platform in ("linux", "darwin"):
+            self._logger.warning("Passkey-Abbruch unter Linux/macOS nicht implementiert.")
+            return True
+        return False
+
+    def _log_error_with_debug_msg(self, msg: str | None = None) -> None:
+        """
+        Loggt eine Debug-Nachricht mit Funktionsname, Dateiname und Zeilennummer
+        der aufrufenden Stelle (nicht der Logger-Funktion selbst).
+
+        Args:
+            msg: Zusätzliche Nachricht, die geloggt werden soll. (Optional)
+
+        Returns:
+            None
+        """
+        frame = None
+        caller = None
+        if msg is None:
+            msg = "Fehler"
+        try:
+            frame = inspect.currentframe()
+            caller = frame.f_back if frame is not None else None
+            if caller is not None:
+                func_name = getattr(caller.f_code, "co_name", "<unknown>")
+                file = getattr(caller.f_code, "co_filename", "<unknown>")
+                lineno = getattr(caller, "f_lineno", 0)
+                # line = linecache.getline(file, lineno).strip() if file and lineno else ""
+            else:
+                func_name, file, lineno, line = "<unknown>", "<unknown>", 0, ""
+            self._logger.debug(f"{msg} - in {func_name} at {file}:{lineno})")
+        except Exception:
+            try:
+                self._logger.debug(f"{msg} - beim Ermitteln der Debug-Info)")
+            except Exception:
+                pass
+        finally:
+            # Vermeide Reference-Cycles
+            try:
+                del frame
+                del caller
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

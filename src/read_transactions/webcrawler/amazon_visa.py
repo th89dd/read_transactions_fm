@@ -389,9 +389,28 @@ class AmazonVisaCrawler(WebCrawler):
     # ------------------------------------------------------------------
     # Verarbeitung
     # ------------------------------------------------------------------
-    def process_data(self) -> None:
+    def process_data(self, *args, **kwargs) -> None:
         """Verarbeitet heruntergeladene XLS-Daten."""
-        def _change_amazon_usage(df) -> pd.DataFrame:
+
+        super().process_data(sep=',', *args, **kwargs)  # process der basis klasse aufrufen (log + read files + preprocess)
+
+        # daten nach dem preprocessing normalisieren
+        self.data = self._normalize_dataframe(self.data)
+        # daten nach datum sortieren
+        self.data.sort_values(by="Datum", ascending=False, inplace=True)
+        self._logger.info(f"{len(self.data)} Transaktionen verarbeitet.")
+        try:
+            if self.with_details:
+                self._logger.info("Starte Abruf detaillierter Umsatzinformationen...")
+                self._fetch_transaction_details(key_columns=["Betrag", "Datum"])
+                self._logger.info("Detaillierte Umsatzinformationen abgerufen.")
+
+        except Exception:
+            self._logger.error("Fehler bei der Datenverarbeitung", exc_info=True)
+
+    def preprocess_data(self,key: str, df: pd.DataFrame) -> pd.DataFrame:
+        """Überschreibt die Clean-Funktion der Basis-Klasse."""
+        def _change_amazon_usage(df: pd.DataFrame) -> pd.DataFrame:
             """
             Falls Amazon | AMZN Mktp | AMAZON im Empfänger steht - Empfänger auf "Amazon.de" setzen
             und Rest in Beschreibung übernehmen.
@@ -417,47 +436,14 @@ class AmazonVisaCrawler(WebCrawler):
             df.loc[mask_amzn, "Empfänger"] = "Amazon.de"
             return df
 
-        def _clean_df(df: pd.DataFrame) -> pd.DataFrame:
-            """Bereinigt ein einzelnes DataFrame."""
-            # header entfernen
-            df = self._delete_header(df, header_key='Datum')
-
-            # Spalten bereinigen
-            df.drop(["Umsatzkategorie", "Unterkategorie"], axis=1, inplace=True, errors='ignore')
-            df.rename(columns={'Beschreibung': 'Empfänger'}, inplace=True)
-            # Datenbereinigung
-            df = _change_amazon_usage(df)
-            df = self._normalize_dataframe(df)
-            return df
-
-        super().process_data(sep=',')
-        merged_df = pd.DataFrame()
-
-        try:
-            if isinstance(self.data, dict):
-                for key, df in self.data.items():
-                    merged_df = pd.merge(
-                        left=merged_df,
-                        right=_clean_df(df), how='outer'
-                    ) if not merged_df.empty else _clean_df(df)
-                self.data = merged_df
-            else:
-                self.data = _clean_df(self.data)
-
-            if len(self.data) == 0:
-                self._logger.warning("Keine Transaktionen zum Verarbeiten gefunden.")
-                return
-            # daten nach datum sortieren
-            self.data.sort_values(by="Datum", ascending=False, inplace=True)
-            self._logger.info(f"{len(self.data)} Transaktionen verarbeitet.")
-
-            if self.with_details:
-                self._logger.info("Starte Abruf detaillierter Umsatzinformationen...")
-                self._fetch_transaction_details(key_columns=["Betrag", "Datum"])
-                self._logger.info("Detaillierte Umsatzinformationen abgerufen.")
-
-        except Exception:
-            self._logger.error("Fehler bei der Datenverarbeitung", exc_info=True)
+        df = super().preprocess_data(key, df)  # Basis-Cleaning
+        # Spalten bereinigen
+        df.drop(["Umsatzkategorie", "Unterkategorie"], axis=1, inplace=True, errors='ignore')
+        df.rename(columns={'Beschreibung': 'Empfänger'}, inplace=True)
+        # Datenbereinigung
+        df = _change_amazon_usage(df)
+        df = self._normalize_dataframe(df)
+        return df
 
     # ------------------------------------------------------------------
     # Hilfsfunktionen

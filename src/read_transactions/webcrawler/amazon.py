@@ -188,98 +188,6 @@ class AmazonCrawler(WebCrawler):
             raise RuntimeError("Weiter-Button nach E-Mail nicht gefunden.")
         self._logger.debug("Benutzername erfolgreich eingetragen.")
 
-    def _abort_windows_passkey(self, tries: int = 10, timeout: int = 10) -> bool:
-        """
-        Versucht, einen nativen Windows-Passkey/Hello/WebAuthn-Dialog zu schließen.
-        Priorität: pywinauto -> ctypes SendInput -> pyautogui/keyboard -> ESC an Browser.
-        Gibt True zurück, wenn mind. ein Abbruchversuch gesendet wurde.
-        """
-        def _press_esc_via_ctypes() -> bool:
-            if sys.platform != "win32":
-                return False
-            try:
-                import ctypes
-                from ctypes import wintypes
-                PUL = ctypes.POINTER(ctypes.c_ulong)
-                class KEYBDINPUT(ctypes.Structure):
-                    _fields_ = [("wVk", wintypes.WORD), ("wScan", wintypes.WORD),
-                                ("dwFlags", wintypes.DWORD), ("time", wintypes.DWORD),
-                                ("dwExtraInfo", PUL)]
-                class INPUT(ctypes.Structure):
-                    _fields_ = [("type", wintypes.DWORD), ("ki", KEYBDINPUT), ("padding", wintypes.BYTE * 8)]
-                SendInput = ctypes.windll.user32.SendInput
-                INPUT_KEYBOARD = 1; KEYEVENTF_KEYUP = 0x0002; VK_ESCAPE = 0x1B
-                def _key(vk, flags=0):
-                    return INPUT(type=INPUT_KEYBOARD,
-                                 ki=KEYBDINPUT(wVk=vk, wScan=0, dwFlags=flags, time=0, dwExtraInfo=None))
-                arr = (INPUT * 2)(_key(VK_ESCAPE, 0), _key(VK_ESCAPE, KEYEVENTF_KEYUP))
-                return SendInput(2, ctypes.byref(arr), ctypes.sizeof(INPUT)) == 2
-            except Exception:
-                return False
-
-        def _get_active_window_info() -> tuple[int|None, str, str]:
-            """
-            Returns (hwnd, title, class_name) of the foreground window.
-            On non-Windows returns (None, "", "").
-            """
-            if sys.platform != "win32":
-                return None, "", ""
-            import ctypes
-            user32 = ctypes.windll.user32
-            kernel32 = ctypes.windll.kernel32
-            hwnd = user32.GetForegroundWindow()
-            if not hwnd:
-                return None, "", ""
-            # title
-            length = user32.GetWindowTextLengthW(hwnd)
-            buf = ctypes.create_unicode_buffer(length + 1)
-            user32.GetWindowTextW(hwnd, buf, length + 1)
-            # class
-            cls_buf = ctypes.create_unicode_buffer(256)
-            user32.GetClassNameW(hwnd, cls_buf, 256)
-            return hwnd, buf.value or "", cls_buf.value or ""
-
-        def _is_windows_security_active() -> bool:
-            """
-            Heuristic: detects Windows Security / Hello / Security Key dialogs
-            by foreground window title.
-            """
-            _, title, cls = _get_active_window_info()
-            needles = (
-                "Windows-Sicherheit", "Windows Sicherheit", "Windows Security",
-                "Windows Hello", "Sicherheitsschlüssel", "Security Key"
-            )
-            title_l = title.lower()
-            if any(n.lower() in title_l for n in needles):
-                return True
-        # def _close_passkey_window():
-        #     """Versucht, das Passkey-Fenster via ESC zu schließen."""
-        time.sleep(1)  # kurz warten, bis Dialog da ist
-        window_was_active = False
-        sleep = timeout / max(tries, 1)
-        if sys.platform == "win32":
-            for attempt in range(tries):
-                # prüfe ob Dialog ("Windows-Sicherheit" o.ä.) im Vordergrund ist
-                if _is_windows_security_active():
-                    window_was_active = True
-                    self._logger.debug(f"Passkey-Abbruchversuch {attempt + 1}/{tries} (Windows)...")
-
-                    # Variante A: ctypes SendInput
-                    if _press_esc_via_ctypes():
-                        self._logger.debug("Passkey-Abbruch via ctypes SendInput gesendet.")
-                        time.sleep(1)
-                elif window_was_active:
-                    break
-                time.sleep(sleep)
-            else:
-                self._logger.debug("Passkey-Abbruchversuche (Windows) erschöpft.")
-                return False
-            return True if window_was_active else False
-        if sys.platform in ("linux", "darwin"):
-            self._logger.warning("Passkey-Abbruch unter Linux/macOS nicht implementiert.")
-            return True
-        return False
-
     def _fill_password_and_submit(self, password: str) -> None:
         """Füllt das Passwortfeld und sendet das Formular ab."""
         pw = self.wait_for_element("id", "ap_password", timeout=10)
@@ -448,13 +356,8 @@ class AmazonCrawler(WebCrawler):
         df = pd.DataFrame(all_rows)
         self.data = df
 
-    def process_data(self) -> None:
-        # super().process_data()
-        self._state = "process_data"
-
-        if not isinstance(self.data, pd.DataFrame) or self.data.empty:
-            self._logger.warning("Keine Daten zum Verarbeiten vorhanden.")
-            return
+    def process_data(self, *args, **kwargs) -> None:
+        super().process_data(read_temp_files=False, *args, **kwargs)
 
         self.data = self._normalize_dataframe(self.data, remove_nan=True)
         self.data['Betrag'] = self.data['Betrag']*-1  # Amazon-Bestellungen sind Ausgaben

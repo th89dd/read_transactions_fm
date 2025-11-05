@@ -61,9 +61,16 @@ class ConfigManager:
 
 
     @classmethod
-    def load(cls) -> Dict[str, Any]:
-        """Lädt und cached die YAML-Konfiguration."""
-        if cls._config_cache is not None:
+    def load(cls, ignore_cache: bool = False) -> Dict[str, Any]:
+        """Lädt und cached die YAML-Konfiguration.
+
+        Args:
+            ignore_cache (bool): Wenn True, wird der Cache ignoriert und die Datei neu geladen.
+
+        Returns:
+            Dict[str, Any]: Geladene Konfigurationsdaten.
+        """
+        if (cls._config_cache is not None) and (not ignore_cache):
             cls._logger.debug("Lade Konfiguration aus Cache")
             return cls._config_cache
 
@@ -341,6 +348,7 @@ class ConfigManager:
                 amazon_visa: True       # Amazon Visa by Zinia
                 amazon: False           # Amazon.de Order History
                 ariva: True             # Ariva historical stock prices
+                paypal: True            # Paypal
             
             credentials:
             # Credentials for various services (amex, amazon_visa, ariva)
@@ -367,7 +375,12 @@ class ConfigManager:
                 amazon:
                 # Amazon.de login credentials - um Bestelldaten zu laden
                     user: max_mustermann
-                    password: geheim123                               
+                    password: geheim123
+                
+                paypal:
+                # Paypal.com login credetials
+                    user: max_mustermann                               
+                    password: geheim123
     
             urls:
             # URL endpoints for various services
@@ -390,6 +403,11 @@ class ConfigManager:
                 # Amazon.de URLs
                     login: https://www.amazon.de/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.de%2F%3Fref_%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=deflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
                     transactions: https://www.amazon.de/gp/css/order-history?ref_=nav_AccountFlyout_orders
+                
+                paypal:
+                # Paypal.com URLs
+                    login: https://www.paypal.com/myaccount/summary
+                    transactions: https://www.paypal.com/reports/dlog
                 
                 ariva:
                 # Ariva URLs

@@ -146,31 +146,17 @@ class AmexCrawler(WebCrawler):
     # ------------------------------------------------------------------
     # Verarbeitung
     # ------------------------------------------------------------------
-    def process_data(self) -> None:
+    def process_data(self, *arg, **kwargs) -> None:
         """Führt die geladenen CSV-Dateien zusammen und harmonisiert die Spalten."""
-        super().process_data()
-        merged = pd.DataFrame()
+        super().process_data(*args, **kwargs)
         try:
-            if isinstance(self.data, dict):
-                # wird idR nicht passieren, da nur eine Datei heruntergeladen wird
-                for _, df in self.data.items():
-                    merged = pd.concat([merged, df.copy()], ignore_index=True)
-            else:
-                merged = self.data.copy()
-
-            if merged.empty:
-                self._logger.warning("Keine Daten nach dem Download gefunden.")
-                self.data = merged
-                return
-
-            merged = self._delete_header(merged)
+            merged = self.data
             merged = self._normalize_dataframe(merged)
             merged["Betrag"] = merged["Betrag"] * -1  # Amex zeigt Ausgaben als positiv an
             self.data = merged
             self._logger.info(f"{len(self.data)} Amex-Transaktionen verarbeitet.")
         except Exception:
             self._logger.error("Fehler beim Zusammenführen/Transformieren der Amex-Daten.", exc_info=True)
-            self.data = merged
 
     # ------------------------------------------------------------------
     # Private Helper-Methoden (Login, Download, Verarbeitung)

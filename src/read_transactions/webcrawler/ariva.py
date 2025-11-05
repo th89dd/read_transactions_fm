@@ -302,65 +302,30 @@ class ArivaCrawler(WebCrawler):
     # ----------------------------------------------------------
     # Verarbeitung
     # ----------------------------------------------------------
-    def process_data(self) -> None:
+    def process_data(self, *args, **kwargs) -> None:
         """
-        Führt alle eingelesenen CSV-Dateien zu einem einheitlichen DataFrame zusammen.
-
-        Für jede Datei:
-          - Daten vorverarbeiten (Datumsformat, Zahlenkonvertierung)
-          - WKN aus dem Dateinamen extrahieren
-        Anschließend werden alle Daten zusammengeführt und in self.data gespeichert.
+        Verarbeitet und bereinigt die heruntergeladenen Kursdaten.
         """
+        super().process_data(*args, **kwargs)
+        self._logger.info(f"Verarbeitung abgeschlossen – {len(self.data)} Zeilen zusammengeführt.")
 
-        # ----------------------------------------------------------
-        # processing helper
-        # ----------------------------------------------------------
-        def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
-            """
-            Bereinigt und konvertiert Datenspalten:
-              - Datum in '%d.%m.%Y'-Format
-              - numerische Spalten (Hoch, Tief, Schlusskurs) in float
+    def preprocess_data(self, key: str, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Überschreibt die Basismethode, um benutzerdefinierte Vorverarbeitung zu ermöglichen.
 
-            Args:
-                df (pandas.DataFrame): Eingabedaten
-
-            Returns:
-                pandas.DataFrame: Bereinigte und formatierte Daten
-            """
-            df = df.copy()
-            # Spaltennamen vereinheitlichen
-            df.columns = [c.strip() for c in df.columns]
-
-            # Datumskonvertierung
-            date_col = next((c for c in df.columns if "Datum" in c or "date" in c.lower()), None)
-            if date_col:
-                try:
-                    df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
-                    df[date_col] = df[date_col].dt.strftime("%d.%m.%Y")
-                except Exception:
-                    raise ValueError(f"Fehler bei der Datumsumwandlung in Spalte '{date_col}'")
-
-            # Numerische Spalten bereinigen
-            num_cols = [c for c in df.columns if any(k in c for k in ["Hoch", "Tief", "Schluss"])]
-            for c in num_cols:
-                try:
-                    df[c] = df[c].astype(str).str.replace(",", ".").astype(float)
-                except Exception:
-                    raise ValueError(f"Fehler bei der Zahlenkonvertierung in Spalte '{c}'")
-
-            # Ausgabe sortieren und Spaltenreihenfolge festlegen
-            cols = [col for col in ["Datum", "Schlusskurs", "Hoch", "Tief"] if col in df.columns]
-            return df[cols]
-
+        Args:
+            key (str): Schlüssel der Datenquelle (Dateiname).
+            df (pandas.DataFrame): Eingabedaten.
+        Returns:
+            pandas.DataFrame: Vorverarbeitete Daten.
+        """
         def extract_wkn(filename: str) -> str:
             """
             Extrahiert die WKN (Wertpapierkennnummer) aus dem Dateinamen.
-
             Erwartetes Format: <prefix>_<WKN>_...
 
             Args:
                 filename (str): Name der Datei
-
             Returns:
                 str: erkannte WKN oder 'UNKNOWN'
             """
@@ -372,36 +337,24 @@ class ArivaCrawler(WebCrawler):
                 return "UNKNOWN"
             except Exception:
                 return "UNKNOWN"
+        # df = super().preprocess_data(key, df)  # Aufruf der Basismethode -> header entfernen
+        df.columns = [c.strip() for c in df.columns]    # Spaltennamen bereinigen
+        # Datumskonvertierung
+        df = self._normalize_date_in_dataframe(df, "Datum", dayfirst=False)
 
-        super().process_data()
+        # Betragskonvertierung
+        num_cols = ["Hoch", "Tief", "Schlusskurs"]
+        for c in num_cols:
+            df = self._normalize_amount_in_dataframe(df, c)
 
-        if not isinstance(self.data, dict) or not self.data:
-            self._logger.warning("Keine Daten zum Verarbeiten gefunden (self.data leer oder kein dict).")
-            return
+        # Ausgabe sortieren und Spaltenreihenfolge festlegen
+        cols = ["Datum", "Schlusskurs", "Hoch", "Tief"]
+        df = self._filter_columns_by_names(df, cols)
 
-        merged_df = pd.DataFrame()
+        # WKN aus Key hinzugfügen
+        df['WKN'] = extract_wkn(key)
 
-        for idx, (filename, df) in enumerate(self.data.items(), start=1):
-            try:
-                self._logger.debug(f"({idx}/{len(self.data)}) Verarbeite Datei: {filename}")
-
-                processed = preprocess_data(df)
-                processed["WKN"] = extract_wkn(filename)
-
-                merged_df = pd.concat([merged_df, processed], ignore_index=True)
-
-            except Exception as e:
-                self._logger.error(f"Fehler beim Verarbeiten von {filename}: {e}", exc_info=True)
-                continue
-
-        if merged_df.empty:
-            self._logger.warning("Kein gültiger Datensatz nach Verarbeitung erstellt.")
-            return
-
-        self.data = merged_df
-        self._logger.info(f"Verarbeitung abgeschlossen – {len(merged_df)} Zeilen zusammengeführt.")
-
-
+        return df
     # ----------------------------------------------------------
     # Banner-Handhabung
     # ----------------------------------------------------------
@@ -462,12 +415,40 @@ class ArivaCrawler(WebCrawler):
 
 if __name__ == "__main__":
     print("Starte ArivaCrawler im Debug-Modus...")
-    # with ArivaCrawler(logging_level="DEBUG") as crawler:
-    #     crawler.login()
-    #     crawler.download_data()
-    #     crawler.process_data()
-    #     crawler.save_data()
-    # crawler = ArivaCrawler(logging_level='DEBUG')
+    output_path = '../../../out'
+    end = "01.01.2025"
+    with ArivaCrawler(logging_level="DEBUG", output_path=output_path, end_date=end) as crawler:
+        crawler.login()
+        crawler.download_data()
+        crawler.process_data()
+        crawler.save_data()
+
+
+    # crawler = ArivaCrawler(logging_level='DEBUG', output_path=output_path)
     # crawler.login()
     # crawler.download_data()
+    # crawler.process_data()
+    # crawler.save_data()
     # crawler.close()
+
+    # self = crawler
+    # data = self.data.copy()
+    # self._read_temp_files()
+    # key, df = list(self.data.items())[0]
+    # df = df.copy()
+    # df2 = self._normalize_date_in_dataframe(df.copy(), "Datum", dayfirst=False)
+    # eq = df.eq(df2) | (df.isna() & df2.isna())
+    # mask = ~eq
+    #
+    # left = df[mask].stack()
+    # right = df2[mask].stack()
+    # diffs = pd.concat([left, right], axis=1)
+    # diffs.columns = ["left", "right"]
+    # print(diffs)
+    #
+    # df2 = df.copy()
+    # df2['Datum'] = pd.to_datetime(df2['Datum'], errors="coerce", dayfirst=False)
+    # before_drop = len(df2)
+    # df2 = df2[(df2["Datum"] <= self.start_date+pd.DateOffset(days=0))]
+    # dropped = before_drop - len(df2)
+    # print(f"Dropped rows: {dropped}")

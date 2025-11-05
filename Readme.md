@@ -1,7 +1,7 @@
 <!-- docs:summary-start -->
-![version](https://img.shields.io/badge/version-2.1.1-blue.svg)
-![date](https://img.shields.io/badge/date-2025--10--30-green.svg)
-![status](https://img.shields.io/badge/status-dev-yellow.svg)
+![version](https://img.shields.io/badge/version-2.2.0-blue.svg)
+![date](https://img.shields.io/badge/date-2025--11--05-green.svg)
+![status](https://img.shields.io/badge/status-beta-yellow.svg)
 ![python](https://img.shields.io/badge/python-3.12-blue.svg)
 
 
@@ -387,12 +387,16 @@ das Icon ist in der svg datei unter [assets/icon.svg]('assets/icon.svg') gespeic
 ## Versionshistorie
 | Version | Datum      | Beschreibung                          |
 |---------|------------|---------------------------------------|
-| 2.1.1   | 2025-10-27 | bugfixes (amazon_visa)                |
+| 2.2.0   | 2025-11-05 | add paypal crawler - beta             |
+| 2.1.1   | 2025-10-27 | bugfixes (amazon_visa) - stable       |
 | 2.1.0   | 2025-10-26 | add amazon.de crawler                 |
 | 2.0.0   | 2025-10-25 | Major Release mit neuem CLI-Interface |
 | 1.0.0   | 2024       | Initiale Veröffentlichung             |   
 
-
+### version 2.2.0 (2025-11-05)
+- Neuer Crawler: paypal - für PayPal Umsätze
+- Vereinheitlichungen der process Methoden in allen Crawlern
+- spezifisches Datenhandling in preprocess Methode umgesetzt
 
 ### version 2.1.1 (2025-10-27)
 - amazon_visa wird jetzt in Intervallen runtergeladen, da die xls scheinbar nur 100-110 Einträge pro Datei zulässt
