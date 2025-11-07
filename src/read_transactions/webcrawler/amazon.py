@@ -448,6 +448,12 @@ class AmazonCrawler(WebCrawler):
             r"Lieferdatum[^\dA-Za-zÄÖÜäöü]*(\d{1,2}\.\s*[A-Za-zÄÖÜäöü]+(?:\s+\d{4})?)",
             r"(?:Zugestellt|Geliefert|Lieferung am)[^\d]*(\d{1,2}\.\d{1,2}\.\d{4})",
         ]
+        _PICKED_DATE_PATTERNS = [
+            # Abgeholt am 6. August (year optional)
+            r"Abgeholt:\s*([0-9]{1,2}\.\s*[A-Za-zÄÖÜäöü]+(?:\s+\d{4})?)",
+            r"Abgeholt am\s*([0-9]{1,2}\.\s*[A-Za-zÄÖÜäöü]+(?:\s+\d{4})?)",
+        ]
+
 
 
         def _extract_amount(text: str) -> Optional[str]:
@@ -485,6 +491,16 @@ class AmazonCrawler(WebCrawler):
                         if re.search(r"[A-Za-zÄÖÜäöü]", raw) else raw
             return None
 
+        def _extract_picked_date(text: str, default_year: int | None = None) -> str | None:
+            """Extrahiert das Abholdatum aus dem Text."""
+            for pat in _PICKED_DATE_PATTERNS:
+                m = re.search(pat, text, flags=re.IGNORECASE)
+                if m:
+                    raw = m.group(1).strip()
+                    return self._coerce_date_string_de(raw, default_year=default_year) \
+                        if re.search(r"[A-Za-zÄÖÜäöü]", raw) else raw
+            return None
+
         def _extract_shipping_address_from_text(text: str) -> str:
             """Extrahiert die Versandadresse aus dem Text."""
             # capture block between VERSANDADRESSE and the next heading / blank / BESTELLNR.
@@ -508,13 +524,15 @@ class AmazonCrawler(WebCrawler):
             heading_uc= re.compile(r"^[A-ZÄÖÜ\s\.]{4,}$")                                            # GROB: reine Großbuchstaben-Überschriften
             ignore_prefix = (
                 "BESTELLUNG AUFGEGEBEN", "SUMME", "BESTELLNR.", "Bestelldetails anzeigen",
-                "Rechnung", "Zugestellt:", "Die Sendung", "Artikel zurück", "Artikel zurücksenden",
+                "Rechnung", "Zugestellt:", "Abgeholt:", "Abgeholt am",
+                "Die Sendung", "Artikel zurück", "Artikel zurücksenden",
                 "Nochmals kaufen", "Deinen Artikel anzeigen", "Produktsupport erhalten",
                 "Lieferung verfolgen", "Geschenkbestätigung teilen", "Verkäufer-Feedback abgeben",
                 "Schreib eine Produktrezension", "Zeitraum für Rückgabe", 'Eine Frage',
                 "Automatisch geliefert", "Dein Spar-Abo", "Bestellung bearbeiten",
                 "Rücksendung", "Deine Rücksendung", "Wann erhalte ich meine Gutschrift", 'Lieferdatum',
-                'Ersatz bestellt', 'Ihr Ersatz wurde bestellt', 'Problem bei', 'Paket wurde'
+                'Ersatz bestellt', 'Ihr Ersatz wurde bestellt', 'Problem bei', 'Paket wurde',
+                'Das Paket wurde'
             )
 
             items: list[str] = []
@@ -562,6 +580,7 @@ class AmazonCrawler(WebCrawler):
                 betrag = _extract_amount(text)
                 bestellnr = _extract_order_number(text)
                 lieferdatum = _extract_delivery_date(text, default_year=order_year)
+                abholdatum = _extract_picked_date(text, default_year=order_year)
                 lieferadresse = _extract_shipping_address_from_text(text)
                 verwendungszweck = _extract_items_from_text(text, max_items=max_items, max_item_chars=max_item_chars)
 
@@ -570,9 +589,10 @@ class AmazonCrawler(WebCrawler):
                     "Betrag": betrag or "",
                     "Verwendungszweck": verwendungszweck,
                     "Lieferdatum": lieferdatum or "",
+                    "Abholdatum": abholdatum or "",
                     "Bestellnr": bestellnr or "",
                     "Versandadresse": lieferadresse,
-                    "Quelle": "txt_parser",
+                    # "Quelle": "txt_parser",
                 })
                 if reached_end_date:
                     break
